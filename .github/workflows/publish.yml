@@ -46,7 +46,7 @@ jobs:
           /tmp/wheel-venv/bin/python -W error -m core.license_audit
 
       - name: Upload dist artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vieforge-dist
           path: dist/*
