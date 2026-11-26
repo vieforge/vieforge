@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2026-11-27
+
+### Fixed
+- **Tier 3 VRAM Profiler Crash (`core/vram_manager.py`):** Accepted `job_id=` alongside backwards-compatible `episode_id=` in `vram_phase_profiler()`, fixing `TypeError` when running `run_isolated(..., profile_vram=True)` and full `examples/02_hybrid_media_pipeline/run_skeleton.py`.
+- **Eliminated 2–5s Inter-Stage Flush Stall (`core/vram_manager.py`):** Only probe ComfyUI `/free` when `COMFYUI_BASE_URL` or explicit `base_url` is set.
+- **Portable Windows Bridge Launcher & Wheel Bundling (`scripts/start_tierforge_bridge.bat`, `scripts/cli.py`, `pyproject.toml`):** Replaced hardcoded path with `%~dp0..`, added `vieforge bridge <serve|status|token|send|path>`, and bundled `extensions/tierforge-bridge/` inside the wheel.
+- **MV3 Extension Reliability & Security (`extensions/tierforge-bridge/`, `core/extension_bridge.py`):** Added `chrome.runtime.onStartup` alarm recovery, 12s SPA input wait + native `execCommand("insertText")` editor input, immediate `LOGIN_OR_CAPTCHA_REQUIRED` halt, XSS-safe DOM popup logs, port-19876 warning, and default `redact_secrets=True` on `ExtensionBridgeClient.dispatch_prompt()`.
+
 ## [0.4.0] - 2026-11-26
 
 ### Added
