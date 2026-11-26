@@ -346,7 +346,11 @@
           </div>
           <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
             <span data-i18n="calcSupportNote">100% MIT &amp; free forever. Saved you API budget?</span>
-            <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;white-space:nowrap;" data-i18n="calcSupportCta">Buy a coffee on Ko-fi ☕</a>
+            <span style="display:inline-flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;white-space:nowrap;" data-i18n="calcSupportCta">Buy a coffee on Ko-fi ☕</a>
+              <span style="opacity:0.4;">·</span>
+              <button type="button" class="open-qr-btn" style="background:none;border:none;padding:0;color:var(--accent-2);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;">VietQR (VN)</button>
+            </span>
           </div>
         </div>
       </div>
@@ -458,11 +462,25 @@
       <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
         <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener">GitHub</a>
         <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" data-i18n="footSupport">Support ☕</a>
+        <button type="button" class="open-qr-btn" style="background:none;border:none;padding:0;color:inherit;font-size:inherit;cursor:pointer;font-family:inherit;">VietQR (VN)</button>
         <a href="mailto:hello@vieforge.dev">hello@vieforge.dev</a>
         <a href="mailto:security@vieforge.dev">security@vieforge.dev</a>
       </div>
     </div>
   </footer>
+
+  <div id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(2,6,23,0.78);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:360px;width:100%;padding:22px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.55);position:relative;">
+      <button type="button" id="closeQrBtn" aria-label="Close" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;">&times;</button>
+      <h3 id="qrTitle" style="margin:0 0 6px;font-size:18px;" data-i18n="qrTitle">Support VieForge via VietQR</h3>
+      <p style="margin:0 0 14px;font-size:13px;color:var(--muted);" data-i18n="qrSub">Scan with any Vietnamese banking app (VPBank • 0% fee). Thank you for supporting MIT open-source!</p>
+      <img src="assets/vietqr.png" alt="VietQR VPBank NGUYEN THANH HOANG 374331566" style="width:100%;max-width:260px;border-radius:14px;display:block;margin:0 auto 14px;background:#fff;" />
+      <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
+        <button type="button" id="copyAcctBtn" class="btn btn-ghost" style="padding:7px 14px;font-size:12.5px;" data-i18n="qrCopy">Copy Account: 374331566</button>
+        <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" class="btn btn-primary" style="padding:7px 14px;font-size:12.5px;">Ko-fi (Global) ☕</a>
+      </div>
+    </div>
+  </div>
 
   <script>
     const I18N = {
@@ -546,6 +564,10 @@
         calcSupportNote: "100% MIT & free forever. Saved you API budget?",
         calcSupportCta: "Buy a coffee on Ko-fi ☕",
         footSupport: "Support ☕",
+        qrTitle: "Support VieForge via VietQR",
+        qrSub: "Scan with any Vietnamese banking app (VPBank • 0% fee). Thank you for supporting MIT open-source!",
+        qrCopy: "Copy Account: 374331566",
+        qrCopied: "Copied: 374331566",
         footTag: "MIT Licensed Core • Crafted in Vietnam"
       },
       vi: {
@@ -628,6 +650,10 @@
         calcSupportNote: "Miễn phí vĩnh viễn (MIT). Giúp bạn tiết kiệm tiền API?",
         calcSupportCta: "Mời ly cà phê trên Ko-fi ☕",
         footSupport: "Ủng hộ ☕",
+        qrTitle: "Mời VieForge ly cà phê qua VietQR",
+        qrSub: "Quét bằng mọi ứng dụng ngân hàng VN (VPBank • 0% phí). Cảm ơn bạn đã tiếp sức cho mã nguồn mở MIT!",
+        qrCopy: "Sao chép STK: 374331566",
+        qrCopied: "Đã chép: 374331566",
         footTag: "Lõi bản quyền MIT • Phát triển tại Việt Nam"
       }
     };
@@ -689,6 +715,21 @@
         const btn = document.getElementById("copyBtn");
         btn.textContent = I18N[lang].copied;
         setTimeout(() => { btn.textContent = I18N[lang].copyBtn; }, 1600);
+      } catch (_) {}
+    });
+    const qrModal = document.getElementById("qrModal");
+    const openQr = () => { qrModal.style.display = "flex"; };
+    const closeQr = () => { qrModal.style.display = "none"; };
+    document.querySelectorAll(".open-qr-btn").forEach((b) => b.addEventListener("click", openQr));
+    document.getElementById("closeQrBtn").addEventListener("click", closeQr);
+    qrModal.addEventListener("click", (e) => { if (e.target === qrModal) closeQr(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeQr(); });
+    document.getElementById("copyAcctBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText("374331566");
+        const btn = document.getElementById("copyAcctBtn");
+        btn.textContent = I18N[lang].qrCopied;
+        setTimeout(() => { btn.textContent = I18N[lang].qrCopy; }, 1600);
       } catch (_) {}
     });
     renderLang();
