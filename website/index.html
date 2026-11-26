@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VieForge — 3-Tier Hybrid AI Agent Harness</title>
+  <meta name="description" content="Code First, Local LLM Second, Cloud Last. Cut Cloud AI Agent token burn and API spend by 70–90% with SQLite checkpoints, Ollama VRAM leases, and MCP tools." />
+  <meta property="og:title" content="VieForge — 3-Tier Hybrid AI Agent Harness" />
+  <meta property="og:description" content="Turn any consumer workstation into a checkpointed, budget-guarded local AI worker. 100% Python stdlib, MIT clean-room." />
+  <meta property="og:url" content="https://vieforge.dev" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <style>
+    :root {
+      --bg: #070b14;
+      --surface: #0f172a;
+      --surface-2: #162033;
+      --border: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --gold: #facc15;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top center, #0f1d36 0%, var(--bg) 52%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(7, 11, 20, 0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px; gap: 16px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px;
+      border: 1px solid var(--border); cursor: pointer; transition: 0.15s ease;
+    }
+    .btn-primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: 0; }
+    .btn-primary:hover { filter: brightness(1.1); text-decoration: none; }
+    .btn-ghost { background: var(--surface); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-2); text-decoration: none; }
+    .hero { padding: 72px 0 48px; text-align: center; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+      background: rgba(56, 189, 248, 0.12); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3);
+      margin-bottom: 20px;
+    }
+    h1 { font-size: clamp(34px, 5.2vw, 56px); line-height: 1.1; margin: 0 0 18px; letter-spacing: -1px; }
+    .lead { max-width: 720px; margin: 0 auto 28px; color: var(--muted); font-size: 18px; }
+    .cta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 36px; }
+    .prompt-box {
+      max-width: 780px; margin: 0 auto; text-align: left;
+      background: var(--surface); border: 1px solid #26354f; border-radius: 14px; padding: 18px 20px;
+    }
+    .prompt-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
+    .prompt-text { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13.5px; color: #e2e8f0; margin: 0; }
+    section { padding: 48px 0; }
+    h2 { font-size: 28px; margin: 0 0 10px; letter-spacing: -0.4px; }
+    .sub { color: var(--muted); margin: 0 0 28px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
+    }
+    .card h3 { margin: 0 0 8px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+    .tier-badge {
+      display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px;
+      border-radius: 999px; margin-bottom: 10px;
+    }
+    .t1 { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
+    .t2 { background: rgba(34, 197, 94, 0.18); color: #86efac; }
+    .t3 { background: rgba(250, 204, 21, 0.18); color: #fde047; }
+    .terminal {
+      background: #04070e; border: 1px solid #1e293b; border-radius: 14px; padding: 20px 22px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13.5px;
+      color: #cbd5e1; overflow-x: auto;
+    }
+    .terminal .green { color: #4ade80; font-weight: 700; }
+    .terminal .cyan { color: #38bdf8; }
+    .badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .chip {
+      padding: 6px 12px; border-radius: 8px; background: var(--surface-2);
+      border: 1px solid var(--border); font-size: 13px; color: #e2e8f0;
+    }
+    footer {
+      border-top: 1px solid var(--border); padding: 36px 0 48px; margin-top: 32px;
+      color: var(--muted); font-size: 13.5px;
+    }
+    .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a href="#" style="display:flex;align-items:center;">
+        <img src="assets/logo.svg" alt="VieForge" height="38" />
+      </a>
+      <div class="nav-links">
+        <a href="#architecture" data-i18n="navArch">Architecture</a>
+        <a href="#features" data-i18n="navFeat">Features</a>
+        <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener">GitHub</a>
+        <button id="langBtn" class="btn btn-ghost" style="padding:6px 12px;font-size:12px;">EN / VI</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="pill" data-i18n="heroPill">MIT Open-Source • 100% Python Stdlib Core • Crafted in Vietnam</div>
+      <h1 data-i18n="heroTitle">Code First. Local LLM Second.<br />Cloud Last.</h1>
+      <p class="lead" data-i18n="heroLead">
+        Turn any consumer workstation into a checkpointed, budget-guarded local AI worker.
+        Cut Cloud AI Agent token burn and API spend by 70–90% across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" data-i18n="ctaGithub">Star on GitHub</a>
+        <a class="btn btn-ghost" href="https://github.com/vieforge/vieforge/blob/main/AGENT_INSTALL.md" target="_blank" rel="noopener" data-i18n="ctaGuide">Zero-Knowledge Install Guide</a>
+      </div>
+
+      <div class="prompt-box">
+        <div class="prompt-head">
+          <span data-i18n="promptLabel">New to coding? Just paste this 1 prompt into your AI Agent:</span>
+          <button id="copyBtn" class="btn btn-ghost" style="padding:4px 10px;font-size:12px;" data-i18n="copyBtn">Copy Prompt</button>
+        </div>
+        <p id="agentPrompt" class="prompt-text">Clone https://github.com/vieforge/vieforge, read AGENT_INSTALL.md, run python scripts/quick_setup.py, and show me the Savings Receipt in plain language.</p>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2 data-i18n="archTitle">3-Tier Hybrid Architecture</h2>
+      <p class="sub" data-i18n="archSub">Every subtask runs on the lowest-cost tier that satisfies accuracy requirements.</p>
+      <div class="grid-3">
+        <div class="card">
+          <span class="tier-badge t1">TIER 1 — CLOUD BRAIN</span>
+          <h3 data-i18n="t1Title">Architecture &amp; Approval Gates</h3>
+          <p data-i18n="t1Desc">Cloud Agents (Antigravity, Claude Code, Cursor, Windsurf, Codex) handle design, code edits, reviews, and root-cause debugging — never bulk loops.</p>
+        </div>
+        <div class="card">
+          <span class="tier-badge t2">TIER 2 — LOCAL BACKBONE ($0)</span>
+          <h3 data-i18n="t2Title">SQLite WAL + Ollama Leases</h3>
+          <p data-i18n="t2Desc">Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-85% to -95%), and ref-counted local LLM VRAM leases.</p>
+        </div>
+        <div class="card">
+          <span class="tier-badge t3">TIER 3 — ISOLATED MUSCLE</span>
+          <h3 data-i18n="t3Title">GPU Subprocess &amp; Capped APIs</h3>
+          <p data-i18n="t3Desc">OS-isolated child processes with exclusive GPU locking for 8 GB+ cards, plus paid APIs guarded by --dry-run, MAX_RETRY &lt;= 2, MAX_JOB_USD, and DAILY_USD_CAP.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 data-i18n="receiptTitle">Transparent Savings Receipt</h2>
+      <p class="sub" data-i18n="receiptSub">Run the 5-minute $0 demo (even without Ollama via --mock-llm) and see exact savings.</p>
+      <div class="terminal">
+        <div><span class="cyan">$</span> python scripts/quick_setup.py</div>
+        <br />
+        <div>=== VieForge Savings Receipt (demo_01_batch) ===</div>
+        <div>Items processed : 5 (interrupted at 2, resumed at $0.00 extra)</div>
+        <div>Actual cost     : <span class="green">$0.0000 USD</span></div>
+        <div>Cloud baseline  : $0.0405 USD (external/text-frontier)</div>
+        <div>Estimated saved : <span class="green">$0.0405 USD (100.0%)</span></div>
+        <div>Context trimmed : 2169 -&gt; 108 chars (<span class="green">-95.0%</span>)</div>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2 data-i18n="featTitle">Engineered for Real-World Workstations</h2>
+      <p class="sub" data-i18n="featSub">Commercial-safe, cross-platform, and multi-project concurrency ready from day one.</p>
+      <div class="grid-3">
+        <div class="card">
+          <h3 data-i18n="f1Title">Multi-Project Concurrency</h3>
+          <p data-i18n="f1Desc">Run 3+ workspaces simultaneously without colliding job IDs, losing spend logs, or prematurely unloading another project's Ollama VRAM.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f2Title">100% MIT Clean-Room Core</h3>
+          <p data-i18n="f2Desc">Zero mandatory third-party dependencies in core/. Automated license_audit.py blocks BUSL-1.1, AGPL-3.0, and CC-BY-NC packages.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="f3Title">Zero OS-Mutation Policy</h3>
+          <p data-i18n="f3Desc">Never alters Windows Registry, OS services, network stacks, or pagefiles. Works cleanly on Windows, macOS (Apple Silicon), and Linux.</p>
+        </div>
+      </div>
+      <div class="badges">
+        <span class="chip">Antigravity</span>
+        <span class="chip">Claude Code</span>
+        <span class="chip">Cursor</span>
+        <span class="chip">Windsurf</span>
+        <span class="chip">Codex CLI</span>
+        <span class="chip">MCP Server</span>
+        <span class="chip">Ollama</span>
+        <span class="chip">SQLite WAL</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot-row">
+      <div>
+        <strong>VieForge</strong> — <span data-i18n="footTag">MIT Licensed Core • Crafted in Vietnam</span><br />
+        <span style="font-size:12px;">The VieForge name and logo remain trademarks of VieForge Contributors.</span>
+      </div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+        <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener">GitHub</a>
+        <a href="mailto:hello@vieforge.dev">hello@vieforge.dev</a>
+        <a href="mailto:security@vieforge.dev">security@vieforge.dev</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const I18N = {
+      en: {
+        navArch: "Architecture",
+        navFeat: "Features",
+        heroPill: "MIT Open-Source • 100% Python Stdlib Core • Crafted in Vietnam",
+        heroTitle: "Code First. Local LLM Second.<br />Cloud Last.",
+        heroLead: "Turn any consumer workstation into a checkpointed, budget-guarded local AI worker. Cut Cloud AI Agent token burn and API spend by 70–90% across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.",
+        ctaGithub: "Star on GitHub",
+        ctaGuide: "Zero-Knowledge Install Guide",
+        promptLabel: "New to coding? Just paste this 1 prompt into your AI Agent:",
+        copyBtn: "Copy Prompt",
+        copied: "Copied!",
+        promptText: "Clone https://github.com/vieforge/vieforge, read AGENT_INSTALL.md, run python scripts/quick_setup.py, and show me the Savings Receipt in plain language.",
+        archTitle: "3-Tier Hybrid Architecture",
+        archSub: "Every subtask runs on the lowest-cost tier that satisfies accuracy requirements.",
+        t1Title: "Architecture & Approval Gates",
+        t1Desc: "Cloud Agents (Antigravity, Claude Code, Cursor, Windsurf, Codex) handle design, code edits, reviews, and root-cause debugging — never bulk loops.",
+        t2Title: "SQLite WAL + Ollama Leases",
+        t2Desc: "Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-85% to -95%), and ref-counted local LLM VRAM leases.",
+        t3Title: "GPU Subprocess & Capped APIs",
+        t3Desc: "OS-isolated child processes with exclusive GPU locking for 8 GB+ cards, plus paid APIs guarded by --dry-run, MAX_RETRY <= 2, MAX_JOB_USD, and DAILY_USD_CAP.",
+        receiptTitle: "Transparent Savings Receipt",
+        receiptSub: "Run the 5-minute $0 demo (even without Ollama via --mock-llm) and see exact savings.",
+        featTitle: "Engineered for Real-World Workstations",
+        featSub: "Commercial-safe, cross-platform, and multi-project concurrency ready from day one.",
+        f1Title: "Multi-Project Concurrency",
+        f1Desc: "Run 3+ workspaces simultaneously without colliding job IDs, losing spend logs, or prematurely unloading another project's Ollama VRAM.",
+        f2Title: "100% MIT Clean-Room Core",
+        f2Desc: "Zero mandatory third-party dependencies in core/. Automated license_audit.py blocks BUSL-1.1, AGPL-3.0, and CC-BY-NC packages.",
+        f3Title: "Zero OS-Mutation Policy",
+        f3Desc: "Never alters Windows Registry, OS services, network stacks, or pagefiles. Works cleanly on Windows, macOS (Apple Silicon), and Linux.",
+        footTag: "MIT Licensed Core • Crafted in Vietnam"
+      },
+      vi: {
+        navArch: "Kiến trúc",
+        navFeat: "Tính năng",
+        heroPill: "Mã nguồn mở MIT • 100% Python Stdlib • Phát triển tại Việt Nam",
+        heroTitle: "Code trước. Local LLM thứ hai.<br />Cloud sau cùng.",
+        heroLead: "Biến mọi máy tính cá nhân thành worker AI cục bộ có checkpoint và khóa ngân sách. Cắt giảm 70–90% token Cloud Agent và chi phí API trên Antigravity, Claude Code, Cursor, Windsurf và Codex CLI.",
+        ctaGithub: "Xem trên GitHub",
+        ctaGuide: "Hướng dẫn cài cho người mới",
+        promptLabel: "Không biết lập trình? Chỉ cần dán đúng 1 câu này vào AI Agent của bạn:",
+        copyBtn: "Sao chép câu lệnh",
+        copied: "Đã sao chép!",
+        promptText: "Hãy tải repo https://github.com/vieforge/vieforge, đọc file AGENT_INSTALL.md, chạy python scripts/quick_setup.py và giải thích kết quả cùng bảng tiết kiệm (Savings Receipt) bằng tiếng Việt dễ hiểu giúp tôi.",
+        archTitle: "Kiến trúc Lai 3 Tầng",
+        archSub: "Mỗi tác vụ tự động chạy ở tầng chi phí thấp nhất mà vẫn đảm bảo độ chính xác.",
+        t1Title: "Kiến trúc & Cổng duyệt",
+        t1Desc: "Cloud Agent (Antigravity, Claude Code, Cursor, Windsurf, Codex) tập trung thiết kế, sửa code, review và gỡ lỗi gốc — không chạy vòng lặp hàng loạt tốn token.",
+        t2Title: "SQLite WAL + Quản lý Lease Ollama",
+        t2Desc: "Python thuần, chống chạy trùng SHA-256, checkpoint từng item (resume $0), nén log clean-room (-85% đến -95%) và chia sẻ VRAM Ollama an toàn.",
+        t3Title: "Subprocess GPU & API có trần chi phí",
+        t3Desc: "Tách tiến trình con + khóa GPU độc quyền cho card 8 GB+, cùng API trả phí luôn bị khóa bởi --dry-run, MAX_RETRY <= 2, MAX_JOB_USD và DAILY_USD_CAP.",
+        receiptTitle: "Biên lai Tiết kiệm Minh bạch",
+        receiptSub: "Chạy thử demo 5 phút giá $0 (kể cả chưa cài Ollama nhờ --mock-llm) và xem ngay con số tiết kiệm.",
+        featTitle: "Thiết kế cho Máy trạm Thực tế",
+        featSub: "Sạch bản quyền thương mại, đa nền tảng và an toàn đa nhiệm nhiều dự án ngay từ ngày đầu.",
+        f1Title: "Đa nhiệm nhiều dự án song song",
+        f1Desc: "Mở đồng thời 3+ dự án mà không đụng job_id, không mất sổ chi phí và không đá xả VRAM Ollama của dự án khác đang chạy.",
+        f2Title: "Lõi 100% MIT Sạch Bản Quyền",
+        f2Desc: "Không phụ thuộc thư viện ngoài trong core/. Công cụ license_audit.py tự động chặn gói BUSL-1.1, AGPL-3.0 và CC-BY-NC.",
+        f3Title: "Không Can Thiệp Hệ Điều Hành",
+        f3Desc: "Tuyệt đối không sửa Registry Windows, dịch vụ hệ thống, mạng hay pagefile. Chạy mượt trên Windows, macOS (Apple Silicon) và Linux.",
+        footTag: "Lõi bản quyền MIT • Phát triển tại Việt Nam"
+      }
+    };
+
+    let lang = (navigator.language || "").toLowerCase().startsWith("vi") ? "vi" : "en";
+    function renderLang() {
+      const t = I18N[lang];
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (t[key]) el.innerHTML = t[key];
+      });
+      document.getElementById("agentPrompt").textContent = t.promptText;
+    }
+    document.getElementById("langBtn").addEventListener("click", () => {
+      lang = lang === "en" ? "vi" : "en";
+      renderLang();
+    });
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const txt = document.getElementById("agentPrompt").textContent;
+      try {
+        await navigator.clipboard.writeText(txt);
+        const btn = document.getElementById("copyBtn");
+        btn.textContent = I18N[lang].copied;
+        setTimeout(() => { btn.textContent = I18N[lang].copyBtn; }, 1600);
+      } catch (_) {}
+    });
+    renderLang();
+  </script>
+</body>
+</html>
