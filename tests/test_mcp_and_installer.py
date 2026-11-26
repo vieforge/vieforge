@@ -6,13 +6,19 @@ import json
 import sys
 from pathlib import Path
 
-from mcp.worker_mcp_server import (
+from scripts.install_skill import (
+    build_claude_cli_command,
+    build_mcp_snippet,
+    build_vscode_mcp_snippet,
+    install_skill,
+    resolve_target_dir,
+)
+from scripts.mcp_server import (
     tool_estimate_batch_dry_run,
     tool_get_job_summary,
     tool_run_local_batch,
     tool_run_trimmed_command,
 )
-from scripts.install_skill import build_mcp_snippet, install_skill
 
 
 def test_mcp_worker_tools_batch_resume_and_trim(tmp_path: Path) -> None:
@@ -63,7 +69,13 @@ def test_install_skill_and_absolute_mcp_snippet(tmp_path: Path) -> None:
     srv = snippet["mcpServers"]["tierforge-worker"]
     assert Path(srv["command"]).is_absolute()
     assert Path(srv["args"][0]).is_absolute()
-    assert srv["args"][0].endswith("worker_mcp_server.py")
+    assert srv["args"][0].endswith("mcp_server.py")
+
+    vscode = build_vscode_mcp_snippet()
+    assert vscode["servers"]["tierforge-worker"]["type"] == "stdio"
+    assert "claude mcp add tierforge-worker -- " in build_claude_cli_command()
+    assert resolve_target_dir("codeium", home=tmp_path) == resolve_target_dir("windsurf", home=tmp_path)
+    assert resolve_target_dir("claudecode", home=tmp_path) == resolve_target_dir("claude", home=tmp_path)
 
     dest = tmp_path / "three-tier-orchestrator"
     copied = install_skill(dest, dry_run=False)

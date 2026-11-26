@@ -86,4 +86,4 @@ def test_exclusive_gpu_lock_and_multi_agent_targets(tmp_path: Path) -> None:
 
     toml_str = build_codex_toml_snippet()
     assert "[mcp_servers.tierforge-worker]" in toml_str
-    assert "worker_mcp_server.py" in toml_str
+    assert "mcp_server.py" in toml_str

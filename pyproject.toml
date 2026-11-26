@@ -52,7 +52,7 @@ vieforge = "scripts.cli:main"
 vieforge-setup = "scripts.quick_setup:main"
 vieforge-preflight = "scripts.preflight_check:main"
 vieforge-bench = "scripts.benchmark_token_savings:main"
-vieforge-mcp = "mcp.worker_mcp_server:main"
+vieforge-mcp = "scripts.mcp_server:main"
 vieforge-audit = "scripts.audit_step:main"
 
 [project.urls]
@@ -61,7 +61,7 @@ Repository = "https://github.com/vieforge/vieforge"
 Issues = "https://github.com/vieforge/vieforge/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["core", "mcp", "scripts"]
+packages = ["core", "scripts"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "config" = "core/_bundled_assets/config"

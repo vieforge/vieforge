@@ -17,8 +17,8 @@ from typing import Any
 from core import __version__
 from core.output_trimmer import redact_secrets_text, trim_output
 from core.subprocess_runner import run_isolated
-from mcp.worker_mcp_server import tool_run_local_batch
 from scripts.cli import main as cli_main
+from scripts.mcp_server import tool_run_local_batch
 from scripts.preflight_check import check_ollama
 
 
