@@ -61,7 +61,7 @@ jobs:
           python-version: "3.12"
 
       - name: Download All 3-OS Verification Reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ci_reports
           pattern: os-report-*
