@@ -191,3 +191,36 @@ def test_sqlite_response_cache_hit_and_bypass(tmp_path: Path) -> None:
     assert r3.cache_hit is False
     assert r3.text == "ans:2:hello"
     assert calls["n"] == 2
+
+
+def test_emit_genai_span_jsonl_and_module_cli(tmp_path: Path) -> None:
+    import subprocess
+    import sys
+
+    from core.qa_logger import emit_genai_span
+
+    trace_file = tmp_path / "traces.jsonl"
+    span = emit_genai_span(
+        operation="chat",
+        provider="ollama",
+        model="qwen2.5:7b",
+        input_tokens=120,
+        output_tokens=45,
+        cost_usd=0.0,
+        cache_hit=True,
+        trace_path=trace_file,
+    )
+    assert span["gen_ai.operation.name"] == "chat"
+    assert span["gen_ai.request.model"] == "qwen2.5:7b"
+    assert span["vieforge.cache_hit"] is True
+    assert trace_file.exists()
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "core", "--version"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert proc.returncode == 0
+    assert "vieforge" in proc.stdout.lower()

@@ -104,3 +104,32 @@ class QALogger:
             "pass_rate_pct": round((ok / total) * 100.0, 1) if total > 0 else 0.0,
             "by_code": dict(counts),
         }
+
+
+def emit_genai_span(
+    *,
+    operation: str,
+    provider: str,
+    model: str,
+    input_tokens: int = 0,
+    output_tokens: int = 0,
+    cost_usd: float = 0.0,
+    cache_hit: bool = False,
+    trace_path: Path | str | None = None,
+) -> dict[str, Any]:
+    """Emit an OpenTelemetry GenAI Semantic Convention span record to JSONL."""
+    span = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "gen_ai.operation.name": operation,
+        "gen_ai.provider.name": provider,
+        "gen_ai.request.model": model,
+        "gen_ai.usage.input_tokens": int(input_tokens),
+        "gen_ai.usage.output_tokens": int(output_tokens),
+        "vieforge.cost_usd": round(float(cost_usd), 6),
+        "vieforge.cache_hit": bool(cache_hit),
+    }
+    out = Path(trace_path) if trace_path is not None else (default_data_dir() / "genai_traces.jsonl")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(span, ensure_ascii=False) + "\n")
+    return span

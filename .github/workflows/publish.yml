@@ -60,12 +60,18 @@ jobs:
       url: https://pypi.org/p/vieforge
     permissions:
       id-token: write
+      attestations: write
     steps:
       - name: Download dist artifacts
         uses: actions/download-artifact@v4
         with:
           name: vieforge-dist
           path: dist
+
+      - name: Generate PEP 740 / SLSA build provenance attestations
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*"
 
       - name: Publish package to PyPI (Trusted Publishing)
         uses: pypa/gh-action-pypi-publish@release/v1
