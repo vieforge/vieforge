@@ -10,6 +10,7 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](pyproject.toml)
 [![Core: 100% Stdlib](https://img.shields.io/badge/Core-100%25%20Python%20Stdlib-brightgreen.svg)](LEGAL_AND_COMPLIANCE.md)
 [![Crafted in Vietnam](https://img.shields.io/badge/Crafted%20in-Vietnam%20%F0%9F%87%BB%F0%9F%87%B3-da251d.svg)](README.vi.md)
+[![Website: vieforge.dev](https://img.shields.io/badge/Website-vieforge.dev-2563eb.svg)](https://vieforge.dev)
 
 Biến mọi máy tính cá nhân thành một **worker AI cục bộ có checkpoint, khóa ngân sách và hỗ trợ đa dự án**, giúp giảm **70–90%** lượng token Cloud Agent và chi phí API. Xây dựng theo chuẩn mở **MCP (Model Context Protocol)** + **Agent Skill (`SKILL.md` / `AGENTS.md`)** cho **Antigravity, Claude Code, Cursor, Windsurf và Codex CLI**.
 
@@ -75,4 +76,5 @@ Khi mở đồng thời nhiều dự án trên Antigravity / Claude Code trên c
 - **100% MIT & Python Stdlib (`core/`):** Được kiểm tra tự động bởi `python -m core.license_audit`, chặn tuyệt đối `BUSL-1.1`, `AGPL-3.0`, `CC-BY-NC`.
 - **Zero OS-Mutation:** Không bao giờ sửa Registry Windows, dịch vụ hệ thống, mạng/IPv6 hay pagefile.
 - **Tài liệu chi tiết:** Xem [README.md](README.md) (bản tiếng Anh đầy đủ), [LEGAL_AND_COMPLIANCE.md](LEGAL_AND_COMPLIANCE.md), và [SECURITY.md](SECURITY.md).
+- **Website & Liên hệ:** [https://vieforge.dev](https://vieforge.dev) | `hello@vieforge.dev` | Bảo mật: `security@vieforge.dev`
 - **Lưu ý Thương hiệu (Trademark):** Mã nguồn được phát hành theo giấy phép **MIT**, nhưng tên thương hiệu và nhận diện **VieForge** thuộc quyền sở hữu của **VieForge Contributors** (các bản fork cần sử dụng tên khác).

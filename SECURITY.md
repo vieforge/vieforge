@@ -16,6 +16,6 @@ TierForge Harness is designed as a **localhost-only, zero OS-mutation** develope
 ## Reporting a Vulnerability
 If you discover a security issue (e.g., command injection, path traversal, localhost bridge auth bypass, or license violation), please **do not** open a public issue with exploit details.
 
-1. Use **GitHub Security Advisories** ("Report a vulnerability" in the repository's **Security** tab), or contact the maintainers directly via the repository profile.
+1. Use **GitHub Security Advisories** ("Report a vulnerability" in the repository's **Security** tab), or email **`security@vieforge.dev`** directly.
 2. Include steps to reproduce, affected OS/Python version, and potential impact.
 3. We aim to acknowledge reports within 48 hours and publish a fix promptly.

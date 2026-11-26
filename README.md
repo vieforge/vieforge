@@ -11,6 +11,7 @@
 [![Core: 100% Stdlib](https://img.shields.io/badge/Core-100%25%20Python%20Stdlib-brightgreen.svg)](LEGAL_AND_COMPLIANCE.md)
 [![OS: Windows | macOS | Linux](https://img.shields.io/badge/OS-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](skills/three-tier-orchestrator/references/hardware-profiles.md)
 [![Crafted in Vietnam](https://img.shields.io/badge/Crafted%20in-Vietnam%20%F0%9F%87%BB%F0%9F%87%B3-da251d.svg)](README.vi.md)
+[![Website: vieforge.dev](https://img.shields.io/badge/Website-vieforge.dev-2563eb.svg)](https://vieforge.dev)
 
 Turn any consumer workstation into a **checkpointed, budget-guarded, multi-project local AI worker** to cut Cloud Agent quota and API spend by **70–90%**. Built on open **MCP (Model Context Protocol)** + **Agent Skill (`SKILL.md` / `AGENTS.md`)** standards for **Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI**.
 
@@ -153,6 +154,8 @@ uv run python scripts/audit_step.py --step verify
 - **Pro / Team Extensions (Planned Commercial Add-ons):** Multi-node LAN worker pool, team-wide spend dashboards & RBAC approval webhooks, enterprise SSO/audit compliance packs.
 
 See [LICENSE](LICENSE) and [LEGAL_AND_COMPLIANCE.md](LEGAL_AND_COMPLIANCE.md) for full licensing and compliance terms.
+- **Website:** [https://vieforge.dev](https://vieforge.dev)
+- **Contact:** `hello@vieforge.dev` | **Security:** `security@vieforge.dev`
 
 ---
 

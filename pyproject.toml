@@ -47,7 +47,7 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/vieforge/vieforge"
+Homepage = "https://vieforge.dev"
 Repository = "https://github.com/vieforge/vieforge"
 Issues = "https://github.com/vieforge/vieforge/issues"
 
