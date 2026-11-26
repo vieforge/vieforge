@@ -7,7 +7,12 @@
   <meta name="description" content="Code First, Local LLM Second, Cloud Last. Verified reproducible benchmarks: 1,459-token session overhead, 16.9x net Cloud token reduction (-94.1%) on real batch, CI log, and resume workloads." />
   <meta name="theme-color" content="#050811" />
   <link rel="canonical" href="https://vieforge.dev/" />
+  <link rel="alternate" hreflang="en" href="https://vieforge.dev/?lang=en" />
+  <link rel="alternate" hreflang="vi" href="https://vieforge.dev/?lang=vi" />
+  <link rel="alternate" hreflang="x-default" href="https://vieforge.dev/" />
   <meta property="og:site_name" content="VieForge" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="vi_VN" />
   <meta property="og:title" content="VieForge — 3-Tier Hybrid AI Agent Harness (16.9x Fewer Cloud Tokens)" />
   <meta property="og:description" content="Cut Cloud AI Agent token burn by 11x–118x on real batch, CI log, and resume workloads. 100% Python stdlib, MIT clean-room, reproducible $0 benchmark included." />
   <meta property="og:url" content="https://vieforge.dev/" />
@@ -21,6 +26,7 @@
   <meta name="twitter:description" content="Cut Cloud AI Agent token burn by 11x–118x on real workloads. 100% Python stdlib, MIT clean-room, reproducible $0 benchmark." />
   <meta name="twitter:image" content="https://vieforge.dev/assets/og-card.png" />
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="apple-touch-icon" href="assets/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -40,6 +46,46 @@
       "price": "0",
       "priceCurrency": "USD"
     }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Do I need an expensive GPU to run VieForge?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. VieForge works on CPU-only laptops with qwen2.5:3b or offline --mock-llm, and automatically scales to 8 GB, 12-16 GB, 24 GB+ GPUs, and Apple Silicon via preflight_check.py."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does VieForge send my source code or data to external servers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. All SQLite checkpoints, log trimming, and local LLM routing run 100% locally on your workstation with zero telemetry and zero external relay."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is VieForge different from just calling Ollama directly?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "VieForge adds per-item SQLite WAL crash/resume ($0 re-runs), SHA-256 deduplication, 91% CI log compression, hard USD budget caps, ref-counted multi-project VRAM leases, and 5 compact MCP tools."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is VieForge free for commercial and agency projects?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. The core engine is 100% MIT-licensed Python stdlib with an automated license_audit.py scanner blocking AGPL, BUSL-1.1, and non-commercial dependencies."
+        }
+      }
+    ]
   }
   </script>
   <style>
@@ -121,6 +167,25 @@
     }
     a { color: var(--accent); text-decoration: none; transition: color 0.15s ease; }
     a:hover { color: #7dd3fc; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+    .skip-link {
+      position: fixed;
+      top: -60px;
+      left: 16px;
+      z-index: 100;
+      padding: 10px 16px;
+      border-radius: 10px;
+      background: #0284c7;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13.5px;
+      transition: top 0.15s ease;
+    }
+    .skip-link:focus { top: 12px; color: #fff; }
 
     .container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
     main, section, .card, .bento-card, .kpi, .demo-window, .calc-out, .table-wrap, .terminal {
@@ -166,11 +231,21 @@
       border-radius: 999px;
       transition: background 0.15s ease, color 0.15s ease;
     }
-    .nav-center a:hover {
-      background: rgba(148, 163, 184, 0.12);
-      color: var(--text);
+    .nav-center a:hover, .nav-center a.active {
+      background: rgba(56, 189, 248, 0.14);
+      color: #fff;
       text-decoration: none;
     }
+    .star-pill {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+    .star-pill.ready { display: inline-flex; align-items: center; }
     .nav-actions {
       display: flex;
       align-items: center;
@@ -788,6 +863,55 @@
       font-weight: 800;
     }
 
+    .faq-list { display: grid; gap: 12px; max-width: 860px; }
+    details.faq-item {
+      background: linear-gradient(180deg, rgba(14, 22, 42, 0.8) 0%, rgba(10, 16, 31, 0.92) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0;
+      transition: border-color 0.15s ease;
+    }
+    details.faq-item[open] { border-color: rgba(56, 189, 248, 0.35); }
+    details.faq-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 20px;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    details.faq-item summary::-webkit-details-marker { display: none; }
+    details.faq-item summary::after {
+      content: "+";
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: var(--accent);
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+    details.faq-item[open] summary::after { content: "−"; }
+    .faq-ans {
+      padding: 0 20px 18px;
+      color: var(--muted);
+      font-size: 14.3px;
+      line-height: 1.65;
+      border-top: 1px dashed rgba(148, 163, 184, 0.14);
+      padding-top: 12px;
+      margin: 0 20px 16px;
+      padding-left: 0;
+      padding-right: 0;
+      padding-bottom: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+
     footer {
       border-top: 1px solid var(--border);
       padding: 36px 0 48px;
@@ -911,6 +1035,7 @@
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link" data-i18n="skipLink">Skip to content</a>
   <div class="bg-atmosphere" aria-hidden="true"></div>
   <div class="bg-grid" aria-hidden="true"></div>
 
@@ -930,6 +1055,7 @@
         <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" class="btn btn-primary btn-sm nav-gh-desktop">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.95c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a10.9 10.9 0 0 1 5.76 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.42.36.78 1.06.78 2.14v3.17c0 .31.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
           GitHub
+          <span id="ghStarsBadge" class="star-pill" aria-label="GitHub stars"></span>
         </a>
         <button type="button" id="menuBtn" class="menu-toggle" aria-label="Toggle Menu" aria-expanded="false">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
@@ -946,7 +1072,7 @@
     <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" class="drawer-link"><span>GitHub Repository</span><span style="color:var(--accent);">↗</span></a>
   </div>
 
-  <main class="container">
+  <main id="main-content" class="container">
     <section class="hero">
       <div class="status-pill">
         <span class="pulse-dot" aria-hidden="true"></span>
@@ -1339,6 +1465,34 @@
         </div>
       </div>
     </section>
+
+    <section id="faq">
+      <div class="sec-kicker" data-i18n="kickerFaq">Quick Answers</div>
+      <h2 data-i18n="faqTitle">Frequently Asked Questions</h2>
+      <p class="sub" data-i18n="faqSub">Straight engineering answers before you clone or install.</p>
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary data-i18n="faq1Q">Do I need an expensive GPU to use VieForge?</summary>
+          <div class="faq-ans" data-i18n="faq1A">No. VieForge runs on CPU-only laptops using <code>qwen2.5:3b</code> (or offline <code>--mock-llm</code>), and automatically adapts to 8 GB, 12–16 GB, 24 GB+ GPUs, and Apple Silicon via <code>preflight_check.py</code>.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq2Q">Does VieForge send my source code or private data to any server?</summary>
+          <div class="faq-ans" data-i18n="faq2A">Never. SQLite checkpoints, log compression, budget guards, and local LLM routing run 100% on your own machine with zero telemetry, zero analytics cookies, and zero external relay.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq3Q">How is this different from just running Ollama directly?</summary>
+          <div class="faq-ans" data-i18n="faq3A">Raw Ollama has no per-item SQLite WAL crash/resume, no SHA-256 deduplication, no 91% CI log trimmer, no hard USD budget caps, no ref-counted multi-project VRAM leases, and no MCP server for Cloud Agents. VieForge gives you all of them in 100% Python stdlib.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq4Q">Can I use VieForge in commercial or agency projects for free?</summary>
+          <div class="faq-ans" data-i18n="faq4A">Yes — forever. The core engine is 100% MIT-licensed Python stdlib, and <code>python -m core.license_audit</code> automatically blocks AGPL-3.0, BUSL-1.1, and CC-BY-NC dependencies.</div>
+        </details>
+        <details class="faq-item">
+          <summary data-i18n="faq5Q">Which local LLM servers and AI coding agents are supported?</summary>
+          <div class="faq-ans" data-i18n="faq5A">Works with <strong>Ollama</strong> (native <code>keep_alive=0</code>) plus any <strong>OpenAI-compatible</strong> server (<strong>LM Studio</strong>, <strong>llama.cpp</strong>, <strong>vLLM</strong>, OpenRouter), and installs skills/MCP configs for <strong>Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI</strong>.</div>
+        </details>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -1373,6 +1527,7 @@
   <script>
     const I18N = {
       en: {
+        skipLink: "Skip to content",
         navBench: "Benchmarks",
         navCalc: "Calculator",
         navArch: "Architecture",
@@ -1479,9 +1634,23 @@
         qrSub: "Scan with any Vietnamese banking app (VPBank • 0% fee). Thank you for supporting MIT open-source!",
         qrCopy: "Copy Account: 374331566",
         qrCopied: "Copied: 374331566",
+        kickerFaq: "Quick Answers",
+        faqTitle: "Frequently Asked Questions",
+        faqSub: "Straight engineering answers before you clone or install.",
+        faq1Q: "Do I need an expensive GPU to use VieForge?",
+        faq1A: "No. VieForge runs on CPU-only laptops using <code>qwen2.5:3b</code> (or offline <code>--mock-llm</code>), and automatically adapts to 8 GB, 12–16 GB, 24 GB+ GPUs, and Apple Silicon via <code>preflight_check.py</code>.",
+        faq2Q: "Does VieForge send my source code or private data to any server?",
+        faq2A: "Never. SQLite checkpoints, log compression, budget guards, and local LLM routing run 100% on your own machine with zero telemetry, zero analytics cookies, and zero external relay.",
+        faq3Q: "How is this different from just running Ollama directly?",
+        faq3A: "Raw Ollama has no per-item SQLite WAL crash/resume, no SHA-256 deduplication, no 91% CI log trimmer, no hard USD budget caps, no ref-counted multi-project VRAM leases, and no MCP server for Cloud Agents. VieForge gives you all of them in 100% Python stdlib.",
+        faq4Q: "Can I use VieForge in commercial or agency projects for free?",
+        faq4A: "Yes — forever. The core engine is 100% MIT-licensed Python stdlib, and <code>python -m core.license_audit</code> automatically blocks AGPL-3.0, BUSL-1.1, and CC-BY-NC dependencies.",
+        faq5Q: "Which local LLM servers and AI coding agents are supported?",
+        faq5A: "Works with <strong>Ollama</strong> (native <code>keep_alive=0</code>) plus any <strong>OpenAI-compatible</strong> server (<strong>LM Studio</strong>, <strong>llama.cpp</strong>, <strong>vLLM</strong>, OpenRouter), and installs skills/MCP configs for <strong>Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI</strong>.",
         footTag: "MIT Licensed Core • Crafted in Vietnam"
       },
       vi: {
+        skipLink: "Chuyển tới nội dung chính",
         navBench: "Đo Token thực tế",
         navCalc: "Máy tính tiết kiệm",
         navArch: "Kiến trúc 3 tầng",
@@ -1588,6 +1757,19 @@
         qrSub: "Quét bằng mọi ứng dụng ngân hàng VN (VPBank • 0% phí). Cảm ơn bạn đã tiếp sức cho mã nguồn mở MIT!",
         qrCopy: "Sao chép STK: 374331566",
         qrCopied: "Đã chép: 374331566",
+        kickerFaq: "Giải đáp nhanh",
+        faqTitle: "Câu hỏi thường gặp",
+        faqSub: "Trả lời thẳng vào vấn đề kỹ thuật trước khi bạn tải và cài đặt.",
+        faq1Q: "Tôi có cần card GPU đắt tiền để chạy VieForge không?",
+        faq1A: "Không. VieForge chạy mượt trên laptop chỉ có CPU với <code>qwen2.5:3b</code> (hoặc <code>--mock-llm</code> offline), và tự nhận diện để tối ưu cho card 8 GB, 12–16 GB, 24 GB+ hoặc Apple Silicon qua <code>preflight_check.py</code>.",
+        faq2Q: "VieForge có gửi mã nguồn hay dữ liệu của tôi lên máy chủ ngoài không?",
+        faq2A: "Tuyệt đối không. Toàn bộ checkpoint SQLite, nén log, khóa ngân sách và gọi Local LLM chạy 100% trên máy bạn — không telemetry, không cookie theo dõi, không máy chủ trung gian.",
+        faq3Q: "VieForge khác gì việc chỉ tự chạy Ollama trực tiếp?",
+        faq3A: "Ollama thuần không có checkpoint từng mục SQLite WAL để nối tiếp $0 khi sập, không chống trùng SHA-256, không nén log CI (-91%), không khóa trần chi tiêu USD, không quản lý lease VRAM đa dự án và không có sẵn MCP server cho Cloud Agent. VieForge đóng gói đủ bộ bằng 100% Python stdlib.",
+        faq4Q: "Tôi có được dùng VieForge miễn phí cho dự án thương mại / công ty không?",
+        faq4A: "Được — miễn phí vĩnh viễn. Lõi dự án dùng giấy phép MIT sạch hoàn toàn (100% stdlib) và có sẵn <code>python -m core.license_audit</code> tự động chặn các gói AGPL-3.0, BUSL-1.1, CC-BY-NC.",
+        faq5Q: "Hỗ trợ những Local LLM và AI Agent nào?",
+        faq5A: "Chạy tốt với <strong>Ollama</strong> (giữ nguyên <code>keep_alive=0</code> xả VRAM) cùng mọi server chuẩn <strong>OpenAI-compatible</strong> (<strong>LM Studio</strong>, <strong>llama.cpp</strong>, <strong>vLLM</strong>, OpenRouter), và tự cài skill/MCP cho <strong>Antigravity, Claude Code, Cursor, Windsurf và Codex CLI</strong>.",
         footTag: "Lõi bản quyền MIT • Phát triển tại Việt Nam"
       }
     };
@@ -1738,6 +1920,54 @@
         setTimeout(() => { btn.textContent = I18N[lang].qrCopy; }, 1600);
       } catch (_) {}
     });
+
+    // Active Navigation Highlight on Scroll
+    const navLinks = Array.from(document.querySelectorAll(".nav-center a[href^='#']"));
+    const observedSections = navLinks
+      .map((a) => document.querySelector(a.getAttribute("href")))
+      .filter(Boolean);
+    if ("IntersectionObserver" in window && observedSections.length) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = "#" + entry.target.id;
+              navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === id));
+            }
+          });
+        },
+        { rootMargin: "-35% 0px -55% 0px", threshold: 0 }
+      );
+      observedSections.forEach((sec) => io.observe(sec));
+    }
+
+    // Lightweight Live GitHub Star Count (cached 10 min in sessionStorage; silent fallback offline)
+    (async () => {
+      const badge = document.getElementById("ghStarsBadge");
+      if (!badge) return;
+      const showStars = (n) => {
+        if (typeof n === "number" && n >= 0) {
+          badge.textContent = "★ " + n.toLocaleString();
+          badge.classList.add("ready");
+        }
+      };
+      try {
+        const cached = JSON.parse(sessionStorage.getItem("vf_gh_stars") || "null");
+        if (cached && Date.now() - cached.ts < 600000) {
+          showStars(cached.stars);
+          return;
+        }
+        const res = await fetch("https://api.github.com/repos/vieforge/vieforge", {
+          headers: { Accept: "application/vnd.github+json" },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (typeof data.stargazers_count === "number") {
+          sessionStorage.setItem("vf_gh_stars", JSON.stringify({ stars: data.stargazers_count, ts: Date.now() }));
+          showStars(data.stargazers_count);
+        }
+      } catch (_) {}
+    })();
 
     renderLang();
   </script>

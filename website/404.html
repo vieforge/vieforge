@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>404 — Page Not Found | VieForge</title>
+  <meta name="robots" content="noindex" />
+  <meta name="theme-color" content="#050811" />
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(56, 189, 248, 0.16), transparent 65%), #050811;
+      color: #f8fafc;
+      text-align: center;
+    }
+    .box {
+      max-width: 460px;
+      width: 100%;
+      background: #0c1324;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 18px;
+      padding: 36px 28px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    }
+    .code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 48px;
+      font-weight: 800;
+      color: #38bdf8;
+      line-height: 1;
+      margin: 14px 0 10px;
+    }
+    h1 { margin: 0 0 10px; font-size: 22px; }
+    p { margin: 0 0 24px; color: #94a3b8; font-size: 14.5px; line-height: 1.6; }
+    .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    .primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; }
+    .ghost { background: #121c33; color: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.22); }
+  </style>
+</head>
+<body>
+  <main class="box">
+    <img src="/assets/logo.svg" alt="VieForge" height="32" />
+    <div class="code">404</div>
+    <h1>Page not found</h1>
+    <p>The page you requested does not exist on <strong>vieforge.dev</strong>. Return to the homepage or browse the open-source repository on GitHub.</p>
+    <div class="actions">
+      <a href="/" class="primary">Back to Home</a>
+      <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" class="ghost">GitHub Repository</a>
+    </div>
+  </main>
+</body>
+</html>

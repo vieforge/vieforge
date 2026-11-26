@@ -87,6 +87,14 @@ def test_release_version_sync_and_website_seo_assets() -> None:
     assert "https://vieforge.dev/assets/og-card.png" in index_html
     assert 'name="twitter:card"' in index_html
     assert "application/ld+json" in index_html
+    assert 'hreflang="vi"' in index_html
+    assert "FAQPage" in index_html
+    ld_blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', index_html, re.S)
+    assert len(ld_blocks) == 2
+    ld_types = {json.loads(b)["@type"] for b in ld_blocks}
+    assert ld_types == {"SoftwareApplication", "FAQPage"}
+    assert (website_dir / "_headers").is_file()
+    assert (website_dir / "404.html").is_file()
     assert (website_dir / "robots.txt").is_file()
     assert (website_dir / "sitemap.xml").is_file()
     og_png = website_dir / "assets" / "og-card.png"
