@@ -3,8 +3,11 @@
 Compresses verbose Tier 2/3 stdout/stderr before returning context to Tier 1 Cloud Agents:
   - Strips ANSI escape codes and resolves carriage-return progress overwrites.
   - Filters noisy progress-bar lines (tqdm/pip/download percentage spam).
+  - Redacts common API keys / Bearer tokens / secrets before text leaves the machine.
   - Deduplicates consecutive identical lines.
   - Caps Python tracebacks to the last N lines (default: 20).
+  - Preserves high-signal error lines (`FAILED`, `ERROR`, `AssertionError`, `FATAL`) even
+    when truncating the middle of huge logs.
   - Returns exact character reduction metrics for Savings Receipts.
 """
 
@@ -22,6 +25,31 @@ PROGRESS_BAR_RE = re.compile(
     re.IGNORECASE,
 )
 
+# High-signal error patterns preserved even when middle lines are truncated
+HIGH_SIGNAL_ERROR_RE = re.compile(
+    r"(?:^|\b)(?:ERROR|FAILED|FATAL|CRITICAL|Traceback|AssertionError|SyntaxError|"
+    r"TypeError|ValueError|RuntimeError|ModuleNotFoundError|ImportError|KeyError|"
+    r"panic:|UnhandledPromiseRejection|ECONNREFUSED|exit code [1-9])",
+    re.IGNORECASE,
+)
+
+# Clean-room secret redaction patterns (prevents accidental credential leaks to Cloud Agents)
+_SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\b(?:sk-(?:proj-|ant-)?[A-Za-z0-9_-]{16,})\b"), "[REDACTED_API_KEY]"),
+    (re.compile(r"\b(?:(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b"), "[REDACTED_GH_TOKEN]"),
+    (re.compile(r"\bAIza[0-9A-Za-z\-_]{25,}\b"), "[REDACTED_GOOGLE_KEY]"),
+    (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "[REDACTED_AWS_KEY]"),
+    (re.compile(r"\bxox[baprs]-[0-9A-Za-z-]{10,}\b"), "[REDACTED_SLACK_TOKEN]"),
+    (re.compile(r"(?i)(Bearer\s+)[A-Za-z0-9\-._~+/=]{16,}"), r"\1[REDACTED]"),
+    (
+        re.compile(
+            r"(?i)(\b[A-Z0-9_]*(?:API_KEY|SECRET_KEY|ACCESS_TOKEN|AUTH_TOKEN|PASSWORD)\b\s*[:=]\s*['\"]?)"
+            r"(?!\[REDACTED|your_|example|placeholder|ollama\b)[A-Za-z0-9\-._~+/=]{12,}(['\"]?)"
+        ),
+        r"\1[REDACTED]\2",
+    ),
+)
+
 
 @dataclass
 class TrimResult:
@@ -31,9 +59,20 @@ class TrimResult:
     saved_pct: float
     truncated: bool
     traceback_trimmed: bool
+    secrets_redacted: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+def redact_secrets_text(text: str) -> tuple[str, int]:
+    """Redact common API keys, Bearer tokens, and secret env assignments in log text."""
+    redacted = text
+    total = 0
+    for pattern, repl in _SECRET_PATTERNS:
+        redacted, count = pattern.subn(repl, redacted)
+        total += count
+    return redacted, total
 
 
 def _strip_ansi_and_cr(raw: str) -> list[str]:
@@ -97,8 +136,9 @@ def trim_output(
     max_lines: int = 60,
     max_chars: int = 4000,
     max_traceback_lines: int = 20,
+    redact_secrets: bool = True,
 ) -> TrimResult:
-    """Compress raw worker stdout/stderr for low-token Tier 1 consumption."""
+    """Compress raw worker stdout/stderr for low-token, secret-safe Tier 1 consumption."""
     raw_chars = len(raw_text)
     if raw_chars == 0:
         return TrimResult(
@@ -108,6 +148,7 @@ def trim_output(
             saved_pct=0.0,
             truncated=False,
             traceback_trimmed=False,
+            secrets_redacted=0,
         )
 
     lines = _strip_ansi_and_cr(raw_text)
@@ -117,13 +158,34 @@ def trim_output(
 
     truncated = False
     if len(lines) > max_lines:
-        head_n = max(5, max_lines // 3)
+        head_n = max(4, max_lines // 3)
         tail_n = max(5, max_lines - head_n - 1)
-        omitted = len(lines) - head_n - tail_n
-        lines = lines[:head_n] + [f"[... {omitted} lines omitted ...]"] + lines[-tail_n:]
+        middle = lines[head_n : len(lines) - tail_n]
+
+        # Retain high-signal error lines from the omitted middle so root causes are never lost
+        max_retained = max(2, min(8, max_lines // 5))
+        retained_errors = [ln for ln in middle if HIGH_SIGNAL_ERROR_RE.search(ln)][:max_retained]
+        if retained_errors:
+            head_n = max(3, head_n - len(retained_errors) // 2)
+            tail_n = max(4, max_lines - head_n - len(retained_errors) - 2)
+            middle_count = max(0, len(lines) - head_n - tail_n - len(retained_errors))
+            lines = (
+                lines[:head_n]
+                + [f"[... {middle_count} non-error lines omitted; {len(retained_errors)} key error lines retained ...]"]
+                + retained_errors
+                + ["[... end of retained error lines ...]"]
+                + lines[-tail_n:]
+            )
+        else:
+            omitted = len(lines) - head_n - tail_n
+            lines = lines[:head_n] + [f"[... {omitted} lines omitted ...]"] + lines[-tail_n:]
         truncated = True
 
     text = "\n".join(lines).strip()
+    secrets_redacted = 0
+    if redact_secrets and text:
+        text, secrets_redacted = redact_secrets_text(text)
+
     if len(text) > max_chars:
         head_c = max(200, max_chars // 3)
         tail_c = max(200, max_chars - head_c - 40)
@@ -144,6 +206,7 @@ def trim_output(
         saved_pct=saved_pct,
         truncated=truncated,
         traceback_trimmed=tb_trimmed,
+        secrets_redacted=secrets_redacted,
     )
 
 

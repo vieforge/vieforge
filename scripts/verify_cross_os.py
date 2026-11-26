@@ -150,6 +150,14 @@ def run_clean_wheel_e2e_check() -> dict[str, Any]:
             steps["pip_install"]["stderr_tail"] = inst.stderr[-600:]
             return {"passed": False, "steps": steps}
 
+        # 0. Unified `vieforge --version` & `vieforge check --json`
+        vf_ver = _run_cmd([str(_venv_bin(venv_dir, "vieforge")), "--version"], cwd=empty_cwd, env=env)
+        steps["vieforge_unified_cli"] = {
+            "ok": vf_ver.returncode == 0 and vf_ver.stdout.strip().startswith("vieforge "),
+            "rc": vf_ver.returncode,
+            "version": vf_ver.stdout.strip(),
+        }
+
         # 1. vieforge-preflight --json (must find bundled configs + SKILL.md!)
         pf = _run_cmd([str(_venv_bin(venv_dir, "vieforge-preflight")), "--json"], cwd=empty_cwd, env=env)
         pf_ok = False

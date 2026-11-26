@@ -81,6 +81,8 @@ def run_isolated(
                 )
 
         merged_env = os.environ.copy()
+        merged_env.setdefault("PYTHONUTF8", "1")
+        merged_env.setdefault("PYTHONIOENCODING", "utf-8")
         if env:
             merged_env.update(env)
 
@@ -100,6 +102,8 @@ def run_isolated(
                     env=merged_env,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=timeout_sec,
                     check=False,
                 )

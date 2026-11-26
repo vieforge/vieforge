@@ -9,7 +9,7 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 _EXPORTS: dict[str, tuple[str, str]] = {
     "BrowserCandidate": ("core.cdp_bridge", "BrowserCandidate"),
@@ -45,6 +45,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "LLMRouter": ("core.llm_router", "LLMRouter"),
     "TrimResult": ("core.output_trimmer", "TrimResult"),
     "compact_job_summary": ("core.output_trimmer", "compact_job_summary"),
+    "redact_secrets_text": ("core.output_trimmer", "redact_secrets_text"),
     "trim_output": ("core.output_trimmer", "trim_output"),
     "default_data_dir": ("core.paths", "default_data_dir"),
     "is_source_checkout": ("core.paths", "is_source_checkout"),

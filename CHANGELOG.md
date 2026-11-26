@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-11-26
+
+### Added
+- **Direct Disk-Input MCP Batching (`mcp/worker_mcp_server.py`):** `tool_run_local_batch` now supports `input_path` (directory, `.jsonl`, `.json`, `.csv`, or single text file) and `input_glob` (e.g. `"docs/*.md"`) so Tier 2 reads files locally from disk with zero Cloud token payload transfer.
+- **Secret Redaction & Smart Error Retention (`core/output_trimmer.py`):** Automatically redacts API keys, GitHub/AWS/Google/Slack tokens, Bearer headers, and secret env assignments before returning logs to Tier 1 (`redact_secrets=True`), and retains high-signal error lines (`FAILED`, `ERROR`, `AssertionError`, `FATAL`) even when truncating huge log middles.
+- **Unified `vieforge` CLI (`scripts/cli.py`):** Added single `vieforge <setup|check|bench|mcp|audit|verify-os|install-skill>` command (keeping all 5 legacy `vieforge-*` aliases intact) plus `vieforge --version`.
+- **OpenAI-Compatible Preflight Detection (`scripts/preflight_check.py`):** `check_ollama()` now probes `/v1/models` for LM Studio, llama.cpp, and vLLM endpoints in addition to native Ollama `/api/tags`.
+- **Flagship Website Overhaul (`https://vieforge.dev`):** Rebuilt Desktop & Mobile UI with interactive 3-tab Hero demo, asymmetrical Bento Grid, Calculator presets, 56px mobile drawer, bilingual FAQ + `FAQPage` JSON-LD, Cloudflare security `_headers`, custom `404.html`, and `hreflang`.
+
+### Fixed
+- **Windows UTF-8 Subprocess Safety (`core/subprocess_runner.py`, `scripts/preflight_check.py`):** Enforced explicit `encoding="utf-8", errors="replace"` and `PYTHONUTF8=1` on child processes to prevent `UnicodeDecodeError` on Unicode/Vietnamese output.
+
 ## [0.3.0] - 2026-11-26
 
 ### Added

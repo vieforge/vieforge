@@ -79,8 +79,53 @@ def _normalize_ollama_root(raw_url: str) -> str:
     return url or "http://127.0.0.1:11434"
 
 
+def _probe_openai_models(base_url: str, timeout: float = 2.5) -> dict[str, Any]:
+    """Probe an OpenAI-compatible local/remote server (`GET .../v1/models`)."""
+    root = base_url.strip().rstrip("/")
+    models_url = f"{root}/models" if root.endswith("/v1") else f"{root}/v1/models"
+    headers: dict[str, str] = {}
+    api_key = os.getenv("TIERFORGE_LLM_API_KEY", "").strip()
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    req = urllib.request.Request(models_url, headers=headers, method="GET")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        payload = json.loads(resp.read().decode("utf-8", errors="replace"))
+    raw_list = payload.get("data", []) if isinstance(payload, dict) else []
+    models = [str(m.get("id", "")) for m in raw_list if isinstance(m, dict) and m.get("id")]
+    return {
+        "status": "OK",
+        "api_style": "openai",
+        "endpoint": root,
+        "models_count": len(models),
+        "models_sample": models[:8],
+        "note": "OpenAI-compatible server ready for Tier 2 ($0) local inference.",
+    }
+
+
 def check_ollama(base_url: str, timeout: float = 2.5) -> dict[str, Any]:
-    root = _normalize_ollama_root(base_url)
+    """Check Tier 2 local LLM reachability (Ollama `/api/tags` or OpenAI-compat `/v1/models`)."""
+    from core.llm_router import _resolve_api_style
+
+    req_style = os.getenv("TIERFORGE_LLM_API_STYLE", "auto")
+    try:
+        style, resolved_base = _resolve_api_style(base_url, req_style)
+    except ValueError:
+        style, resolved_base = "ollama", _normalize_ollama_root(base_url)
+
+    if style == "openai":
+        try:
+            return _probe_openai_models(resolved_base, timeout=timeout)
+        except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+            return {
+                "status": "WARN",
+                "api_style": "openai",
+                "endpoint": resolved_base,
+                "models_count": 0,
+                "models_sample": [],
+                "note": f"OpenAI-compatible server not reachable ({exc}). Start LM Studio/llama.cpp/vLLM or switch to Ollama.",
+            }
+
+    root = _normalize_ollama_root(resolved_base)
     tags_url = f"{root}/api/tags"
     req = urllib.request.Request(tags_url, method="GET")
     try:
@@ -89,14 +134,22 @@ def check_ollama(base_url: str, timeout: float = 2.5) -> dict[str, Any]:
         models = [m.get("name", "") for m in payload.get("models", []) if m.get("name")]
         return {
             "status": "OK",
+            "api_style": "ollama",
             "endpoint": root,
             "models_count": len(models),
             "models_sample": models[:8],
             "note": "Ready for Tier 2 ($0) local inference (keep_alive=0 recommended).",
         }
     except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+        # Fallback: non-Ollama servers without `/v1` suffix might still expose `/v1/models`
+        if ":11434" not in root:
+            try:
+                return _probe_openai_models(root, timeout=timeout)
+            except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError):
+                pass
         return {
             "status": "WARN",
+            "api_style": "ollama",
             "endpoint": root,
             "models_count": 0,
             "models_sample": [],
@@ -126,6 +179,8 @@ def check_gpu() -> dict[str, Any]:
                 ],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=3.0,
                 check=False,
             )
@@ -162,6 +217,8 @@ def check_gpu() -> dict[str, Any]:
                 ["sysctl", "-n", "hw.memsize"],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=2.0,
                 check=False,
             )

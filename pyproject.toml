@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vieforge"
-version = "0.3.0"
+version = "0.4.0"
 description = "VieForge — Code First, Local LLM Second, Cloud Last. 3-Tier Hybrid AI Agent Harness for checkpointed, budget-guarded local execution."
 readme = "README.md"
 license = { text = "MIT" }
@@ -48,6 +48,7 @@ dev = [
 ]
 
 [project.scripts]
+vieforge = "scripts.cli:main"
 vieforge-setup = "scripts.quick_setup:main"
 vieforge-preflight = "scripts.preflight_check:main"
 vieforge-bench = "scripts.benchmark_token_savings:main"

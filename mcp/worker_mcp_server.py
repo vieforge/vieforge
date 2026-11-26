@@ -12,6 +12,8 @@ Run:
 from __future__ import annotations
 
 import argparse
+import csv
+import glob
 import json
 import os
 import shlex
@@ -84,27 +86,152 @@ def tool_estimate_batch_dry_run(
     return compact_job_summary(est.to_dict())
 
 
+_BINARY_SUFFIXES = {
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".bmp",
+    ".mp4", ".mov", ".mkv", ".avi", ".mp3", ".wav", ".flac",
+    ".zip", ".tar", ".gz", ".7z", ".rar", ".pdf", ".exe", ".dll",
+    ".so", ".dylib", ".pyc", ".whl", ".db", ".sqlite", ".sqlite3",
+}
+
+
+def _load_disk_items(
+    *,
+    input_path: str = "",
+    input_glob: str = "",
+    max_chars_per_item: int = 8000,
+) -> tuple[list[dict[str, str]], str, int]:
+    """Load batch items directly from disk so Tier 1 Cloud never pays to transmit file contents."""
+    items: list[dict[str, str]] = []
+    total_raw_chars = 0
+    cap = max(200, int(max_chars_per_item))
+
+    if input_path:
+        p = Path(input_path).expanduser()
+        if not p.exists():
+            raise FileNotFoundError(f"input_path not found: {p}")
+
+        if p.is_file():
+            suffix = p.suffix.lower()
+            if suffix in (".jsonl", ".ndjson"):
+                for lineno, line in enumerate(p.read_text(encoding="utf-8", errors="replace").splitlines(), start=1):
+                    s = line.strip()
+                    if not s:
+                        continue
+                    obj = json.loads(s)
+                    if isinstance(obj, dict):
+                        item_id = str(obj.get("id") or f"line_{lineno}")
+                        text = str(obj.get("text") or obj.get("content") or obj.get("body") or json.dumps(obj, ensure_ascii=False))
+                    else:
+                        item_id = f"line_{lineno}"
+                        text = str(obj)
+                    total_raw_chars += len(text)
+                    items.append({"id": item_id, "text": text[:cap]})
+                return items, "disk_jsonl", total_raw_chars
+
+            if suffix == ".json":
+                data = json.loads(p.read_text(encoding="utf-8", errors="replace"))
+                if not isinstance(data, list):
+                    raise ValueError(f"JSON input file must contain a list of items: {p}")
+                for idx, entry in enumerate(data, start=1):
+                    if isinstance(entry, dict):
+                        item_id = str(entry.get("id") or f"item_{idx}")
+                        text = str(entry.get("text") or entry.get("content") or entry.get("body") or json.dumps(entry, ensure_ascii=False))
+                    else:
+                        item_id = f"item_{idx}"
+                        text = str(entry)
+                    total_raw_chars += len(text)
+                    items.append({"id": item_id, "text": text[:cap]})
+                return items, "disk_json", total_raw_chars
+
+            if suffix == ".csv":
+                with p.open("r", encoding="utf-8", errors="replace", newline="") as fh:
+                    reader = csv.DictReader(fh)
+                    for idx, row in enumerate(reader, start=1):
+                        item_id = str(row.get("id") or f"row_{idx}")
+                        text = str(
+                            row.get("text")
+                            or row.get("content")
+                            or " | ".join(f"{k}={v}" for k, v in row.items() if v is not None)
+                        )
+                        total_raw_chars += len(text)
+                        items.append({"id": item_id, "text": text[:cap]})
+                return items, "disk_csv", total_raw_chars
+
+            text = p.read_text(encoding="utf-8", errors="replace")
+            total_raw_chars += len(text)
+            items.append({"id": p.name, "text": text[:cap]})
+            return items, "disk_file", total_raw_chars
+
+        # Directory mode
+        pattern = input_glob or "*"
+        candidates = sorted(f for f in p.glob(pattern) if f.is_file())
+        for f in candidates:
+            if f.suffix.lower() in _BINARY_SUFFIXES or f.name.startswith("."):
+                continue
+            text = f.read_text(encoding="utf-8", errors="replace")
+            if not text.strip():
+                continue
+            rel_id = str(f.relative_to(p)).replace("\\", "/")
+            total_raw_chars += len(text)
+            items.append({"id": rel_id, "text": text[:cap]})
+        return items, "disk_dir", total_raw_chars
+
+    if input_glob:
+        matched = sorted(Path(m) for m in glob.glob(input_glob, recursive=True) if Path(m).is_file())
+        for f in matched:
+            if f.suffix.lower() in _BINARY_SUFFIXES or f.name.startswith("."):
+                continue
+            text = f.read_text(encoding="utf-8", errors="replace")
+            if not text.strip():
+                continue
+            total_raw_chars += len(text)
+            items.append({"id": str(f).replace("\\", "/"), "text": text[:cap]})
+        return items, "disk_glob", total_raw_chars
+
+    raise ValueError("Provide either items_json, input_path, or input_glob.")
+
+
 def tool_run_local_batch(
     job_id: str,
-    items_json: str,
+    items_json: str = "",
     system_prompt: str = "Extract a concise JSON summary.",
     required_keys_csv: str = "",
     model: str = "",
     mock: bool = False,
     db_path: str = "",
     project_id: str = "",
+    input_path: str = "",
+    input_glob: str = "",
+    max_chars_per_item: int = 8000,
 ) -> str:
-    """Process a batch of items via Tier 2 local LLM with SQLite checkpointing and VRAM hygiene.
+    """Process a batch via Tier 2 local LLM with SQLite checkpointing and VRAM hygiene.
 
-    `items_json` must be a JSON array of objects: `[{"id": "item_1", "text": "..."}, ...]`.
+    Prefer `input_path` (directory / .jsonl / .json / .csv) or `input_glob` (e.g. `"docs/*.md"`)
+    so Tier 2 reads files directly from disk with zero Cloud token transfer.
+    Alternatively pass inline `items_json`: `[{"id": "item_1", "text": "..."}, ...]`.
     Pass `project_id` when running multiple workspaces concurrently so job_ids stay isolated.
     """
-    try:
-        raw_items = json.loads(items_json)
-        if not isinstance(raw_items, list):
-            raise ValueError("items_json must be a JSON list.")
-    except (json.JSONDecodeError, ValueError) as exc:
-        return compact_job_summary({"error": f"Invalid items_json: {exc}"})
+    input_source = "inline_json"
+    total_raw_chars = 0
+    if input_path or input_glob:
+        try:
+            raw_items, input_source, total_raw_chars = _load_disk_items(
+                input_path=input_path,
+                input_glob=input_glob,
+                max_chars_per_item=max_chars_per_item,
+            )
+            if not raw_items:
+                return compact_job_summary({"error": "No readable text items matched input_path/input_glob."})
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            return compact_job_summary({"error": f"Failed loading disk batch input: {exc}"})
+    else:
+        try:
+            raw_items = json.loads(items_json)
+            if not isinstance(raw_items, list):
+                raise ValueError("items_json must be a JSON list.")
+            total_raw_chars = sum(len(str(e.get("text", ""))) for e in raw_items if isinstance(e, dict))
+        except (json.JSONDecodeError, ValueError) as exc:
+            return compact_job_summary({"error": f"Invalid items_json: {exc}"})
 
     effective_job_id = scoped_job_id(project_id, job_id) if project_id else job_id
     req_keys = [k.strip() for k in required_keys_csv.split(",") if k.strip()]
@@ -150,6 +277,8 @@ def tool_run_local_batch(
     )
     return compact_job_summary(
         {
+            "input_source": input_source,
+            "total_raw_chars_loaded": total_raw_chars,
             "summary": summary,
             "processed_this_run": processed_now,
             "skipped_from_checkpoint": len(raw_items) - len(pending),
