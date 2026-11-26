@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "tierforge-worker": {
+      "command": "python",
+      "args": ["mcp/worker_mcp_server.py"],
+      "env": {
+        "TIERFORGE_LLM_BASE_URL": "http://127.0.0.1:11434",
+        "TIERFORGE_LLM_MODEL": "qwen2.5:7b",
+        "TIERFORGE_OLLAMA_KEEP_ALIVE": "0",
+        "TIERFORGE_STATE_DB": "data/tierforge_state.db"
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "codes": {
+    "OK": {
+      "key": "y",
+      "severity": "info",
+      "description": "Output passed quality gate."
+    },
+    "SCHEMA_INVALID": {
+      "key": "s",
+      "severity": "error",
+      "description": "Output failed JSON/schema validation."
+    },
+    "HALLUCINATION": {
+      "key": "h",
+      "severity": "error",
+      "description": "Output introduced unsupported facts or deviated from source."
+    },
+    "TRUNCATED": {
+      "key": "t",
+      "severity": "warning",
+      "description": "Output was cut off or incomplete."
+    },
+    "FORMAT_DRIFT": {
+      "key": "f",
+      "severity": "warning",
+      "description": "Output violated requested formatting or style constraints."
+    },
+    "RETRY_EXHAUSTED": {
+      "key": "r",
+      "severity": "error",
+      "description": "Item reached MAX_RETRY_PER_ITEM without passing."
+    },
+    "BUDGET_BLOCKED": {
+      "key": "b",
+      "severity": "error",
+      "description": "Execution halted by job or daily USD cap."
+    },
+    "VRAM_INSUFFICIENT": {
+      "key": "v",
+      "severity": "error",
+      "description": "Pre-flight GPU free VRAM check below threshold."
+    },
+    "REJECT_OTHER": {
+      "key": "x",
+      "severity": "error",
+      "description": "Rejected for another reason (add optional note)."
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "TierForge AI Bridge",
+  "version": "1.0.0",
+  "description": "Zero-CDP bridge connecting Chrome, Coc Coc, Edge, Brave, Opera, and Firefox to local TierForge Harness (Tier-1 Web AI).",
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:19876/*",
+    "https://gemini.google.com/*",
+    "https://chatgpt.com/*",
+    "https://claude.ai/*",
+    "https://labs.google/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "TierForge AI Bridge",
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tierforge-bridge@tierforge.local",
+      "strict_min_version": "115.0"
+    }
+  }
+}

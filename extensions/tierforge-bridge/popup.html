@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>TierForge AI Bridge</title>
+  <style>
+    body { width: 310px; margin: 0; padding: 14px; font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; }
+    h1 { font-size: 15px; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: center; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #334155; }
+    .badge.ok { background: #14532d; color: #86efac; }
+    .badge.off { background: #7f1d1d; color: #fca5a5; }
+    .row { display: flex; gap: 8px; margin-top: 10px; }
+    button {
+      flex: 1; padding: 7px 10px; border: 0; border-radius: 6px; cursor: pointer;
+      font-weight: 600; font-size: 12px; background: #2563eb; color: #fff;
+    }
+    button.danger { background: #dc2626; }
+    button.resume { background: #16a34a; }
+    label { display: block; font-size: 11px; color: #94a3b8; margin-top: 8px; }
+    input[type="text"], input[type="number"] {
+      width: 100%; box-sizing: border-box; margin-top: 4px; padding: 5px 8px;
+      background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 12px;
+    }
+    .section { margin-top: 12px; padding-top: 10px; border-top: 1px solid #1e293b; }
+    .log-title { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 6px; }
+    .log-list { font-family: ui-monospace, monospace; font-size: 11px; color: #cbd5e1; max-height: 110px; overflow-y: auto; }
+    .log-item { padding: 2px 0; border-bottom: 1px solid #1e293b; }
+    .hint { font-size: 11px; color: #64748b; margin-top: 8px; line-height: 1.35; }
+  </style>
+</head>
+<body>
+  <h1>TierForge Bridge <span id="statusBadge" class="badge off">Offline</span></h1>
+  <div class="row">
+    <button id="pauseBtn" class="danger">Pause Bridge</button>
+    <button id="saveBtn">Reconnect</button>
+  </div>
+  <div class="hint" id="statusText">100% Localhost (127.0.0.1:19876) • Zero Cloud Telemetry</div>
+
+  <div class="section">
+    <div class="log-title">Recent Activity (Transparent Log)</div>
+    <div id="activityLog" class="log-list"><div class="hint">No jobs run yet.</div></div>
+  </div>
+
+  <details class="section">
+    <summary style="font-size: 11px; color: #94a3b8; cursor: pointer;">Advanced Settings</summary>
+    <label>Local Port (127.0.0.1)
+      <input type="number" id="port" value="19876" />
+    </label>
+    <label>Bridge Token (Auto-paired via TOFU Lock)
+      <input type="text" id="token" placeholder="Automatic" />
+    </label>
+  </details>
+  <script src="popup.js"></script>
+</body>
+</html>

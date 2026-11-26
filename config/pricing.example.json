@@ -1,0 +1,41 @@
+{
+  "_comment": "Example pricing table for --dry-run estimation. Override or copy to config/pricing.json with your provider's current rates. All values in USD.",
+  "currency": "USD",
+  "updated_at": "2026-01-01",
+  "models": {
+    "ollama/qwen2.5:7b": {
+      "tier": 2,
+      "billing_unit": "1m_tokens",
+      "input_usd_per_1m": 0.0,
+      "output_usd_per_1m": 0.0
+    },
+    "ollama/llama3.2:3b": {
+      "tier": 2,
+      "billing_unit": "1m_tokens",
+      "input_usd_per_1m": 0.0,
+      "output_usd_per_1m": 0.0
+    },
+    "local/gpu-subprocess": {
+      "tier": 3,
+      "billing_unit": "item",
+      "usd_per_item": 0.0
+    },
+    "external/text-small": {
+      "tier": 3,
+      "billing_unit": "1m_tokens",
+      "input_usd_per_1m": 0.15,
+      "output_usd_per_1m": 0.60
+    },
+    "external/text-frontier": {
+      "tier": 3,
+      "billing_unit": "1m_tokens",
+      "input_usd_per_1m": 3.00,
+      "output_usd_per_1m": 15.00
+    },
+    "external/media-render-unit": {
+      "tier": 3,
+      "billing_unit": "item",
+      "usd_per_item": 0.08
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "max_retry_per_item": 2,
+  "max_job_usd": 5.0,
+  "daily_usd_cap": 20.0,
+  "require_dry_run_for_paid": true,
+  "require_approval_above_usd": 1.0,
+  "abort_on_consecutive_failures": 5
+}
