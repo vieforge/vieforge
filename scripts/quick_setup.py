@@ -115,7 +115,7 @@ def main() -> int:
         ]
         if use_mock:
             demo_cmd.append("--mock-llm")
-        subprocess.run(demo_cmd, cwd=str(Path.cwd()), check=False)
+        subprocess.run(demo_cmd, cwd=str(Path.cwd()), check=False, timeout=120)
 
     print("\n=== Setup Complete! ===")
     print("Next steps:")

@@ -52,7 +52,7 @@ def check_sqlite() -> dict[str, Any]:
     try:
         with tempfile.TemporaryDirectory(prefix="tierforge_preflight_") as tmpdir:
             db_path = Path(tmpdir) / "check.db"
-            conn = sqlite3.connect(db_path)
+            conn = sqlite3.connect(db_path, timeout=5.0)
             try:
                 mode = conn.execute("PRAGMA journal_mode=WAL;").fetchone()
                 wal_ok = bool(mode and str(mode[0]).lower() == "wal")

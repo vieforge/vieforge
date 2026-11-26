@@ -227,7 +227,8 @@ class LLMRouter:
         return str(msg.get("content", "")).strip()
 
     def _init_cache_db(self) -> None:
-        assert self.cache_db_path is not None
+        if self.cache_db_path is None:
+            return
         self.cache_db_path.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(self.cache_db_path, timeout=5.0) as conn:
             conn.execute("PRAGMA journal_mode=WAL")

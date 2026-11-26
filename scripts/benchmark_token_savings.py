@@ -287,7 +287,8 @@ def benchmark_interrupt_resume_50() -> WorkloadBenchmark:
 
         # Pass 2: resume remaining 20
         pending_after_crash = db.get_pending_items("bench_resume_50")
-        assert len(pending_after_crash) == 20
+        if len(pending_after_crash) != 20:
+            raise RuntimeError(f"Expected 20 pending items after crash, got {len(pending_after_crash)}")
         for item in pending_after_crash:
             res = router.generate_json(
                 doc_map[item.item_id],
