@@ -14,7 +14,13 @@
 [![Crafted in Vietnam](https://img.shields.io/badge/Crafted%20in-Vietnam%20%F0%9F%87%BB%F0%9F%87%B3-da251d.svg)](README.vi.md)
 [![Website: vieforge.dev](https://img.shields.io/badge/Website-vieforge.dev-2563eb.svg)](https://vieforge.dev)
 
-Biến mọi máy tính cá nhân thành một **worker AI cục bộ có checkpoint, khóa ngân sách và hỗ trợ đa dự án**, giúp giảm **70–90%** lượng token Cloud Agent và chi phí API. Xây dựng theo chuẩn mở **MCP (Model Context Protocol)** + **Agent Skill (`SKILL.md` / `AGENTS.md`)** cho **Antigravity, Claude Code, Cursor, Windsurf và Codex CLI**.
+<p align="center">
+  <a href="https://vieforge.dev/?lang=vi">
+    <img src="website/assets/og-card.png" alt="VieForge — Kiến trúc AI Agent Lai 3 Tầng" width="760" />
+  </a>
+</p>
+
+Biến mọi máy tính cá nhân thành một **worker AI cục bộ có checkpoint, khóa ngân sách và hỗ trợ đa dự án**, giúp giảm **70–90%** lượng token Cloud Agent và chi phí API. Xây dựng theo chuẩn mở **MCP (Model Context Protocol)** + **Agent Skill (`SKILL.md` / `AGENTS.md`)** cho **Antigravity, Claude Code, Cursor, Codeium/Windsurf, Cline, VS Code Copilot và Codex CLI**.
 
 ---
 

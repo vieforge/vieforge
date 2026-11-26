@@ -1,26 +1,28 @@
 # AGENT_INSTALL.md — Zero-Knowledge Playbook for AI Agents
 
-> **Purpose:** If a user who does not know Git, Python, or MCP asks you (Antigravity, Claude Code, Cursor, Windsurf, or Codex CLI) to *"install TierForge / the 3-tier token-saving repo and set it up for me"*, follow these exact steps on their behalf and explain everything in simple, non-technical language.
+> **Purpose:** If a user who does not know Git, Python, or MCP asks you (Antigravity, Claude Code, Cursor, Codeium/Windsurf, Cline, VS Code Copilot, or Codex CLI) to *"install VieForge and set it up for me"*, follow these exact steps on their behalf and explain everything in plain, non-technical language.
 
 ## Automated Setup Steps (Execute Sequentially)
 
-1. **Clone or locate the repository** (if not already in the workspace):
+1. **Install VieForge from PyPI (recommended, 100% stdlib MIT, zero required dependencies):**
    ```bash
-   git clone https://github.com/vieforge/vieforge.git
-   cd vieforge
+   pip install -U vieforge
+   vieforge setup
    ```
-2. **Run the 1-command zero-knowledge setup** (100% Python stdlib, zero OS mutations):
-   ```bash
-   python scripts/quick_setup.py
-   ```
+   *(Alternative — from source: `git clone https://github.com/vieforge/vieforge.git && cd vieforge && python scripts/quick_setup.py`.)*
+
    This automatically:
-   - Checks Python (>= 3.10), SQLite WAL, GPU/VRAM, and Ollama.
-   - Installs the `three-tier-orchestrator` skill for every AI agent detected on the user's machine.
-   - Generates absolute-path MCP config files at `data/mcp_config.generated.json` (Antigravity / Claude Code / Cursor / Windsurf) and `data/codex_mcp.generated.toml` (Codex CLI).
+   - Checks Python (>= 3.10), SQLite WAL, GPU/VRAM, and Ollama / OpenAI-compatible local LLMs (`vieforge doctor`).
+   - Installs the `three-tier-orchestrator` skill for every AI IDE/CLI detected on the user's machine (**Antigravity, Claude Code, Cursor, Codeium/Windsurf, Codex CLI, Cline/Roo**).
+   - Generates absolute-path MCP configs (JSON for Antigravity/Claude/Cursor/Codeium Windsurf/Cline, `.vscode/mcp.json` for VS Code Copilot, TOML for Codex CLI, and a 1-line `claude mcp add` command for Claude Code).
    - Runs the 5-minute `$0` batch demo (automatically falling back to `--mock-llm` if Ollama is not installed yet) and displays a **Savings Receipt**.
-3. **Optional — Enable Real Local LLM (`$0`):**
-   - If `quick_setup.py` reported Ollama is not running, tell the user in 1 sentence how to install Ollama from https://ollama.com and pull the hardware-recommended model (e.g., `ollama pull qwen2.5:3b` for CPU-only, `ollama pull qwen2.5:7b` for 8–16 GB VRAM).
-4. **Optional — Connect MCP Server:**
-   - Install the optional MCP SDK (`pip install "mcp>=1.2.0"` or `uv sync --extra mcp`) and help the user paste the generated snippet from `data/mcp_config.generated.json` (or `data/codex_mcp.generated.toml` for Codex CLI) into their IDE's MCP settings.
-5. **Report Back in Plain Language:**
-   - Summarize: (a) what hardware profile was detected, (b) which AI agents received the skill, (c) the Savings Receipt from the demo, and (d) one example sentence the user can type next to start saving tokens.
+
+2. **Optional — Enable Real Local LLM (`$0`):**
+   - If `vieforge doctor` reported no local LLM running, tell the user in 1 sentence how to install Ollama from https://ollama.com and pull the hardware-recommended model (`ollama pull qwen2.5:3b` for CPU-only, `ollama pull qwen2.5:7b` for 8–16 GB VRAM) — or point `TIERFORGE_LLM_BASE_URL` to LM Studio (`:1234/v1`), llama.cpp (`:8080/v1`), or vLLM (`:8000/v1`).
+
+3. **Optional — Connect MCP Server (`mcp 2.x` & `1.x` compatible):**
+   - Install the optional MCP extra: `pip install -U "vieforge[mcp]"` (or `uv sync --extra mcp`).
+   - Run `vieforge install-skill --target <antigravity|claude|codeium|cursor|cline|codex|all>` and paste the generated snippet (or run the printed `claude mcp add` command).
+
+4. **Report Back in Plain Language:**
+   - Summarize: (a) what hardware profile was detected, (b) which AI agents/IDEs received the skill, (c) the Savings Receipt from the demo, and (d) one example sentence the user can type next to start saving tokens.

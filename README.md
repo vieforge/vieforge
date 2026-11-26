@@ -15,7 +15,13 @@
 [![Crafted in Vietnam](https://img.shields.io/badge/Crafted%20in-Vietnam%20%F0%9F%87%BB%F0%9F%87%B3-da251d.svg)](README.vi.md)
 [![Website: vieforge.dev](https://img.shields.io/badge/Website-vieforge.dev-2563eb.svg)](https://vieforge.dev)
 
-Turn any consumer workstation into a **checkpointed, budget-guarded, multi-project local AI worker** to cut Cloud Agent quota and API spend by **70–90%**. Built on open **MCP (Model Context Protocol)** + **Agent Skill (`SKILL.md` / `AGENTS.md`)** standards for **Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI**.
+<p align="center">
+  <a href="https://vieforge.dev">
+    <img src="website/assets/og-card.png" alt="VieForge — 3-Tier Hybrid AI Agent Harness" width="760" />
+  </a>
+</p>
+
+Turn any consumer workstation into a **checkpointed, budget-guarded, multi-project local AI worker** to cut Cloud Agent quota and API spend by **70–90%**. Built on open **MCP (Model Context Protocol)** + **Agent Skill (`SKILL.md` / `AGENTS.md`)** standards for **Antigravity, Claude Code, Cursor, Codeium/Windsurf, Cline, VS Code Copilot, and Codex CLI**.
 
 ---
 
@@ -102,17 +108,19 @@ python scripts/benchmark_token_savings.py
 
 ## Multi-Agent Ecosystem Support
 
-Run `python scripts/install_skill.py --target all` to install the `three-tier-orchestrator` skill across every supported agent detected on your machine and generate absolute-path MCP snippets:
+Run `vieforge install-skill --target all` (or target a specific IDE such as `--target codeium`, `--target claudecode`, `--target cline`) to install the `three-tier-orchestrator` skill and generate absolute-path MCP configs (preserving `.venv` symlinks on macOS/Linux):
 
-| AI Agent / IDE | Skill Path | MCP Config Format | Repo Instructions |
+| AI Agent / IDE | Skill Path / Target Flag | MCP Config Format | Repo Instructions |
 | :--- | :--- | :--- | :---: |
-| **Antigravity** | `~/.gemini/config/skills/three-tier-orchestrator` | JSON (`data/mcp_config.generated.json`) | `AGENTS.md` + `SKILL.md` |
-| **Claude Code** | `~/.claude/skills/three-tier-orchestrator` | JSON (`data/mcp_config.generated.json`) | `AGENTS.md` + `SKILL.md` |
-| **Cursor** | `~/.cursor/skills/three-tier-orchestrator` | JSON (`data/mcp_config.generated.json`) | `AGENTS.md` + `SKILL.md` |
-| **Windsurf** | `~/.codeium/windsurf/skills/three-tier-orchestrator` | JSON (`data/mcp_config.generated.json`) | `AGENTS.md` + `SKILL.md` |
-| **Codex CLI** | `~/.agents/skills/three-tier-orchestrator` | TOML (`data/codex_mcp.generated.toml`) | `AGENTS.md` |
+| **Antigravity** | `~/.gemini/config/skills/three-tier-orchestrator` (`--target antigravity`) | JSON (`mcpServers`) | `AGENTS.md` + `SKILL.md` |
+| **Claude Code** | `~/.claude/skills/three-tier-orchestrator` (`--target claude` / `claudecode`) | JSON + 1-line `claude mcp add` | `AGENTS.md` + `SKILL.md` |
+| **Codeium / Windsurf** | `~/.codeium/windsurf/skills/three-tier-orchestrator` (`--target codeium` / `windsurf`) | JSON (`~/.codeium/windsurf/mcp_config.json`) | `AGENTS.md` + `SKILL.md` |
+| **Cursor** | `~/.cursor/skills/three-tier-orchestrator` (`--target cursor`) | JSON (`~/.cursor/mcp.json`) | `AGENTS.md` + `SKILL.md` |
+| **Cline / Roo Code** | `~/.cline/skills/three-tier-orchestrator` (`--target cline` / `roo`) | JSON (`mcpServers`) | `AGENTS.md` + `SKILL.md` |
+| **VS Code / GitHub Copilot** | Project-level config | JSON (`.vscode/mcp.json` `servers` schema) | `AGENTS.md` |
+| **Codex CLI** | `~/.agents/skills/three-tier-orchestrator` (`--target codex`) | TOML (`~/.codex/config.toml`) | `AGENTS.md` |
 
-To start the MCP server, install the optional MCP extra (`pip install "mcp>=1.2.0"` or `uv sync --extra mcp`) and paste the generated snippet into your IDE settings.
+To start the MCP server (compatible with both **`mcp 2.x` `MCPServer`** and **`mcp 1.x` `FastMCP`**), run `pip install -U "vieforge[mcp]"` and `vieforge doctor` to verify your setup.
 
 ---
 

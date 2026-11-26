@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose a new capability, IDE integration, or optimization for VieForge
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What workflow or token-burn bottleneck are you solving?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the expected CLI, MCP tool, or core behavior (keeping `core/` 100% stdlib MIT).
+    validations:
+      required: true
