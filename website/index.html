@@ -43,8 +43,10 @@
     :root {
       --bg: #070b14;
       --surface: #0f172a;
+      --panel: #0f172a;
       --surface-2: #162033;
       --border: #1e293b;
+      --line: #1e293b;
       --text: #f8fafc;
       --muted: #94a3b8;
       --accent: #38bdf8;
@@ -53,149 +55,291 @@
       --danger: #f87171;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: clip;
+      -webkit-text-size-adjust: 100%;
+    }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: radial-gradient(circle at top center, #0f1d36 0%, var(--bg) 52%);
       color: var(--text);
       line-height: 1.6;
+      overflow-x: clip;
+      max-width: 100%;
+    }
+    img, svg { max-width: 100%; height: auto; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.9em;
+      background: rgba(148, 163, 184, 0.12);
+      padding: 1px 5px;
+      border-radius: 5px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    main, section, .card, .kpi, .prompt-box, .calc-out, .table-wrap, .terminal {
+      min-width: 0;
+      max-width: 100%;
+    }
     header {
       position: sticky; top: 0; z-index: 20;
-      background: rgba(7, 11, 20, 0.88);
+      background: rgba(7, 11, 20, 0.92);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
     .nav {
       display: flex; align-items: center; justify-content: space-between;
-      height: 68px; gap: 14px;
+      min-height: 64px; gap: 12px; padding: 10px 0;
     }
-    .nav-links { display: flex; align-items: center; gap: 16px; font-size: 14px; flex-wrap: wrap; }
+    .nav-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      flex-shrink: 0;
+    }
+    .brand-link { display: inline-flex; align-items: center; flex-shrink: 0; }
+    .brand-logo { height: 34px; width: auto; display: block; }
+    .nav-links {
+      display: flex; align-items: center; gap: 16px; font-size: 14px; flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .lang-btn-mobile { display: none; }
+    .lang-btn-desktop { display: inline-flex; }
     .btn {
-      display: inline-flex; align-items: center; gap: 8px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px;
       border: 1px solid var(--border); cursor: pointer; transition: 0.15s ease;
+      text-align: center; max-width: 100%;
     }
     .btn-primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: 0; }
     .btn-primary:hover { filter: brightness(1.1); text-decoration: none; }
     .btn-ghost { background: var(--surface); color: var(--text); }
     .btn-ghost:hover { background: var(--surface-2); text-decoration: none; }
-    .hero { padding: 64px 0 40px; text-align: center; }
+    .hero { padding: 56px 0 36px; text-align: center; }
     .pill {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
       background: rgba(56, 189, 248, 0.12); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3);
-      margin-bottom: 18px;
+      margin-bottom: 18px; max-width: 100%; line-height: 1.4; text-align: center;
     }
-    h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.1; margin: 0 0 16px; letter-spacing: -1px; }
-    .lead { max-width: 760px; margin: 0 auto 26px; color: var(--muted); font-size: 17.5px; }
-    .cta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+    h1 {
+      font-size: clamp(27px, 6.2vw, 54px); line-height: 1.12; margin: 0 0 16px;
+      letter-spacing: -0.8px; overflow-wrap: break-word;
+    }
+    .lead {
+      max-width: 760px; margin: 0 auto 24px; color: var(--muted);
+      font-size: clamp(15px, 2.2vw, 17.5px); line-height: 1.65;
+    }
+    .cta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
     .kpi-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px; margin: 0 auto 30px; text-align: left;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+      gap: 12px; margin: 0 auto 26px; text-align: left;
     }
     .kpi {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px;
     }
-    .kpi-val { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent-2); line-height: 1.15; }
+    .kpi-val {
+      font-size: clamp(20px, 4.2vw, 27px); font-weight: 800; letter-spacing: -0.5px;
+      color: var(--accent-2); line-height: 1.15; display: flex; align-items: baseline;
+      flex-wrap: wrap; gap: 4px 6px;
+    }
+    .kpi-sub { font-size: 0.62em; font-weight: 700; opacity: 0.92; }
     .kpi-val.cyan { color: var(--accent); }
     .kpi-val.gold { color: var(--gold); }
-    .kpi-label { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .kpi-label { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
     .prompt-box {
       max-width: 820px; margin: 0 auto; text-align: left;
-      background: var(--surface); border: 1px solid #26354f; border-radius: 14px; padding: 16px 20px;
+      background: var(--surface); border: 1px solid #26354f; border-radius: 14px; padding: 16px 18px;
     }
-    .prompt-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; color: var(--muted); gap: 10px; }
-    .prompt-text { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13.5px; color: #e2e8f0; margin: 0; }
-    section { padding: 48px 0; border-top: 1px solid rgba(30, 41, 59, 0.55); }
+    .prompt-head {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+      margin-bottom: 10px; font-size: 13px; color: var(--muted); gap: 8px 12px;
+    }
+    .prompt-text {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px;
+      color: #e2e8f0; margin: 0; line-height: 1.55;
+      overflow-wrap: anywhere; word-break: break-word;
+    }
+    section { padding: 44px 0; border-top: 1px solid rgba(30, 41, 59, 0.55); }
     section.hero { border-top: 0; }
-    h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.4px; }
-    .sub { color: var(--muted); margin: 0 0 24px; max-width: 780px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 18px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 18px; }
-    .card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
+    h2 {
+      font-size: clamp(22px, 4.6vw, 28px); line-height: 1.25; margin: 0 0 8px;
+      letter-spacing: -0.4px; overflow-wrap: break-word;
     }
-    .card h3 { margin: 0 0 8px; font-size: 18px; }
-    .card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+    .sub { color: var(--muted); margin: 0 0 22px; max-width: 780px; font-size: 15px; line-height: 1.6; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+    }
+    .card h3 { margin: 0 0 8px; font-size: 17.5px; line-height: 1.3; }
+    .card p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
     .tier-badge {
-      display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px;
+      display: inline-block; font-size: 11.5px; font-weight: 700; padding: 3px 10px;
       border-radius: 999px; margin-bottom: 10px;
     }
     .t1 { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
     .t2 { background: rgba(34, 197, 94, 0.18); color: #86efac; }
     .t3 { background: rgba(250, 204, 21, 0.18); color: #fde047; }
     .table-wrap {
-      overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
     }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--border); }
-    th { color: var(--muted); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(22, 32, 51, 0.7); }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(22, 32, 51, 0.7); }
     tr:last-child td { border-bottom: 0; }
     tr.total-row td { background: rgba(34, 197, 94, 0.08); font-weight: 700; }
     .num { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; text-align: right; white-space: nowrap; }
     .good { color: #4ade80; font-weight: 700; }
-    .bar-card { margin-top: 18px; }
+    .bar-card { margin-top: 16px; }
     .bar-row { margin-bottom: 14px; }
     .bar-row:last-child { margin-bottom: 0; }
-    .bar-meta { display: flex; justify-content: space-between; font-size: 13.5px; margin-bottom: 6px; gap: 12px; }
+    .bar-meta {
+      display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;
+      font-size: 13.5px; margin-bottom: 6px; gap: 4px 12px;
+    }
     .bar-track { height: 12px; background: #0b1222; border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
     .bar-fill { height: 100%; border-radius: 999px; }
     .bar-cloud { background: linear-gradient(90deg, #ef4444, #f97316); }
     .bar-vf { background: linear-gradient(90deg, #16a34a, #38bdf8); }
-    .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }
+    .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)); gap: 18px; align-items: start; }
     .field { margin-bottom: 16px; }
-    .field label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; color: #e2e8f0; }
+    .field label {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+      font-size: 14px; margin-bottom: 6px; color: #e2e8f0;
+    }
     .field input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
     .field select {
-      width: 100%; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border);
+      width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border);
       background: #0b1222; color: var(--text); font-size: 14px;
     }
     .calc-out {
       background: linear-gradient(160deg, #0f1d36 0%, #0b1324 100%);
-      border: 1px solid #26354f; border-radius: 14px; padding: 22px;
+      border: 1px solid #26354f; border-radius: 14px; padding: 20px;
     }
-    .calc-big { font-size: 38px; font-weight: 800; color: #4ade80; line-height: 1.1; margin: 6px 0 4px; }
-    .calc-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid rgba(30, 41, 59, 0.8); font-size: 14px; }
+    .calc-big { font-size: clamp(32px, 7vw, 38px); font-weight: 800; color: #4ade80; line-height: 1.1; margin: 6px 0 4px; }
+    .calc-row {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+      padding: 9px 0; border-bottom: 1px solid rgba(30, 41, 59, 0.8); font-size: 13.5px;
+    }
     .calc-row:last-child { border-bottom: 0; }
     .terminal {
-      background: #04070e; border: 1px solid #1e293b; border-radius: 14px; padding: 18px 20px;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13.2px;
-      color: #cbd5e1; overflow-x: auto;
+      background: #04070e; border: 1px solid #1e293b; border-radius: 14px; padding: 16px 18px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12.8px;
+      line-height: 1.6; color: #cbd5e1; overflow-x: auto;
+      overflow-wrap: anywhere; word-break: break-word;
     }
     .terminal .green { color: #4ade80; font-weight: 700; }
     .terminal .cyan { color: #38bdf8; }
-    .list-clean { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 14.5px; }
+    .list-clean { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
     .list-clean li { margin-bottom: 6px; }
-    .badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .chip {
-      padding: 6px 12px; border-radius: 8px; background: var(--surface-2);
-      border: 1px solid var(--border); font-size: 13px; color: #e2e8f0;
+      padding: 6px 11px; border-radius: 8px; background: var(--surface-2);
+      border: 1px solid var(--border); font-size: 12.5px; color: #e2e8f0;
     }
     footer {
-      border-top: 1px solid var(--border); padding: 36px 0 48px; margin-top: 24px;
+      border-top: 1px solid var(--border); padding: 32px 0 44px; margin-top: 20px;
       color: var(--muted); font-size: 13.5px;
     }
     .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+    /* Mobile-First Responsive Polish (<= 720px) */
+    @media (max-width: 720px) {
+      .container { padding: 0 16px; }
+      .nav {
+        flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 0 9px; min-height: auto;
+      }
+      .nav-top { width: 100%; }
+      .brand-logo { height: 28px; }
+      .lang-btn-mobile { display: inline-flex; }
+      .lang-btn-desktop { display: none; }
+      .nav-links {
+        width: 100%; justify-content: flex-start; gap: 6px 14px;
+        font-size: 12.5px; padding-top: 7px; border-top: 1px solid rgba(30, 41, 59, 0.7);
+      }
+      .hero { padding: 24px 0 22px; }
+      .pill {
+        border-radius: 12px; padding: 7px 12px; font-size: 11.8px; margin-bottom: 14px;
+      }
+      h1 { font-size: clamp(25px, 7.2vw, 34px); letter-spacing: -0.6px; }
+      .lead { font-size: 14.8px; }
+      .cta-row { flex-direction: column; align-items: stretch; gap: 9px; }
+      .cta-row .btn { width: 100%; padding: 11px 16px; font-size: 14px; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .kpi { padding: 13px 12px; }
+      .kpi-val { font-size: 20px; }
+      .kpi-label { font-size: 11.8px; }
+      .prompt-box { padding: 13px 14px; }
+      .prompt-text { font-size: 12px; }
+      section { padding: 30px 0; }
+      h2 { font-size: 21px; }
+      .sub { font-size: 14px; margin-bottom: 16px; }
+      .card, .calc-out { padding: 15px; }
+      .terminal { padding: 13px 14px; font-size: 11.8px; }
+
+      /* Convert data tables into clean scannable cards on mobile — zero horizontal cut-off */
+      .table-wrap { background: transparent; border: 0; border-radius: 0; overflow: visible; }
+      table.resp-table, table.resp-table thead, table.resp-table tbody,
+      table.resp-table th, table.resp-table td, table.resp-table tr {
+        display: block; width: 100%;
+      }
+      table.resp-table thead { display: none; }
+      table.resp-table tr {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+      }
+      table.resp-table tr:last-child { margin-bottom: 0; }
+      table.resp-table tr.total-row {
+        background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.4);
+      }
+      table.resp-table td {
+        display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+        padding: 6px 0; border-bottom: 1px dashed rgba(30, 41, 59, 0.8);
+        font-size: 13.5px; text-align: right; white-space: normal;
+      }
+      table.resp-table td:last-child { border-bottom: 0; padding-bottom: 0; }
+      table.resp-table td:first-child {
+        display: block; text-align: left; font-weight: 700; color: var(--text);
+        padding: 0 0 8px; margin-bottom: 4px; border-bottom: 1px solid var(--border);
+        font-size: 14px; line-height: 1.4;
+      }
+      table.resp-table td:first-child::before { display: none; }
+      table.resp-table td::before {
+        content: attr(data-label);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 12px; font-weight: 600; color: var(--muted);
+        text-align: left; flex-shrink: 0;
+      }
+      table.resp-table tr.total-row td { background: transparent; }
+      .calc-row { font-size: 13px; }
+      .foot-row { flex-direction: column; gap: 14px; }
+    }
+    @media (max-width: 360px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="container nav">
-      <a href="#" style="display:flex;align-items:center;">
-        <img src="assets/logo.svg" alt="VieForge" height="38" />
-      </a>
+      <div class="nav-top">
+        <a href="#" class="brand-link">
+          <img src="assets/logo.svg" alt="VieForge" class="brand-logo" />
+        </a>
+        <button type="button" class="btn btn-ghost lang-toggle lang-btn-mobile" style="padding:5px 11px;font-size:12px;">EN / VI</button>
+      </div>
       <div class="nav-links">
         <a href="#benchmarks" data-i18n="navBench">Benchmarks</a>
         <a href="#calculator" data-i18n="navCalc">Calculator</a>
         <a href="#architecture" data-i18n="navArch">Architecture</a>
         <a href="#honest-scope" data-i18n="navHonest">Honest Scope</a>
         <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener">GitHub</a>
-        <button id="langBtn" class="btn btn-ghost" style="padding:6px 12px;font-size:12px;">EN / VI</button>
+        <button type="button" id="langBtn" class="btn btn-ghost lang-toggle lang-btn-desktop" style="padding:5px 11px;font-size:12px;">EN / VI</button>
       </div>
     </div>
   </header>
@@ -216,19 +360,19 @@
 
       <div class="kpi-grid">
         <div class="kpi">
-          <div class="kpi-val cyan">1,459 tok</div>
+          <div class="kpi-val cyan">1,459 <span class="kpi-sub">tok</span></div>
           <div class="kpi-label" data-i18n="kpi1">Exact one-time session overhead (SKILL.md + AGENTS.md + 5 MCP tools)</div>
         </div>
         <div class="kpi">
-          <div class="kpi-val">16.9x (-94.1%)</div>
+          <div class="kpi-val">16.9x <span class="kpi-sub">(-94.1%)</span></div>
           <div class="kpi-label" data-i18n="kpi2">Net Cloud token reduction across all 3 real workloads (overhead included)</div>
         </div>
         <div class="kpi">
-          <div class="kpi-val">118.3x (-99.2%)</div>
+          <div class="kpi-val">118.3x <span class="kpi-sub">(-99.2%)</span></div>
           <div class="kpi-label" data-i18n="kpi3">Token reduction on 100-document batch extraction (23,662 → 200 tok)</div>
         </div>
         <div class="kpi">
-          <div class="kpi-val gold">$0.00 / run</div>
+          <div class="kpi-val gold">$0.00 <span class="kpi-sub">/ run</span></div>
           <div class="kpi-label" data-i18n="kpi4">Tier 2 Local Backbone cost with SQLite WAL interrupt/resume</div>
         </div>
       </div>
@@ -249,7 +393,7 @@
       </p>
 
       <div class="table-wrap">
-        <table>
+        <table class="resp-table" id="benchTable">
           <thead>
             <tr>
               <th data-i18n="thWorkload">Real-World Workload</th>
@@ -262,38 +406,38 @@
           <tbody>
             <tr>
               <td data-i18n="w0Name">One-time Session Overhead (SKILL.md 691 + AGENTS.md 448 + MCP 320)</td>
-              <td class="num">0</td>
-              <td class="num">1,459</td>
-              <td class="num">—</td>
-              <td class="num" data-i18n="w0Note">Paid once</td>
+              <td class="num" data-label="Cloud-Only">0</td>
+              <td class="num" data-label="VieForge">1,459</td>
+              <td class="num" data-label="Reduction">—</td>
+              <td class="num" data-label="Saved" data-i18n="w0Note">Paid once</td>
             </tr>
             <tr>
               <td data-i18n="w1Name">100-Document Batch Classification &amp; JSON Extraction</td>
-              <td class="num">23,662</td>
-              <td class="num">200</td>
-              <td class="num good">118.3x</td>
-              <td class="num good">-99.2%</td>
+              <td class="num" data-label="Cloud-Only">23,662</td>
+              <td class="num" data-label="VieForge">200</td>
+              <td class="num good" data-label="Reduction">118.3x</td>
+              <td class="num good" data-label="Saved">-99.2%</td>
             </tr>
             <tr>
               <td data-i18n="w2Name">Noisy CI / Pytest Log + Traceback Compression (390 lines)</td>
-              <td class="num">11,150</td>
-              <td class="num">998</td>
-              <td class="num good">11.2x</td>
-              <td class="num good">-91.0%</td>
+              <td class="num" data-label="Cloud-Only">11,150</td>
+              <td class="num" data-label="VieForge">998</td>
+              <td class="num good" data-label="Reduction">11.2x</td>
+              <td class="num good" data-label="Saved">-91.0%</td>
             </tr>
             <tr>
               <td data-i18n="w3Name">50-Item Job Crashed at 30/50 + SQLite Checkpoint Resume</td>
-              <td class="num">17,920</td>
-              <td class="num">457</td>
-              <td class="num good">39.2x</td>
-              <td class="num good">-97.4%</td>
+              <td class="num" data-label="Cloud-Only">17,920</td>
+              <td class="num" data-label="VieForge">457</td>
+              <td class="num good" data-label="Reduction">39.2x</td>
+              <td class="num good" data-label="Saved">-97.4%</td>
             </tr>
             <tr class="total-row">
               <td data-i18n="wTotal">NET TOTAL (Including 1,459-token session overhead)</td>
-              <td class="num">52,732</td>
-              <td class="num">3,114</td>
-              <td class="num good">16.9x</td>
-              <td class="num good">-94.1%</td>
+              <td class="num" data-label="Cloud-Only">52,732</td>
+              <td class="num" data-label="VieForge">3,114</td>
+              <td class="num good" data-label="Reduction">16.9x</td>
+              <td class="num good" data-label="Saved">-94.1%</td>
             </tr>
           </tbody>
         </table>
@@ -303,14 +447,14 @@
         <div class="bar-row">
           <div class="bar-meta">
             <strong data-i18n="barCloudLabel">Without VieForge (Cloud Agent reads every item, raw log &amp; retry)</strong>
-            <span class="num">52,732 tokens (100%)</span>
+            <span class="num" data-i18n="barCloudVal">52,732 tokens (100%)</span>
           </div>
           <div class="bar-track"><div class="bar-fill bar-cloud" style="width:100%;"></div></div>
         </div>
         <div class="bar-row">
           <div class="bar-meta">
             <strong data-i18n="barVfLabel">With VieForge (incl. 1,459-token one-time session overhead)</strong>
-            <span class="num good">3,114 tokens (5.9% — 16.9x less)</span>
+            <span class="num good" data-i18n="barVfVal">3,114 tokens (5.9% — 16.9x less)</span>
           </div>
           <div class="bar-track"><div class="bar-fill bar-vf" style="width:5.9%;"></div></div>
         </div>
@@ -408,7 +552,7 @@
 
       <h3 style="margin:30px 0 12px;font-size:20px;" data-i18n="hwTitle">Hardware Profiles (Auto-Detected by preflight_check.py)</h3>
       <div class="table-wrap">
-        <table>
+        <table class="resp-table" id="hwTable">
           <thead>
             <tr>
               <th data-i18n="hwProf">Profile</th>
@@ -418,10 +562,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>CPU-Only</td><td>8–16 GB RAM, No dGPU</td><td><code>qwen2.5:3b</code> / <code>--mock-llm</code></td><td>Deterministic Python + Capped Cloud APIs</td></tr>
-            <tr><td>8 GB VRAM</td><td>RTX 3060 Ti / 4060</td><td><code>qwen2.5:7b</code> (4-bit)</td><td>Unload Ollama (`keep_alive=0`) → Exclusive GPU Subprocess</td></tr>
-            <tr><td>12–16 GB VRAM</td><td>RTX 3060 12G / 4070 Ti</td><td><code>qwen2.5:14b</code></td><td>Stage-by-stage GPU isolation</td></tr>
-            <tr><td>24 GB+ / Apple Silicon</td><td>RTX 3090/4090 / M-series 32GB+</td><td><code>qwen2.5:32b</code></td><td>Concurrent Local LLM + Heavy Media Pipeline</td></tr>
+            <tr><td>CPU-Only</td><td data-label="Workstation">8–16 GB RAM, No dGPU</td><td data-label="Local Model"><code>qwen2.5:3b</code> / <code>--mock-llm</code></td><td data-label="Tier 3">Deterministic Python + Capped Cloud APIs</td></tr>
+            <tr><td>8 GB VRAM</td><td data-label="Workstation">RTX 3060 Ti / 4060</td><td data-label="Local Model"><code>qwen2.5:7b</code> (4-bit)</td><td data-label="Tier 3">Unload Ollama (<code>keep_alive=0</code>) → Exclusive GPU Subprocess</td></tr>
+            <tr><td>12–16 GB VRAM</td><td data-label="Workstation">RTX 3060 12G / 4070 Ti</td><td data-label="Local Model"><code>qwen2.5:14b</code></td><td data-label="Tier 3">Stage-by-stage GPU isolation</td></tr>
+            <tr><td>24 GB+ / Apple Silicon</td><td data-label="Workstation">RTX 3090/4090 / M-series 32GB+</td><td data-label="Local Model"><code>qwen2.5:32b</code></td><td data-label="Tier 3">Concurrent Local LLM + Heavy Media Pipeline</td></tr>
           </tbody>
         </table>
       </div>
@@ -546,7 +690,9 @@
         w3Name: "50-Item Job Crashed at 30/50 + SQLite Checkpoint Resume",
         wTotal: "NET TOTAL (Including 1,459-token session overhead)",
         barCloudLabel: "Without VieForge (Cloud Agent reads every item, raw log & retry)",
+        barCloudVal: "52,732 tokens (100%)",
         barVfLabel: "With VieForge (incl. 1,459-token one-time session overhead)",
+        barVfVal: "3,114 tokens (5.9% — 16.9x less)",
         calcTitle: "Interactive Workload Savings Calculator",
         calcSub: "Adjust your real batch volume to see how many Cloud tokens VieForge actually uses and how many times (x) it cuts your burn.",
         lblItems: "Items per batch (docs, tickets, files, shots)",
@@ -632,7 +778,9 @@
         w3Name: "Job 50 item bị sập ở item 30/50 + chạy tiếp bằng Checkpoint SQLite",
         wTotal: "TỔNG THỰC CHI (Đã cộng đủ 1.459 token chi phí nền)",
         barCloudLabel: "Không dùng VieForge (Cloud Agent đọc từng tài liệu, log thô & chạy lại từ đầu)",
+        barCloudVal: "52.732 token (100%)",
         barVfLabel: "Dùng VieForge (đã bao gồm 1.459 token nền cố định)",
+        barVfVal: "3.114 token (5,9% — giảm 16,9x)",
         calcTitle: "Máy tính Ước lượng Token & Chi phí Theo Khối lượng Của Bạn",
         calcSub: "Kéo thanh trượt theo khối lượng việc thực tế để thấy VieForge chỉ tốn bao nhiêu token Cloud và giảm bao nhiêu lần.",
         lblItems: "Số lượng mục mỗi lô (tài liệu, email, ticket, file, shot)",
@@ -687,7 +835,10 @@
       }
     };
 
-    let lang = (navigator.language || "").toLowerCase().startsWith("vi") ? "vi" : "en";
+    const _urlLang = new URLSearchParams(window.location.search).get("lang");
+    let lang = (_urlLang === "vi" || _urlLang === "en")
+      ? _urlLang
+      : ((navigator.language || "").toLowerCase().startsWith("vi") ? "vi" : "en");
     function updateCalc() {
       const items = Number(document.getElementById("inItems").value);
       const tokPerItem = Number(document.getElementById("inTok").value);
@@ -718,6 +869,17 @@
       document.getElementById("outSavedUsd").textContent = "$" + savedUsd.toFixed(2) + (lang === "vi" ? " / tháng" : " / mo");
     }
 
+    function syncMobileTableLabels() {
+      document.querySelectorAll("table.resp-table").forEach((tbl) => {
+        const headers = Array.from(tbl.querySelectorAll("thead th")).map((th) => th.textContent.trim());
+        tbl.querySelectorAll("tbody tr").forEach((tr) => {
+          Array.from(tr.children).forEach((td, idx) => {
+            if (idx > 0 && headers[idx]) td.setAttribute("data-label", headers[idx]);
+          });
+        });
+      });
+    }
+
     function renderLang() {
       const t = I18N[lang];
       document.documentElement.lang = lang;
@@ -726,12 +888,15 @@
         if (t[key]) el.innerHTML = t[key];
       });
       document.getElementById("agentPrompt").textContent = t.promptText;
+      syncMobileTableLabels();
       updateCalc();
     }
 
-    document.getElementById("langBtn").addEventListener("click", () => {
-      lang = lang === "en" ? "vi" : "en";
-      renderLang();
+    document.querySelectorAll(".lang-toggle").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        lang = lang === "en" ? "vi" : "en";
+        renderLang();
+      });
     });
     ["inItems", "inTok", "inRuns", "inModel"].forEach((id) => {
       document.getElementById(id).addEventListener("input", updateCalc);
