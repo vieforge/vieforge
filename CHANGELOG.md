@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] - 2026-11-27
+
+### Added
+- **SQLite WAL Response Cache (`core/llm_router.py`):** Optional `cache_db_path` (`TIERFORGE_LLM_CACHE_DB`) + `use_cache=True` and `LLMResponse.cache_hit` for sub-millisecond `$0` local cache hits on repeated prompts.
+- **OpenTelemetry `gen_ai.*` JSONL Tracing (`core/qa_logger.py`):** Added `emit_genai_span(...)` following OTel GenAI Semantic Conventions (`gen_ai.operation.name`, `gen_ai.provider.name`, `gen_ai.request.model`, `gen_ai.usage.*`).
+- **Example 03 — CI Failure Log Triage (`examples/03_ci_log_triage/`):** Bundled into the wheel (`pyproject.toml`), showcasing smart log trimming, secret redaction, SQLite checkpointing, and `--mock-llm` / `--log-dir`.
+- **OSS & Supply-Chain Standards:** Added PEP 561 `core/py.typed`, `core/__main__.py` (`python -m core`), `vieforge doctor` CLI alias, `CODE_OF_CONDUCT.md`, `.pre-commit-config.yaml`, `.github/dependabot.yml`, and PEP 740 / SLSA build provenance attestations in `.github/workflows/publish.yml`.
+- **Expanded IDE Integrations (`scripts/install_skill.py`):** First-class support and aliases for **Codeium / Windsurf** (`--target codeium`), **Claude Code** (`--target claudecode` + `claude mcp add` one-liner), **Cline / Roo Code** (`--target cline`), **VS Code / GitHub Copilot** (`.vscode/mcp.json` `"servers"` schema), **Cursor**, **Antigravity**, and **Codex CLI**.
+
+### Fixed
+- **Official `mcp` PyPI SDK Collision & `mcp 2.x` Compatibility (`scripts/mcp_server.py`, `pyproject.toml`, `scripts/cli.py`):** Moved the canonical MCP server to `scripts/mcp_server.py` (removing the colliding `"mcp"` package from wheel `packages`) and added dual support for `mcp 2.x` (`MCPServer`) and `mcp 1.x` (`FastMCP`), keeping `mcp/worker_mcp_server.py` as a backwards-compatible CLI shim.
+- **macOS/Linux Virtualenv Symlink Preservation (`scripts/install_skill.py`):** Preserved `.venv/bin/python` symlink paths via `os.path.abspath(...)` instead of dereferencing with `.resolve()`.
+
 ## [0.4.1] - 2026-11-27
 
 ### Fixed
