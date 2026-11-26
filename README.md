@@ -75,6 +75,26 @@ Context trimmed : 2169 -> 108 chars (-95.0%)
 
 ---
 
+## Reproducible Token Savings Benchmark (`$0`, 0.3s)
+
+Verify exact Cloud Agent token burn on your own machine (`ceil(chars / 4)` estimator):
+
+```bash
+python scripts/benchmark_token_savings.py
+```
+
+| Real-World Workload | Cloud-Only Tokens | VieForge Cloud Tokens | Reduction Factor | Saved |
+| :--- | ---: | ---: | ---: | ---: |
+| One-time Session Overhead (`SKILL.md` 691 + `AGENTS.md` 448 + MCP 320) | 0 | 1,459 | — | Paid once |
+| 100-Document Batch Classification & JSON Extraction | 23,662 | 200 | **118.3x** | **-99.2%** |
+| Noisy CI / Pytest Log + Traceback Compression (390 lines) | 11,150 | 998 | **11.2x** | **-91.0%** |
+| 50-Item Job Crashed at 30/50 + SQLite Checkpoint Resume | 17,920 | 457 | **39.2x** | **-97.4%** |
+| **COMBINED NET (incl. 1,459-token session overhead)** | **52,732** | **3,114** | **16.9x** | **-94.1%** |
+
+> **Break-even transparency:** VieForge pays off its 1,459-token one-time session overhead after just **1 noisy CI log** or **3–5 batch items**. For quick 1-turn Q&A or single-file edits, you do not need to invoke VieForge.
+
+---
+
 ## Multi-Agent Ecosystem Support
 
 Run `python scripts/install_skill.py --target all` to install the `three-tier-orchestrator` skill across every supported agent detected on your machine and generate absolute-path MCP snippets:

@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VieForge — 3-Tier Hybrid AI Agent Harness</title>
-  <meta name="description" content="Code First, Local LLM Second, Cloud Last. Cut Cloud AI Agent token burn and API spend by 70–90% with SQLite checkpoints, Ollama VRAM leases, and MCP tools." />
+  <title>VieForge — 3-Tier Hybrid AI Agent Harness (16.9x Fewer Cloud Tokens)</title>
+  <meta name="description" content="Code First, Local LLM Second, Cloud Last. Verified reproducible benchmarks: 1,459-token session overhead, 16.9x net Cloud token reduction (-94.1%) on real batch, CI log, and resume workloads." />
   <meta property="og:title" content="VieForge — 3-Tier Hybrid AI Agent Harness" />
-  <meta property="og:description" content="Turn any consumer workstation into a checkpointed, budget-guarded local AI worker. 100% Python stdlib, MIT clean-room." />
+  <meta property="og:description" content="Cut Cloud AI Agent token burn by 11x–118x on real workloads. 100% Python stdlib, MIT clean-room, reproducible $0 benchmark included." />
   <meta property="og:url" content="https://vieforge.dev" />
   <meta property="og:type" content="website" />
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
@@ -21,8 +21,10 @@
       --accent: #38bdf8;
       --accent-2: #22c55e;
       --gold: #facc15;
+      --danger: #f87171;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -32,18 +34,18 @@
     }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
     header {
       position: sticky; top: 0; z-index: 20;
-      background: rgba(7, 11, 20, 0.85);
-      backdrop-filter: blur(10px);
+      background: rgba(7, 11, 20, 0.88);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
     .nav {
       display: flex; align-items: center; justify-content: space-between;
-      height: 68px; gap: 16px;
+      height: 68px; gap: 14px;
     }
-    .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; }
+    .nav-links { display: flex; align-items: center; gap: 16px; font-size: 14px; flex-wrap: wrap; }
     .btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px;
@@ -53,26 +55,39 @@
     .btn-primary:hover { filter: brightness(1.1); text-decoration: none; }
     .btn-ghost { background: var(--surface); color: var(--text); }
     .btn-ghost:hover { background: var(--surface-2); text-decoration: none; }
-    .hero { padding: 72px 0 48px; text-align: center; }
+    .hero { padding: 64px 0 40px; text-align: center; }
     .pill {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
       background: rgba(56, 189, 248, 0.12); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
-    h1 { font-size: clamp(34px, 5.2vw, 56px); line-height: 1.1; margin: 0 0 18px; letter-spacing: -1px; }
-    .lead { max-width: 720px; margin: 0 auto 28px; color: var(--muted); font-size: 18px; }
-    .cta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 36px; }
+    h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.1; margin: 0 0 16px; letter-spacing: -1px; }
+    .lead { max-width: 760px; margin: 0 auto 26px; color: var(--muted); font-size: 17.5px; }
+    .cta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px; margin: 0 auto 30px; text-align: left;
+    }
+    .kpi {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px;
+    }
+    .kpi-val { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent-2); line-height: 1.15; }
+    .kpi-val.cyan { color: var(--accent); }
+    .kpi-val.gold { color: var(--gold); }
+    .kpi-label { font-size: 13px; color: var(--muted); margin-top: 6px; }
     .prompt-box {
-      max-width: 780px; margin: 0 auto; text-align: left;
-      background: var(--surface); border: 1px solid #26354f; border-radius: 14px; padding: 18px 20px;
+      max-width: 820px; margin: 0 auto; text-align: left;
+      background: var(--surface); border: 1px solid #26354f; border-radius: 14px; padding: 16px 20px;
     }
-    .prompt-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
+    .prompt-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; color: var(--muted); gap: 10px; }
     .prompt-text { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13.5px; color: #e2e8f0; margin: 0; }
-    section { padding: 48px 0; }
-    h2 { font-size: 28px; margin: 0 0 10px; letter-spacing: -0.4px; }
-    .sub { color: var(--muted); margin: 0 0 28px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+    section { padding: 48px 0; border-top: 1px solid rgba(30, 41, 59, 0.55); }
+    section.hero { border-top: 0; }
+    h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.4px; }
+    .sub { color: var(--muted); margin: 0 0 24px; max-width: 780px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 18px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 18px; }
     .card {
       background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px;
     }
@@ -85,20 +100,55 @@
     .t1 { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
     .t2 { background: rgba(34, 197, 94, 0.18); color: #86efac; }
     .t3 { background: rgba(250, 204, 21, 0.18); color: #fde047; }
+    .table-wrap {
+      overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(22, 32, 51, 0.7); }
+    tr:last-child td { border-bottom: 0; }
+    tr.total-row td { background: rgba(34, 197, 94, 0.08); font-weight: 700; }
+    .num { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; text-align: right; white-space: nowrap; }
+    .good { color: #4ade80; font-weight: 700; }
+    .bar-card { margin-top: 18px; }
+    .bar-row { margin-bottom: 14px; }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-meta { display: flex; justify-content: space-between; font-size: 13.5px; margin-bottom: 6px; gap: 12px; }
+    .bar-track { height: 12px; background: #0b1222; border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
+    .bar-fill { height: 100%; border-radius: 999px; }
+    .bar-cloud { background: linear-gradient(90deg, #ef4444, #f97316); }
+    .bar-vf { background: linear-gradient(90deg, #16a34a, #38bdf8); }
+    .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }
+    .field { margin-bottom: 16px; }
+    .field label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 6px; color: #e2e8f0; }
+    .field input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .field select {
+      width: 100%; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--border);
+      background: #0b1222; color: var(--text); font-size: 14px;
+    }
+    .calc-out {
+      background: linear-gradient(160deg, #0f1d36 0%, #0b1324 100%);
+      border: 1px solid #26354f; border-radius: 14px; padding: 22px;
+    }
+    .calc-big { font-size: 38px; font-weight: 800; color: #4ade80; line-height: 1.1; margin: 6px 0 4px; }
+    .calc-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid rgba(30, 41, 59, 0.8); font-size: 14px; }
+    .calc-row:last-child { border-bottom: 0; }
     .terminal {
-      background: #04070e; border: 1px solid #1e293b; border-radius: 14px; padding: 20px 22px;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13.5px;
+      background: #04070e; border: 1px solid #1e293b; border-radius: 14px; padding: 18px 20px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13.2px;
       color: #cbd5e1; overflow-x: auto;
     }
     .terminal .green { color: #4ade80; font-weight: 700; }
     .terminal .cyan { color: #38bdf8; }
-    .badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .list-clean { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 14.5px; }
+    .list-clean li { margin-bottom: 6px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
     .chip {
       padding: 6px 12px; border-radius: 8px; background: var(--surface-2);
       border: 1px solid var(--border); font-size: 13px; color: #e2e8f0;
     }
     footer {
-      border-top: 1px solid var(--border); padding: 36px 0 48px; margin-top: 32px;
+      border-top: 1px solid var(--border); padding: 36px 0 48px; margin-top: 24px;
       color: var(--muted); font-size: 13.5px;
     }
     .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
@@ -111,8 +161,10 @@
         <img src="assets/logo.svg" alt="VieForge" height="38" />
       </a>
       <div class="nav-links">
+        <a href="#benchmarks" data-i18n="navBench">Benchmarks</a>
+        <a href="#calculator" data-i18n="navCalc">Calculator</a>
         <a href="#architecture" data-i18n="navArch">Architecture</a>
-        <a href="#features" data-i18n="navFeat">Features</a>
+        <a href="#honest-scope" data-i18n="navHonest">Honest Scope</a>
         <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener">GitHub</a>
         <button id="langBtn" class="btn btn-ghost" style="padding:6px 12px;font-size:12px;">EN / VI</button>
       </div>
@@ -121,29 +173,184 @@
 
   <main class="container">
     <section class="hero">
-      <div class="pill" data-i18n="heroPill">MIT Open-Source • 100% Python Stdlib Core • Crafted in Vietnam</div>
+      <div class="pill" data-i18n="heroPill">MIT Open-Source • 100% Python Stdlib Core • Reproducible Benchmarks</div>
       <h1 data-i18n="heroTitle">Code First. Local LLM Second.<br />Cloud Last.</h1>
       <p class="lead" data-i18n="heroLead">
-        Turn any consumer workstation into a checkpointed, budget-guarded local AI worker.
-        Cut Cloud AI Agent token burn and API spend by 70–90% across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.
+        Don't burn expensive Cloud AI Agent quota on loops, noisy logs, or failed retries.
+        VieForge adds only <strong>1,459 tokens</strong> of one-time session overhead and cuts real-world Cloud token burn by <strong>11x–118x</strong> across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.
       </p>
       <div class="cta-row">
         <a class="btn btn-primary" href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" data-i18n="ctaGithub">Star on GitHub</a>
-        <a class="btn btn-ghost" href="https://github.com/vieforge/vieforge/blob/main/AGENT_INSTALL.md" target="_blank" rel="noopener" data-i18n="ctaGuide">Zero-Knowledge Install Guide</a>
+        <a class="btn btn-ghost" href="#benchmarks" data-i18n="ctaBench">See Real Token Numbers</a>
+        <a class="btn btn-ghost" href="https://github.com/vieforge/vieforge/blob/main/AGENT_INSTALL.md" target="_blank" rel="noopener" data-i18n="ctaGuide">Zero-Knowledge Install</a>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-val cyan">1,459 tok</div>
+          <div class="kpi-label" data-i18n="kpi1">Exact one-time session overhead (SKILL.md + AGENTS.md + 5 MCP tools)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val">16.9x (-94.1%)</div>
+          <div class="kpi-label" data-i18n="kpi2">Net Cloud token reduction across all 3 real workloads (overhead included)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val">118.3x (-99.2%)</div>
+          <div class="kpi-label" data-i18n="kpi3">Token reduction on 100-document batch extraction (23,662 → 200 tok)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val gold">$0.00 / run</div>
+          <div class="kpi-label" data-i18n="kpi4">Tier 2 Local Backbone cost with SQLite WAL interrupt/resume</div>
+        </div>
       </div>
 
       <div class="prompt-box">
         <div class="prompt-head">
-          <span data-i18n="promptLabel">New to coding? Just paste this 1 prompt into your AI Agent:</span>
+          <span data-i18n="promptLabel">New to coding? Paste this 1 prompt into your AI Agent:</span>
           <button id="copyBtn" class="btn btn-ghost" style="padding:4px 10px;font-size:12px;" data-i18n="copyBtn">Copy Prompt</button>
         </div>
         <p id="agentPrompt" class="prompt-text">Clone https://github.com/vieforge/vieforge, read AGENT_INSTALL.md, run python scripts/quick_setup.py, and show me the Savings Receipt in plain language.</p>
       </div>
     </section>
 
+    <section id="benchmarks">
+      <h2 data-i18n="benchTitle">Exact Token Burn — Verified, Not Marketing Hype</h2>
+      <p class="sub" data-i18n="benchSub">
+        Every number below is generated deterministically on your own machine in 0.3 seconds by running <code>python scripts/benchmark_token_savings.py</code> (standard <code>ceil(chars / 4)</code> token estimator, $0 local run).
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="thWorkload">Real-World Workload</th>
+              <th class="num" data-i18n="thCloud">Cloud-Only Tokens</th>
+              <th class="num" data-i18n="thVf">VieForge Cloud Tokens</th>
+              <th class="num" data-i18n="thFactor">Reduction Factor</th>
+              <th class="num" data-i18n="thSaved">Saved</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-i18n="w0Name">One-time Session Overhead (SKILL.md 691 + AGENTS.md 448 + MCP 320)</td>
+              <td class="num">0</td>
+              <td class="num">1,459</td>
+              <td class="num">—</td>
+              <td class="num" data-i18n="w0Note">Paid once</td>
+            </tr>
+            <tr>
+              <td data-i18n="w1Name">100-Document Batch Classification &amp; JSON Extraction</td>
+              <td class="num">23,662</td>
+              <td class="num">200</td>
+              <td class="num good">118.3x</td>
+              <td class="num good">-99.2%</td>
+            </tr>
+            <tr>
+              <td data-i18n="w2Name">Noisy CI / Pytest Log + Traceback Compression (390 lines)</td>
+              <td class="num">11,150</td>
+              <td class="num">998</td>
+              <td class="num good">11.2x</td>
+              <td class="num good">-91.0%</td>
+            </tr>
+            <tr>
+              <td data-i18n="w3Name">50-Item Job Crashed at 30/50 + SQLite Checkpoint Resume</td>
+              <td class="num">17,920</td>
+              <td class="num">457</td>
+              <td class="num good">39.2x</td>
+              <td class="num good">-97.4%</td>
+            </tr>
+            <tr class="total-row">
+              <td data-i18n="wTotal">NET TOTAL (Including 1,459-token session overhead)</td>
+              <td class="num">52,732</td>
+              <td class="num">3,114</td>
+              <td class="num good">16.9x</td>
+              <td class="num good">-94.1%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card bar-card">
+        <div class="bar-row">
+          <div class="bar-meta">
+            <strong data-i18n="barCloudLabel">Without VieForge (Cloud Agent reads every item, raw log &amp; retry)</strong>
+            <span class="num">52,732 tokens (100%)</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill bar-cloud" style="width:100%;"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-meta">
+            <strong data-i18n="barVfLabel">With VieForge (incl. 1,459-token one-time session overhead)</strong>
+            <span class="num good">3,114 tokens (5.9% — 16.9x less)</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill bar-vf" style="width:5.9%;"></div></div>
+        </div>
+      </div>
+
+      <div class="terminal" style="margin-top:18px;">
+        <div><span class="cyan">$</span> python scripts/benchmark_token_savings.py</div>
+        <div>=== VieForge Reproducible Token Savings Benchmark ($0 Local Run) ===</div>
+        <div>One-time Session Overhead : 1,459 tokens (SKILL.md=691 + AGENTS.md=448 + MCP=320)</div>
+        <div>COMBINED (incl. overhead) : 52,732 -&gt; <span class="green">3,114 tokens (16.9x fewer | -94.1%)</span></div>
+      </div>
+    </section>
+
+    <section id="calculator">
+      <h2 data-i18n="calcTitle">Interactive Workload Savings Calculator</h2>
+      <p class="sub" data-i18n="calcSub">Adjust your real batch volume to see how many Cloud tokens VieForge actually uses and how many times (x) it cuts your burn.</p>
+
+      <div class="calc-grid">
+        <div class="card">
+          <div class="field">
+            <label><span data-i18n="lblItems">Items per batch (docs, tickets, files, shots)</span><strong id="valItems">100</strong></label>
+            <input id="inItems" type="range" min="10" max="500" step="10" value="100" />
+          </div>
+          <div class="field">
+            <label><span data-i18n="lblTok">Avg tokens per item (input + output)</span><strong id="valTok">600</strong></label>
+            <input id="inTok" type="range" min="200" max="2500" step="100" value="600" />
+          </div>
+          <div class="field">
+            <label><span data-i18n="lblRuns">Batch runs per month</span><strong id="valRuns">20</strong></label>
+            <input id="inRuns" type="range" min="1" max="100" step="1" value="20" />
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label><span data-i18n="lblModel">Cloud Frontier Pricing Reference</span></label>
+            <select id="inModel">
+              <option value="5.4">Claude Sonnet / Gemini Pro (~$5.40 / 1M blended)</option>
+              <option value="4.0">GPT-4o (~$4.00 / 1M blended)</option>
+              <option value="27.0">Claude Opus / Frontier High (~$27.00 / 1M blended)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="calc-out">
+          <div style="font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;" data-i18n="calcOutHead">Estimated Cloud Token Reduction</div>
+          <div class="calc-big" id="outMult">34.1x</div>
+          <div style="font-size:14px;color:#93c5fd;margin-bottom:14px;" id="outPct">-97.1% Cloud token burn</div>
+
+          <div class="calc-row">
+            <span data-i18n="outCloudLbl">Cloud-Only Tokens / month</span>
+            <strong class="num" id="outCloudTok">1,200,000</strong>
+          </div>
+          <div class="calc-row">
+            <span data-i18n="outVfLbl">VieForge Cloud Tokens / month (incl. overhead)</span>
+            <strong class="num good" id="outVfTok">35,180</strong>
+          </div>
+          <div class="calc-row">
+            <span data-i18n="outCloudUsdLbl">Cloud-Only API Cost / month</span>
+            <strong class="num" id="outCloudUsd">$6.48</strong>
+          </div>
+          <div class="calc-row">
+            <span data-i18n="outSavedUsdLbl">Estimated Monthly Savings</span>
+            <strong class="num good" id="outSavedUsd">$6.29 / mo</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="architecture">
       <h2 data-i18n="archTitle">3-Tier Hybrid Architecture</h2>
-      <p class="sub" data-i18n="archSub">Every subtask runs on the lowest-cost tier that satisfies accuracy requirements.</p>
+      <p class="sub" data-i18n="archSub">Every subtask runs on the lowest-cost tier that satisfies accuracy requirements — keeping Cloud Agents focused on high-leverage thinking.</p>
       <div class="grid-3">
         <div class="card">
           <span class="tier-badge t1">TIER 1 — CLOUD BRAIN</span>
@@ -153,7 +360,7 @@
         <div class="card">
           <span class="tier-badge t2">TIER 2 — LOCAL BACKBONE ($0)</span>
           <h3 data-i18n="t2Title">SQLite WAL + Ollama Leases</h3>
-          <p data-i18n="t2Desc">Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-85% to -95%), and ref-counted local LLM VRAM leases.</p>
+          <p data-i18n="t2Desc">Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-91%), and ref-counted local LLM VRAM leases.</p>
         </div>
         <div class="card">
           <span class="tier-badge t3">TIER 3 — ISOLATED MUSCLE</span>
@@ -161,20 +368,49 @@
           <p data-i18n="t3Desc">OS-isolated child processes with exclusive GPU locking for 8 GB+ cards, plus paid APIs guarded by --dry-run, MAX_RETRY &lt;= 2, MAX_JOB_USD, and DAILY_USD_CAP.</p>
         </div>
       </div>
+
+      <h3 style="margin:30px 0 12px;font-size:20px;" data-i18n="hwTitle">Hardware Profiles (Auto-Detected by preflight_check.py)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="hwProf">Profile</th>
+              <th data-i18n="hwSpec">Workstation</th>
+              <th data-i18n="hwModel">Recommended Local Model</th>
+              <th data-i18n="hwMode">Tier 3 Strategy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>CPU-Only</td><td>8–16 GB RAM, No dGPU</td><td><code>qwen2.5:3b</code> / <code>--mock-llm</code></td><td>Deterministic Python + Capped Cloud APIs</td></tr>
+            <tr><td>8 GB VRAM</td><td>RTX 3060 Ti / 4060</td><td><code>qwen2.5:7b</code> (4-bit)</td><td>Unload Ollama (`keep_alive=0`) → Exclusive GPU Subprocess</td></tr>
+            <tr><td>12–16 GB VRAM</td><td>RTX 3060 12G / 4070 Ti</td><td><code>qwen2.5:14b</code></td><td>Stage-by-stage GPU isolation</td></tr>
+            <tr><td>24 GB+ / Apple Silicon</td><td>RTX 3090/4090 / M-series 32GB+</td><td><code>qwen2.5:32b</code></td><td>Concurrent Local LLM + Heavy Media Pipeline</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
-    <section>
-      <h2 data-i18n="receiptTitle">Transparent Savings Receipt</h2>
-      <p class="sub" data-i18n="receiptSub">Run the 5-minute $0 demo (even without Ollama via --mock-llm) and see exact savings.</p>
-      <div class="terminal">
-        <div><span class="cyan">$</span> python scripts/quick_setup.py</div>
-        <br />
-        <div>=== VieForge Savings Receipt (demo_01_batch) ===</div>
-        <div>Items processed : 5 (interrupted at 2, resumed at $0.00 extra)</div>
-        <div>Actual cost     : <span class="green">$0.0000 USD</span></div>
-        <div>Cloud baseline  : $0.0405 USD (external/text-frontier)</div>
-        <div>Estimated saved : <span class="green">$0.0405 USD (100.0%)</span></div>
-        <div>Context trimmed : 2169 -&gt; 108 chars (<span class="green">-95.0%</span>)</div>
+    <section id="honest-scope">
+      <h2 data-i18n="honestTitle">Radical Honesty: When VieForge Shines vs. When You Don't Need It</h2>
+      <p class="sub" data-i18n="honestSub">We prefer developer trust over hype. Here is the exact break-even reality.</p>
+      <div class="grid-2">
+        <div class="card" style="border-color:rgba(34,197,94,0.35);">
+          <h3 style="color:#4ade80;" data-i18n="yesTitle">Massive Savings (10x – 118x)</h3>
+          <ul class="list-clean">
+            <li data-i18n="yes1">Processing 10 to 5,000+ docs, tickets, emails, CSV rows, or media items in batches.</li>
+            <li data-i18n="yes2">Running noisy test suites, CI builds, or download logs before asking a Cloud Agent to debug.</li>
+            <li data-i18n="yes3">Long multi-stage pipelines where crashes/interrupts normally force expensive full re-runs.</li>
+            <li data-i18n="yes4">Running 2–4 projects simultaneously on one 8 GB+ GPU machine without VRAM OOM crashes.</li>
+          </ul>
+        </div>
+        <div class="card" style="border-color:rgba(248,113,113,0.3);">
+          <h3 style="color:#fca5a5;" data-i18n="noTitle">Minimal Benefit (Skip VieForge Here)</h3>
+          <ul class="list-clean">
+            <li data-i18n="no1">Quick 1-turn Q&amp;A or editing a single 50-line file (the 1,459-token session overhead won't pay back in 1 short chat).</li>
+            <li data-i18n="no2">Purely novel architecture brainstorming that requires a frontier Cloud model for every sentence anyway.</li>
+            <li data-i18n="no3"><strong>Break-even rule:</strong> VieForge pays off its 1,459-token overhead after just <strong>1 noisy log</strong> or <strong>3–5 batch items</strong>.</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -204,6 +440,7 @@
         <span class="chip">MCP Server</span>
         <span class="chip">Ollama</span>
         <span class="chip">SQLite WAL</span>
+        <span class="chip">BYOA Browser Bridge</span>
       </div>
     </section>
   </main>
@@ -225,27 +462,74 @@
   <script>
     const I18N = {
       en: {
+        navBench: "Benchmarks",
+        navCalc: "Calculator",
         navArch: "Architecture",
-        navFeat: "Features",
-        heroPill: "MIT Open-Source • 100% Python Stdlib Core • Crafted in Vietnam",
+        navHonest: "Honest Scope",
+        heroPill: "MIT Open-Source • 100% Python Stdlib Core • Reproducible Benchmarks",
         heroTitle: "Code First. Local LLM Second.<br />Cloud Last.",
-        heroLead: "Turn any consumer workstation into a checkpointed, budget-guarded local AI worker. Cut Cloud AI Agent token burn and API spend by 70–90% across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.",
+        heroLead: "Don't burn expensive Cloud AI Agent quota on loops, noisy logs, or failed retries. VieForge adds only <strong>1,459 tokens</strong> of one-time session overhead and cuts real-world Cloud token burn by <strong>11x–118x</strong> across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.",
         ctaGithub: "Star on GitHub",
-        ctaGuide: "Zero-Knowledge Install Guide",
-        promptLabel: "New to coding? Just paste this 1 prompt into your AI Agent:",
+        ctaBench: "See Real Token Numbers",
+        ctaGuide: "Zero-Knowledge Install",
+        kpi1: "Exact one-time session overhead (SKILL.md + AGENTS.md + 5 MCP tools)",
+        kpi2: "Net Cloud token reduction across all 3 real workloads (overhead included)",
+        kpi3: "Token reduction on 100-document batch extraction (23,662 → 200 tok)",
+        kpi4: "Tier 2 Local Backbone cost with SQLite WAL interrupt/resume",
+        promptLabel: "New to coding? Paste this 1 prompt into your AI Agent:",
         copyBtn: "Copy Prompt",
         copied: "Copied!",
         promptText: "Clone https://github.com/vieforge/vieforge, read AGENT_INSTALL.md, run python scripts/quick_setup.py, and show me the Savings Receipt in plain language.",
+        benchTitle: "Exact Token Burn — Verified, Not Marketing Hype",
+        benchSub: "Every number below is generated deterministically on your own machine in 0.3 seconds by running <code>python scripts/benchmark_token_savings.py</code> (standard <code>ceil(chars / 4)</code> token estimator, $0 local run).",
+        thWorkload: "Real-World Workload",
+        thCloud: "Cloud-Only Tokens",
+        thVf: "VieForge Cloud Tokens",
+        thFactor: "Reduction Factor",
+        thSaved: "Saved",
+        w0Name: "One-time Session Overhead (SKILL.md 691 + AGENTS.md 448 + MCP 320)",
+        w0Note: "Paid once",
+        w1Name: "100-Document Batch Classification & JSON Extraction",
+        w2Name: "Noisy CI / Pytest Log + Traceback Compression (390 lines)",
+        w3Name: "50-Item Job Crashed at 30/50 + SQLite Checkpoint Resume",
+        wTotal: "NET TOTAL (Including 1,459-token session overhead)",
+        barCloudLabel: "Without VieForge (Cloud Agent reads every item, raw log & retry)",
+        barVfLabel: "With VieForge (incl. 1,459-token one-time session overhead)",
+        calcTitle: "Interactive Workload Savings Calculator",
+        calcSub: "Adjust your real batch volume to see how many Cloud tokens VieForge actually uses and how many times (x) it cuts your burn.",
+        lblItems: "Items per batch (docs, tickets, files, shots)",
+        lblTok: "Avg tokens per item (input + output)",
+        lblRuns: "Batch runs per month",
+        lblModel: "Cloud Frontier Pricing Reference",
+        calcOutHead: "Estimated Cloud Token Reduction",
+        outCloudLbl: "Cloud-Only Tokens / month",
+        outVfLbl: "VieForge Cloud Tokens / month (incl. overhead)",
+        outCloudUsdLbl: "Cloud-Only API Cost / month",
+        outSavedUsdLbl: "Estimated Monthly Savings",
         archTitle: "3-Tier Hybrid Architecture",
-        archSub: "Every subtask runs on the lowest-cost tier that satisfies accuracy requirements.",
+        archSub: "Every subtask runs on the lowest-cost tier that satisfies accuracy requirements — keeping Cloud Agents focused on high-leverage thinking.",
         t1Title: "Architecture & Approval Gates",
         t1Desc: "Cloud Agents (Antigravity, Claude Code, Cursor, Windsurf, Codex) handle design, code edits, reviews, and root-cause debugging — never bulk loops.",
         t2Title: "SQLite WAL + Ollama Leases",
-        t2Desc: "Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-85% to -95%), and ref-counted local LLM VRAM leases.",
+        t2Desc: "Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-91%), and ref-counted local LLM VRAM leases.",
         t3Title: "GPU Subprocess & Capped APIs",
         t3Desc: "OS-isolated child processes with exclusive GPU locking for 8 GB+ cards, plus paid APIs guarded by --dry-run, MAX_RETRY <= 2, MAX_JOB_USD, and DAILY_USD_CAP.",
-        receiptTitle: "Transparent Savings Receipt",
-        receiptSub: "Run the 5-minute $0 demo (even without Ollama via --mock-llm) and see exact savings.",
+        hwTitle: "Hardware Profiles (Auto-Detected by preflight_check.py)",
+        hwProf: "Profile",
+        hwSpec: "Workstation",
+        hwModel: "Recommended Local Model",
+        hwMode: "Tier 3 Strategy",
+        honestTitle: "Radical Honesty: When VieForge Shines vs. When You Don't Need It",
+        honestSub: "We prefer developer trust over hype. Here is the exact break-even reality.",
+        yesTitle: "Massive Savings (10x – 118x)",
+        yes1: "Processing 10 to 5,000+ docs, tickets, emails, CSV rows, or media items in batches.",
+        yes2: "Running noisy test suites, CI builds, or download logs before asking a Cloud Agent to debug.",
+        yes3: "Long multi-stage pipelines where crashes/interrupts normally force expensive full re-runs.",
+        yes4: "Running 2–4 projects simultaneously on one 8 GB+ GPU machine without VRAM OOM crashes.",
+        noTitle: "Minimal Benefit (Skip VieForge Here)",
+        no1: "Quick 1-turn Q&A or editing a single 50-line file (the 1,459-token session overhead won't pay back in 1 short chat).",
+        no2: "Purely novel architecture brainstorming that requires a frontier Cloud model for every sentence anyway.",
+        no3: "<strong>Break-even rule:</strong> VieForge pays off its 1,459-token overhead after just <strong>1 noisy log</strong> or <strong>3–5 batch items</strong>.",
         featTitle: "Engineered for Real-World Workstations",
         featSub: "Commercial-safe, cross-platform, and multi-project concurrency ready from day one.",
         f1Title: "Multi-Project Concurrency",
@@ -257,27 +541,74 @@
         footTag: "MIT Licensed Core • Crafted in Vietnam"
       },
       vi: {
-        navArch: "Kiến trúc",
-        navFeat: "Tính năng",
-        heroPill: "Mã nguồn mở MIT • 100% Python Stdlib • Phát triển tại Việt Nam",
+        navBench: "Đo Token thực tế",
+        navCalc: "Máy tính tiết kiệm",
+        navArch: "Kiến trúc 3 tầng",
+        navHonest: "Giới hạn thật",
+        heroPill: "Mã nguồn mở MIT • 100% Python Stdlib • Số liệu đo kiểm chứng được",
         heroTitle: "Code trước. Local LLM thứ hai.<br />Cloud sau cùng.",
-        heroLead: "Biến mọi máy tính cá nhân thành worker AI cục bộ có checkpoint và khóa ngân sách. Cắt giảm 70–90% token Cloud Agent và chi phí API trên Antigravity, Claude Code, Cursor, Windsurf và Codex CLI.",
+        heroLead: "Đừng đốt hạn mức Cloud AI Agent vào vòng lặp hàng loạt, log rác hay chạy lại từ đầu khi lỗi. VieForge chỉ tốn đúng <strong>1.459 token</strong> chi phí nền 1 lần mỗi phiên, nhưng giảm lượng token Cloud tiêu thụ thực tế tới <strong>11x–118x lần</strong> trên Antigravity, Claude Code, Cursor, Windsurf và Codex CLI.",
         ctaGithub: "Xem trên GitHub",
-        ctaGuide: "Hướng dẫn cài cho người mới",
+        ctaBench: "Xem bảng đo Token thật",
+        ctaGuide: "Cài đặt cho người mới",
+        kpi1: "Chi phí nền 1 lần/phiên (SKILL.md 691 + AGENTS.md 448 + 5 MCP tools 320)",
+        kpi2: "Mức giảm thực ròng trên cả 3 khối lượng việc thật (đã cộng chi phí nền)",
+        kpi3: "Mức giảm khi xử lý lô 100 tài liệu (23.662 → chỉ còn 200 token Cloud)",
+        kpi4: "Chi phí chạy Tầng 2 Local (SQLite WAL tự nối tiếp $0 khi bị ngắt)",
         promptLabel: "Không biết lập trình? Chỉ cần dán đúng 1 câu này vào AI Agent của bạn:",
         copyBtn: "Sao chép câu lệnh",
         copied: "Đã sao chép!",
         promptText: "Hãy tải repo https://github.com/vieforge/vieforge, đọc file AGENT_INSTALL.md, chạy python scripts/quick_setup.py và giải thích kết quả cùng bảng tiết kiệm (Savings Receipt) bằng tiếng Việt dễ hiểu giúp tôi.",
+        benchTitle: "Thực sự tốn bao nhiêu Token? Giảm bao nhiêu lần?",
+        benchSub: "Mọi con số dưới đây đều có thể tự kiểm chứng trên máy bạn trong 0.3 giây bằng lệnh <code>python scripts/benchmark_token_savings.py</code> (chuẩn đo <code>ceil(chars / 4)</code>, chạy local $0).",
+        thWorkload: "Khối lượng công việc thực tế",
+        thCloud: "Không dùng VieForge",
+        thVf: "Dùng VieForge (Cloud)",
+        thFactor: "Giảm số lần",
+        thSaved: "Tiết kiệm",
+        w0Name: "Chi phí nền 1 lần mỗi phiên (SKILL.md 691 + AGENTS.md 448 + MCP 320)",
+        w0Note: "Tính 1 lần",
+        w1Name: "Phân loại & trích xuất JSON cho lô 100 tài liệu thực tế",
+        w2Name: "Nén log CI / Pytest + Traceback lỗi dài 390 dòng",
+        w3Name: "Job 50 item bị sập ở item 30/50 + chạy tiếp bằng Checkpoint SQLite",
+        wTotal: "TỔNG THỰC CHI (Đã cộng đủ 1.459 token chi phí nền)",
+        barCloudLabel: "Không dùng VieForge (Cloud Agent đọc từng tài liệu, log thô & chạy lại từ đầu)",
+        barVfLabel: "Dùng VieForge (đã bao gồm 1.459 token nền cố định)",
+        calcTitle: "Máy tính Ước lượng Token & Chi phí Theo Khối lượng Của Bạn",
+        calcSub: "Kéo thanh trượt theo khối lượng việc thực tế để thấy VieForge chỉ tốn bao nhiêu token Cloud và giảm bao nhiêu lần.",
+        lblItems: "Số lượng mục mỗi lô (tài liệu, email, ticket, file, shot)",
+        lblTok: "Số token trung bình mỗi mục (đầu vào + đầu ra)",
+        lblRuns: "Số lượt chạy mỗi tháng",
+        lblModel: "Mức giá tham chiếu mô hình Cloud",
+        calcOutHead: "Mức giảm Token Cloud ước tính",
+        outCloudLbl: "Token Cloud nếu làm trực tiếp / tháng",
+        outVfLbl: "Token Cloud thực chi với VieForge / tháng (gồm nền)",
+        outCloudUsdLbl: "Chi phí API Cloud nếu làm trực tiếp / tháng",
+        outSavedUsdLbl: "Ước tính tiết kiệm mỗi tháng",
         archTitle: "Kiến trúc Lai 3 Tầng",
-        archSub: "Mỗi tác vụ tự động chạy ở tầng chi phí thấp nhất mà vẫn đảm bảo độ chính xác.",
+        archSub: "Mỗi tác vụ tự động chạy ở tầng chi phí thấp nhất mà vẫn đảm bảo độ chính xác — giữ Cloud Agent cho việc suy nghĩ chiến lược.",
         t1Title: "Kiến trúc & Cổng duyệt",
         t1Desc: "Cloud Agent (Antigravity, Claude Code, Cursor, Windsurf, Codex) tập trung thiết kế, sửa code, review và gỡ lỗi gốc — không chạy vòng lặp hàng loạt tốn token.",
         t2Title: "SQLite WAL + Quản lý Lease Ollama",
-        t2Desc: "Python thuần, chống chạy trùng SHA-256, checkpoint từng item (resume $0), nén log clean-room (-85% đến -95%) và chia sẻ VRAM Ollama an toàn.",
+        t2Desc: "Python thuần, chống chạy trùng SHA-256, checkpoint từng item (resume $0), nén log clean-room (-91%) và chia sẻ VRAM Ollama an toàn.",
         t3Title: "Subprocess GPU & API có trần chi phí",
         t3Desc: "Tách tiến trình con + khóa GPU độc quyền cho card 8 GB+, cùng API trả phí luôn bị khóa bởi --dry-run, MAX_RETRY <= 2, MAX_JOB_USD và DAILY_USD_CAP.",
-        receiptTitle: "Biên lai Tiết kiệm Minh bạch",
-        receiptSub: "Chạy thử demo 5 phút giá $0 (kể cả chưa cài Ollama nhờ --mock-llm) và xem ngay con số tiết kiệm.",
+        hwTitle: "Cấu hình Phần cứng (Tự nhận diện qua preflight_check.py)",
+        hwProf: "Hồ sơ máy",
+        hwSpec: "Phần cứng",
+        hwModel: "Model Local khuyến nghị",
+        hwMode: "Chiến lược Tầng 3",
+        honestTitle: "Nói thẳng: Khi nào VieForge giảm 10x–118x & Khi nào KHÔNG cần dùng",
+        honestSub: "Minh bạch kỹ thuật thay vì thổi phồng. Đây là điểm hòa vốn thực tế.",
+        yesTitle: "Tiết kiệm cực lớn (10x – 118x lần)",
+        yes1: "Xử lý lô từ 10 đến 5.000+ tài liệu, email CSKH, dòng CSV hoặc asset media.",
+        yes2: "Chạy bộ test dài, log build CI hoặc log tải model trước khi đưa Cloud Agent sửa lỗi.",
+        yes3: "Pipeline nhiều bước dễ bị ngắt giữa chừng — SQLite checkpoint giúp nối tiếp giá $0.",
+        yes4: "Mở song song 2–4 dự án trên cùng 1 máy GPU 8 GB+ mà không bị tràn VRAM.",
+        noTitle: "Ít tác dụng (Không cần bật VieForge)",
+        no1: "Hỏi đáp ngắn 1–2 câu hoặc sửa nhanh 1 file 50 dòng (1.459 token nền chưa kịp hoàn vốn).",
+        no2: "Sáng tạo nội dung hoàn toàn mới mà từng câu chữ đều bắt buộc dùng model Cloud đầu bảng.",
+        no3: "<strong>Điểm hòa vốn:</strong> VieForge hoàn vốn 1.459 token nền chỉ sau <strong>1 lần nén log lỗi</strong> hoặc <strong>3–5 mục xử lý lô</strong>.",
         featTitle: "Thiết kế cho Máy trạm Thực tế",
         featSub: "Sạch bản quyền thương mại, đa nền tảng và an toàn đa nhiệm nhiều dự án ngay từ ngày đầu.",
         f1Title: "Đa nhiệm nhiều dự án song song",
@@ -291,6 +622,36 @@
     };
 
     let lang = (navigator.language || "").toLowerCase().startsWith("vi") ? "vi" : "en";
+    function updateCalc() {
+      const items = Number(document.getElementById("inItems").value);
+      const tokPerItem = Number(document.getElementById("inTok").value);
+      const runs = Number(document.getElementById("inRuns").value);
+      const usdPer1M = Number(document.getElementById("inModel").value);
+
+      document.getElementById("valItems").textContent = items.toLocaleString();
+      document.getElementById("valTok").textContent = tokPerItem.toLocaleString();
+      document.getElementById("valRuns").textContent = runs.toLocaleString();
+
+      const cloudTokMonth = items * tokPerItem * runs;
+      // Per run: 1,459 session overhead + 200 MCP dispatch/summary + 1 token per item metadata
+      const vfTokPerRun = 1459 + 200 + items;
+      const vfTokMonth = vfTokPerRun * runs;
+
+      const mult = cloudTokMonth / Math.max(1, vfTokMonth);
+      const pct = Math.max(0, (1 - vfTokMonth / Math.max(1, cloudTokMonth)) * 100);
+      const cloudUsd = (cloudTokMonth / 1e6) * usdPer1M;
+      const vfUsd = (vfTokMonth / 1e6) * usdPer1M;
+      const savedUsd = Math.max(0, cloudUsd - vfUsd);
+
+      document.getElementById("outMult").textContent = mult.toFixed(1) + "x";
+      document.getElementById("outPct").textContent =
+        (lang === "vi" ? "-" + pct.toFixed(1) + "% lượng token Cloud tiêu thụ" : "-" + pct.toFixed(1) + "% Cloud token burn");
+      document.getElementById("outCloudTok").textContent = cloudTokMonth.toLocaleString();
+      document.getElementById("outVfTok").textContent = vfTokMonth.toLocaleString();
+      document.getElementById("outCloudUsd").textContent = "$" + cloudUsd.toFixed(2);
+      document.getElementById("outSavedUsd").textContent = "$" + savedUsd.toFixed(2) + (lang === "vi" ? " / tháng" : " / mo");
+    }
+
     function renderLang() {
       const t = I18N[lang];
       document.documentElement.lang = lang;
@@ -299,10 +660,16 @@
         if (t[key]) el.innerHTML = t[key];
       });
       document.getElementById("agentPrompt").textContent = t.promptText;
+      updateCalc();
     }
+
     document.getElementById("langBtn").addEventListener("click", () => {
       lang = lang === "en" ? "vi" : "en";
       renderLang();
+    });
+    ["inItems", "inTok", "inRuns", "inModel"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", updateCalc);
+      document.getElementById(id).addEventListener("change", updateCalc);
     });
     document.getElementById("copyBtn").addEventListener("click", async () => {
       const txt = document.getElementById("agentPrompt").textContent;

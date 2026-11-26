@@ -62,6 +62,26 @@ python examples/01_batch_doc_processor/run_demo.py --mock-llm
 
 ---
 
+## Bảng Đo Token Thực Tế (Tự kiểm chứng trong 0.3 giây, `$0`)
+
+Chạy trực tiếp trên máy bạn để kiểm chứng chính xác lượng token Cloud tiêu thụ (`ceil(chars / 4)`):
+
+```bash
+python scripts/benchmark_token_savings.py
+```
+
+| Khối lượng công việc thực tế | Không dùng VieForge | Dùng VieForge (Cloud) | Giảm số lần | Tiết kiệm |
+| :--- | ---: | ---: | ---: | ---: |
+| Chi phí nền 1 lần mỗi phiên (`SKILL.md` 691 + `AGENTS.md` 448 + MCP 320) | 0 | 1,459 | — | Tính 1 lần |
+| Phân loại & trích xuất JSON cho lô 100 tài liệu thực tế | 23,662 | 200 | **118.3x** | **-99.2%** |
+| Nén log CI / Pytest + Traceback lỗi dài 390 dòng | 11,150 | 998 | **11.2x** | **-91.0%** |
+| Job 50 item bị sập ở item 30/50 + chạy tiếp bằng Checkpoint SQLite | 17,920 | 457 | **39.2x** | **-97.4%** |
+| **TỔNG THỰC CHI (đã cộng 1,459 token nền)** | **52,732** | **3,114** | **16.9x** | **-94.1%** |
+
+> **Minh bạch điểm hòa vốn:** VieForge hoàn vốn 1,459 token nền chỉ sau **1 lần nén log lỗi** hoặc **3–5 mục xử lý lô**. Với câu hỏi chat ngắn 1–2 lượt, không cần bật VieForge.
+
+---
+
 ## An toàn Đa nhiệm Đa dự án (Chạy 3+ dự án song song)
 
 Khi mở đồng thời nhiều dự án trên Antigravity / Claude Code trên cùng một máy tính, `core/concurrency.py` bảo vệ tài nguyên bằng khóa file cấp OS (`msvcrt` / `fcntl`, 100% Python stdlib):
