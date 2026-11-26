@@ -553,9 +553,24 @@ class ExtensionBridgeClient:
         h = self.health(timeout=timeout)
         return bool(h and h.get("ok") and int(h.get("connected_count", 0)) > 0)
 
-    def dispatch_prompt(self, prompt: str, *, service: str = "gemini", timeout_sec: float = 120.0) -> str:
+    def dispatch_prompt(
+        self,
+        prompt: str,
+        *,
+        service: str = "gemini",
+        timeout_sec: float = 120.0,
+        redact_secrets: bool = True,
+        trim_response: bool = False,
+        max_response_chars: int = 4000,
+    ) -> str:
+        outgoing = prompt
+        if redact_secrets:
+            from core.output_trimmer import redact_secrets_text
+
+            outgoing, _ = redact_secrets_text(prompt)
+
         payload = json.dumps(
-            {"service": service, "prompt": prompt, "timeout_sec": timeout_sec},
+            {"service": service, "prompt": outgoing, "timeout_sec": timeout_sec},
             ensure_ascii=False,
         ).encode("utf-8")
         headers = {"Content-Type": "application/json"}
@@ -567,7 +582,12 @@ class ExtensionBridgeClient:
                 body = json.loads(resp.read().decode("utf-8"))
                 if not body.get("ok"):
                     raise RuntimeError(body.get("error", "extension_bridge_failed"))
-                return str(body.get("response_text", ""))
+                text = str(body.get("response_text", ""))
+                if trim_response and text:
+                    from core.output_trimmer import trim_output
+
+                    return trim_output(text, max_chars=max_response_chars).text
+                return text
         except urllib.error.HTTPError as exc:
             err_body = exc.read().decode("utf-8", errors="replace")
             raise RuntimeError(f"ExtensionBridge HTTP {exc.code}: {err_body}") from exc

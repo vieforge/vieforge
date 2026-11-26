@@ -25,6 +25,7 @@ from core.extension_bridge import (  # noqa: E402
     ExtensionBridgeServer,
     load_or_create_bridge_token,
 )
+from core.paths import resolve_asset  # noqa: E402
 
 
 def main() -> None:
@@ -39,6 +40,7 @@ def main() -> None:
     p_status.add_argument("--port", type=int, default=DEFAULT_BRIDGE_PORT)
 
     sub.add_parser("token", help="Print (or generate) the local Bridge Token")
+    sub.add_parser("path", help="Print the exact extension folder path to select in Load Unpacked")
 
     p_send = sub.add_parser("send", help="Dispatch a prompt to a connected browser extension")
     p_send.add_argument("--port", type=int, default=DEFAULT_BRIDGE_PORT)
@@ -47,6 +49,11 @@ def main() -> None:
     p_send.add_argument("--timeout", type=float, default=120.0)
 
     args = parser.parse_args()
+
+    if args.cmd == "path":
+        ext_dir = resolve_asset("extensions/tierforge-bridge").resolve()
+        print(str(ext_dir))
+        return
 
     if args.cmd == "token":
         print(load_or_create_bridge_token())
@@ -77,7 +84,7 @@ def main() -> None:
                     "url": server.base_url,
                     "auth_enabled": bool(token),
                     "token": token if token else "(disabled)",
-                    "extension_dir": str(ROOT / "extensions" / "tierforge-bridge"),
+                    "extension_dir": str(resolve_asset("extensions/tierforge-bridge").resolve()),
                 },
                 indent=2,
                 ensure_ascii=False,

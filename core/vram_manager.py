@@ -61,6 +61,8 @@ def query_gpu_status() -> Optional[GPUStatus]:
                 "--format=csv,noheader,nounits",
             ],
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=5,
         ).strip()
         first_line = out.splitlines()[0]
@@ -186,10 +188,17 @@ def flush(
     unload_ollama: bool = False,
     settle_sec: float = 0.5,
 ) -> Optional[GPUStatus]:
-    """Strict inter-stage VRAM flush for 8 GB RTX 3060 Ti (ComfyUI + optional Ollama + GC)."""
+    """Inter-stage application-space VRAM flush (optional ComfyUI/Ollama + GC).
+
+    Only probes ComfyUI when `base_url` is explicitly provided or `COMFYUI_BASE_URL`
+    is configured in the environment so standard workstations never block waiting on
+    a non-existent port 8188.
+    """
     import gc
 
-    free_comfyui_vram(base_url=base_url, timeout=5.0)
+    comfy_url = base_url or os.getenv("COMFYUI_BASE_URL", "").strip()
+    if comfy_url:
+        free_comfyui_vram(base_url=comfy_url, timeout=2.0)
     if unload_ollama:
         unload_ollama_model(timeout=5.0, settle_sec=0.0)
     gc.collect()
@@ -216,6 +225,7 @@ class VRAMPhaseRecord:
 def vram_phase_profiler(
     stage_name: str,
     *,
+    job_id: str = "",
     episode_id: str = "",
     leak_threshold_mb: int = 200,
     poll_interval_sec: float = 0.5,
@@ -225,11 +235,13 @@ def vram_phase_profiler(
     query_fn: Callable[[], Optional[GPUStatus]] = query_gpu_status,
     flush_fn: Callable[..., Optional[GPUStatus]] = flush,
 ) -> Iterator[dict]:
-    """Clean-room VRAM Phase Profiler & Leak Detector for 8 GB RTX 3060 Ti.
+    """Clean-room VRAM Phase Profiler & Leak Detector for 8 GB+ GPUs.
 
     Records pre_mb, peak_mb (sampled during execution), post_flush_mb, leak_mb, and duration_s.
+    Accepts either `job_id` (generic TierForge API) or `episode_id` (backwards-compat alias).
     Triggers warning + optional `on_leak` reset callback if leak_mb > leak_threshold_mb.
     """
+    resolved_id = job_id or episode_id
     t0 = time.perf_counter()
     pre_status = query_fn()
     pre_mb = pre_status.used_mb if pre_status else 0
@@ -262,7 +274,7 @@ def vram_phase_profiler(
         rec = VRAMPhaseRecord(
             timestamp=datetime.now(timezone.utc).isoformat(),
             stage=stage_name,
-            episode_id=episode_id,
+            episode_id=resolved_id,
             pre_mb=pre_mb,
             peak_mb=peak_box[0],
             post_flush_mb=post_mb,

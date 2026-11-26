@@ -31,6 +31,7 @@ SUBCOMMANDS: dict[str, tuple[str, str]] = {
     "audit": ("scripts.audit_step", "Run 2-Axis quality gate & export 3-Judge audit prompt"),
     "verify-os": ("scripts.verify_cross_os", "Run clean-wheel E2E + multi-process OS lock & parity gate"),
     "install-skill": ("scripts.install_skill", "Install Agent Skill & generate JSON/TOML MCP configs"),
+    "bridge": ("scripts.extension_bridge_server", "Manage optional Layer-3 localhost Browser Extension Bridge"),
 }
 
 

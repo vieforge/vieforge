@@ -8,12 +8,18 @@ async function refreshUi() {
     "activityLog",
   ]);
   const enabled = st.enabled !== undefined ? Boolean(st.enabled) : true;
-  document.getElementById("port").value = st.port || 19876;
+  const activePort = Number(st.port || 19876);
+  document.getElementById("port").value = activePort;
   document.getElementById("token").value = st.token || "";
 
   const badge = document.getElementById("statusBadge");
   const text = document.getElementById("statusText");
   const pauseBtn = document.getElementById("pauseBtn");
+  const portWarn = document.getElementById("portWarn");
+
+  if (portWarn) {
+    portWarn.style.display = activePort !== 19876 ? "block" : "none";
+  }
 
   if (!enabled) {
     badge.textContent = "Paused";
@@ -37,13 +43,20 @@ async function refreshUi() {
   }
 
   const logEl = document.getElementById("activityLog");
+  logEl.textContent = "";
   const log = Array.isArray(st.activityLog) ? st.activityLog : [];
   if (log.length === 0) {
-    logEl.innerHTML = '<div class="hint">No jobs run yet.</div>';
+    const emptyDiv = document.createElement("div");
+    emptyDiv.className = "hint";
+    emptyDiv.textContent = "No jobs run yet.";
+    logEl.appendChild(emptyDiv);
   } else {
-    logEl.innerHTML = log
-      .map((e) => `<div class="log-item">[${e.time}] ${e.service} • ${e.chars} chars • ${e.status}</div>`)
-      .join("");
+    for (const e of log) {
+      const item = document.createElement("div");
+      item.className = "log-item";
+      item.textContent = `[${e.time || ""}] ${e.service || "ai"} • ${Number(e.chars || 0)} chars • ${e.status || ""}`;
+      logEl.appendChild(item);
+    }
   }
 }
 
@@ -64,5 +77,14 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   await chrome.runtime.sendMessage({ type: "TIERFORGE_PING_NOW" });
   setTimeout(refreshUi, 400);
 });
+
+const setupBtn = document.getElementById("setupBtn");
+if (setupBtn) {
+  setupBtn.addEventListener("click", async () => {
+    const st = await chrome.storage.local.get(["port"]);
+    const port = Number(st.port || 19876);
+    chrome.tabs.create({ url: `http://127.0.0.1:${port}/setup` });
+  });
+}
 
 refreshUi();

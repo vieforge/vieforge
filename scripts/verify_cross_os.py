@@ -150,10 +150,17 @@ def run_clean_wheel_e2e_check() -> dict[str, Any]:
             steps["pip_install"]["stderr_tail"] = inst.stderr[-600:]
             return {"passed": False, "steps": steps}
 
-        # 0. Unified `vieforge --version` & `vieforge check --json`
+        # 0. Unified `vieforge --version` & `vieforge bridge path` (must resolve bundled extension)
         vf_ver = _run_cmd([str(_venv_bin(venv_dir, "vieforge")), "--version"], cwd=empty_cwd, env=env)
+        vf_bpath = _run_cmd([str(_venv_bin(venv_dir, "vieforge")), "bridge", "path"], cwd=empty_cwd, env=env)
+        ext_manifest = Path(vf_bpath.stdout.strip()) / "manifest.json" if vf_bpath.returncode == 0 else Path("")
         steps["vieforge_unified_cli"] = {
-            "ok": vf_ver.returncode == 0 and vf_ver.stdout.strip().startswith("vieforge "),
+            "ok": (
+                vf_ver.returncode == 0
+                and vf_ver.stdout.strip().startswith("vieforge ")
+                and vf_bpath.returncode == 0
+                and ext_manifest.is_file()
+            ),
             "rc": vf_ver.returncode,
             "version": vf_ver.stdout.strip(),
         }

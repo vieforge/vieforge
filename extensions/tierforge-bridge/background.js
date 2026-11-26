@@ -246,8 +246,21 @@ async function heartbeatTick() {
   }
 }
 
+function ensurePollAlarm() {
+  try {
+    chrome.alarms.create("tierforge_poll", { periodInMinutes: 0.5 });
+  } catch (_err) {
+    // Ignore if alarms API unavailable
+  }
+}
+
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create("tierforge_poll", { periodInMinutes: 0.5 });
+  ensurePollAlarm();
+  heartbeatTick();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  ensurePollAlarm();
   heartbeatTick();
 });
 
@@ -256,6 +269,10 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     heartbeatTick();
   }
 });
+
+// Ensure alarm is registered whenever MV3 service worker wakes up
+ensurePollAlarm();
+heartbeatTick();
 
 // High-frequency local loop while service worker is awake (every 2s)
 setInterval(() => {
