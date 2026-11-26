@@ -7,6 +7,7 @@
 **Code trước — Local LLM thứ hai — Cloud sau cùng.**
 
 [![VieForge CI](https://github.com/vieforge/vieforge/actions/workflows/ci.yml/badge.svg)](https://github.com/vieforge/vieforge/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/vieforge.svg)](https://pypi.org/project/vieforge/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](pyproject.toml)
 [![Core: 100% Stdlib](https://img.shields.io/badge/Core-100%25%20Python%20Stdlib-brightgreen.svg)](LEGAL_AND_COMPLIANCE.md)
@@ -49,16 +50,20 @@ flowchart LR
 ## Chạy thử trong 5 phút (`$0`, không cần cài thư viện ngoài)
 
 ```bash
+# Cách 1: Cài trực tiếp từ PyPI (khuyên dùng)
+pip install vieforge
+vieforge setup
+
+# Cách 2: Clone repo
 git clone https://github.com/vieforge/vieforge.git
 cd vieforge
-
-# 1 lệnh tự động kiểm tra môi trường + cài Skill + sinh MCP config + chạy demo:
 python scripts/quick_setup.py
 
-# Hoặc tự chạy đủ 3 pha Demo 01 (chạy được ngay cả khi chưa cài Ollama nhờ --mock-llm):
+# Hoặc tự chạy các demo offline (chạy được ngay cả khi chưa cài Ollama nhờ --mock-llm):
 python examples/01_batch_doc_processor/run_demo.py --dry-run
 python examples/01_batch_doc_processor/run_demo.py --reset --mock-llm --simulate-interrupt-after 2
 python examples/01_batch_doc_processor/run_demo.py --mock-llm
+python examples/03_ci_log_triage/run_ci_triage.py --mock-llm --reset
 ```
 
 ---

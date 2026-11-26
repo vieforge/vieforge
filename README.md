@@ -7,6 +7,7 @@
 **Code First, Local LLM Second, Cloud Last.**
 
 [![VieForge CI](https://github.com/vieforge/vieforge/actions/workflows/ci.yml/badge.svg)](https://github.com/vieforge/vieforge/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/vieforge.svg)](https://pypi.org/project/vieforge/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](pyproject.toml)
 [![Core: 100% Stdlib](https://img.shields.io/badge/Core-100%25%20Python%20Stdlib-brightgreen.svg)](LEGAL_AND_COMPLIANCE.md)
@@ -50,17 +51,20 @@ flowchart LR
 ## 5-Minute Quickstart (`$0`, Zero Dependencies)
 
 ```bash
-# 1. Clone the repository
+# Option A: Install directly from PyPI (recommended)
+pip install vieforge
+vieforge setup
+
+# Option B: Clone the repository
 git clone https://github.com/vieforge/vieforge.git
 cd vieforge
-
-# 2. Run 1-command setup (preflight + skill install + MCP config generator + live demo)
 python scripts/quick_setup.py
 
-# Or run the 3-phase interrupt/resume demo manually (works even without Ollama via --mock-llm):
+# Or run the offline demos directly (works even without Ollama via --mock-llm):
 python examples/01_batch_doc_processor/run_demo.py --dry-run
 python examples/01_batch_doc_processor/run_demo.py --reset --mock-llm --simulate-interrupt-after 2
 python examples/01_batch_doc_processor/run_demo.py --mock-llm
+python examples/03_ci_log_triage/run_ci_triage.py --mock-llm --reset
 ```
 
 Example **Savings Receipt** printed at the end of the resumed run:
