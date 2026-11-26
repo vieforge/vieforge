@@ -160,15 +160,22 @@ TierForge's core is **100% MIT-licensed Python stdlib** with an automated clean-
 
 ---
 
-## Verification & Open-Core Roadmap
+## Verification & Cross-OS Quality Gate
+
+VieForge is continuously verified across **Ubuntu Linux, macOS, and Windows** (Python 3.10 & 3.12) via a [2-Axis Cross-OS Quality Gate](docs/CROSS_OS_QUALITY_GATE.md) that tests clean wheel installation outside the repo, real multi-process OS locks (`fcntl` / `msvcrt`), and 100% token benchmark parity:
 
 ```bash
 # Run full unit test suite (pytest)
 uv run --extra dev pytest -v
 
-# Run automated step audit (pytest + license_audit + stdlib purity + configs)
+# Run 2-Axis quality audit (5 Core Contracts + Performance/DX score + portability scan)
 uv run python scripts/audit_step.py --step verify
+
+# Run full clean-wheel E2E + multi-process OS lock check locally
+uv run python scripts/verify_cross_os.py run --step local_check --out data/os_report_local.json
 ```
+
+> **Local LLM Backends:** `LLMRouter` works natively with **Ollama** (`http://127.0.0.1:11434`, with `keep_alive=0` VRAM lease hygiene) and auto-detects **OpenAI-compatible** local servers (**LM Studio** `:1234/v1`, **llama.cpp** `:8080/v1`, **vLLM** `:8000/v1`) via `TIERFORGE_LLM_BASE_URL` / `TIERFORGE_LLM_API_STYLE=auto`.
 
 ### Open-Core Roadmap
 - **MIT Core (Always Free & Open Source):** 3-Tier orchestration engine (`core/`), SQLite checkpointing, Ollama lease manager, clean-room output trimmer, budget guard, MCP server, multi-agent skill installer.

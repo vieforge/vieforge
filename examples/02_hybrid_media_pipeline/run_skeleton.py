@@ -19,6 +19,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from core.cost_tracker import CostTracker
 from core.llm_router import LLMRouter
+from core.paths import default_data_dir
 from core.pipeline_runner import GateBlockedError, GateStatus, assert_gate_approved
 from core.subprocess_runner import run_isolated
 
@@ -32,7 +33,7 @@ def main() -> int:
 
     tracker = CostTracker(
         job_id="demo_02_hybrid",
-        daily_spend_path=REPO_ROOT / "data" / "demo_02_daily_spend.json",
+        daily_spend_path=default_data_dir() / "demo_02_daily_spend.json",
     )
     estimate = tracker.estimate_dry_run("external/media-render-unit", item_count=args.items)
 

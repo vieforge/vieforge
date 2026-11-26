@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-11-26
+
+### Added
+- **2-Axis Cross-OS Quality Gate (`core/step_auditor.py`, `scripts/verify_cross_os.py`, `docs/CROSS_OS_QUALITY_GATE.md`):**
+  - Separates **Axis A — 5 Mandatory Core Capability Contracts** (`C1_token_efficiency`, `C2_durability_resume`, `C3_budget_and_safety`, `C4_cross_os_portability`, `C5_pytest_and_hygiene`) from **Axis B — Performance (50 pts) & Developer Experience (50 pts)**.
+  - Added static **Cross-Platform Portability AST Scanner** catching personal Windows paths, unguarded `msvcrt`/`fcntl`/`winreg` imports, and missing `encoding="utf-8"` text I/O.
+  - Added **3-OS Parity CI Gate** in `.github/workflows/ci.yml`: builds a real `.whl`, installs offline into an isolated venv outside the repo, tests all CLI commands + interrupt/resume + real multi-process OS locks (`fcntl` / `msvcrt`) on Ubuntu, macOS, and Windows, and cross-verifies behavioral parity across all runners.
+- **Clean Wheel Packaging (`core/paths.py` + `pyproject.toml`):**
+  - Bundles `config/`, `skills/`, `AGENTS.md`, and `run_demo.py` into `core/_bundled_assets/` so `pip install` works cleanly from any directory on Linux, macOS, and Windows.
+
+### Performance & Reliability Fixes
+- **44x `StateDB` Bulk Registration Speedup (`core/state_db.py`):** Refactored `register_items()` into a single SQLite transaction (`executemany`) and added `mark_done_batch()`, reducing 1,000-item checkpoint + resume latency from ~1,242 ms to ~28 ms.
+- **Zero-Warning Lazy Package Exports (`core/__init__.py`):** Adopted PEP 562 lazy `__getattr__`, speeding up CLI cold-start and eliminating Python `runpy` `RuntimeWarning` when running `python -m core.license_audit`.
+- **Cross-OS Loopback HTTP Fix (`core/extension_bridge.py`):** Always drain POST request body before early `401`/`403`/`200` responses to prevent TCP RST (`WinError 10053` / `ConnectionResetError`).
+- **Repository Hygiene:** Moved internal pre-launch notes out of public `docs/`, tightened Ruff lint (`C4`, `SIM`), and synced `examples/02_hybrid_media_pipeline/run_skeleton.py` to `default_data_dir()`.
+
 ## [0.2.0] - 2026-11-26
 
 ### Added

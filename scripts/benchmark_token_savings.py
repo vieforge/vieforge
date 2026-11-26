@@ -266,38 +266,37 @@ def benchmark_interrupt_resume_50() -> WorkloadBenchmark:
     without_usd = _frontier_cost_usd(without_in, without_out)
 
     # WITH VieForge: Run 1 does 30 items then interrupts; Run 2 skips 30 done items and finishes remaining 20 at $0
-    with tempfile.TemporaryDirectory() as tmp:
-        with StateDB(Path(tmp) / "bench_resume.db") as db:
-            router = LLMRouter(model="qwen2.5:7b", mock=True, mock_handler=_mock_json_extractor)
-            pairs = [(doc_id, compute_input_hash(text)) for doc_id, text in docs]
-            db.register_items("bench_resume_50", pairs)
-            doc_map = dict(docs)
+    with tempfile.TemporaryDirectory() as tmp, StateDB(Path(tmp) / "bench_resume.db") as db:
+        router = LLMRouter(model="qwen2.5:7b", mock=True, mock_handler=_mock_json_extractor)
+        pairs = [(doc_id, compute_input_hash(text)) for doc_id, text in docs]
+        db.register_items("bench_resume_50", pairs)
+        doc_map = dict(docs)
 
-            # Pass 1: interrupt after 30
-            for idx, item in enumerate(db.get_pending_items("bench_resume_50"), start=1):
-                res = router.generate_json(
-                    doc_map[item.item_id],
-                    system=system_prompt,
-                    required_keys=["title", "category", "priority", "action_required"],
-                    max_retries=2,
-                )
-                db.mark_done("bench_resume_50", item.item_id, output=res.parsed_json, cost_usd=0.0)
-                if idx == 30:
-                    break
-            summary_pass1 = compact_job_summary(db.get_job_summary("bench_resume_50"))
+        # Pass 1: interrupt after 30
+        for idx, item in enumerate(db.get_pending_items("bench_resume_50"), start=1):
+            res = router.generate_json(
+                doc_map[item.item_id],
+                system=system_prompt,
+                required_keys=["title", "category", "priority", "action_required"],
+                max_retries=2,
+            )
+            db.mark_done("bench_resume_50", item.item_id, output=res.parsed_json, cost_usd=0.0)
+            if idx == 30:
+                break
+        summary_pass1 = compact_job_summary(db.get_job_summary("bench_resume_50"))
 
-            # Pass 2: resume remaining 20
-            pending_after_crash = db.get_pending_items("bench_resume_50")
-            assert len(pending_after_crash) == 20
-            for item in pending_after_crash:
-                res = router.generate_json(
-                    doc_map[item.item_id],
-                    system=system_prompt,
-                    required_keys=["title", "category", "priority", "action_required"],
-                    max_retries=2,
-                )
-                db.mark_done("bench_resume_50", item.item_id, output=res.parsed_json, cost_usd=0.0)
-            summary_pass2 = compact_job_summary(db.get_job_summary("bench_resume_50"))
+        # Pass 2: resume remaining 20
+        pending_after_crash = db.get_pending_items("bench_resume_50")
+        assert len(pending_after_crash) == 20
+        for item in pending_after_crash:
+            res = router.generate_json(
+                doc_map[item.item_id],
+                system=system_prompt,
+                required_keys=["title", "category", "priority", "action_required"],
+                max_retries=2,
+            )
+            db.mark_done("bench_resume_50", item.item_id, output=res.parsed_json, cost_usd=0.0)
+        summary_pass2 = compact_job_summary(db.get_job_summary("bench_resume_50"))
 
     dispatch_tokens = 120 * 2  # 2 compact MCP calls (initial + resume)
     vf_in = dispatch_tokens + estimate_tokens(summary_pass1) + estimate_tokens(summary_pass2)

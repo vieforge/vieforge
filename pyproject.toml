@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vieforge"
-version = "0.2.0"
+version = "0.3.0"
 description = "VieForge — Code First, Local LLM Second, Cloud Last. 3-Tier Hybrid AI Agent Harness for checkpointed, budget-guarded local execution."
 readme = "README.md"
 license = { text = "MIT" }
@@ -77,5 +77,5 @@ line-length = 120
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
 ignore = ["E402", "E501", "UP045", "UP035"]

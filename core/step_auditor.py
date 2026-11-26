@@ -170,9 +170,12 @@ def _check_cross_platform_portability(project_root: Path) -> list[str]:
 
             # 1. Catch accidental leaked personal Windows absolute paths in non-comment string literals
             for node in ast.walk(tree):
-                if isinstance(node, ast.Constant) and isinstance(node.value, str):
-                    if WINDOWS_PERSONAL_PATH_RE.search(node.value):
-                        issues.append(f"{rel}:{node.lineno} hardcoded personal Windows path literal")
+                if (
+                    isinstance(node, ast.Constant)
+                    and isinstance(node.value, str)
+                    and WINDOWS_PERSONAL_PATH_RE.search(node.value)
+                ):
+                    issues.append(f"{rel}:{node.lineno} hardcoded personal Windows path literal")
 
             # 2. Catch unguarded OS-specific imports (msvcrt / fcntl must be inside `if` or `try`)
             guarded_imports: set[int] = set()
@@ -191,11 +194,14 @@ def _check_cross_platform_portability(project_root: Path) -> list[str]:
 
             # 3. Catch `.read_text()` / `.write_text()` calls missing explicit `encoding=`
             for node in ast.walk(tree):
-                if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
-                    if node.func.attr in ("read_text", "write_text"):
-                        kw_names = {kw.arg for kw in node.keywords if kw.arg}
-                        if "encoding" not in kw_names:
-                            issues.append(f"{rel}:{node.lineno} {node.func.attr}() missing encoding='utf-8'")
+                if (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr in ("read_text", "write_text")
+                ):
+                    kw_names = {kw.arg for kw in node.keywords if kw.arg}
+                    if "encoding" not in kw_names:
+                        issues.append(f"{rel}:{node.lineno} {node.func.attr}() missing encoding='utf-8'")
 
     return issues
 

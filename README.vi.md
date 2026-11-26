@@ -89,6 +89,20 @@ Khi mở đồng thời nhiều dự án trên Antigravity / Claude Code trên c
 - **Quản lý Lease VRAM Ollama (`OllamaLeaseManager`):** Giữ model nóng suốt batch và chỉ xả VRAM (`keep_alive=0`) khi **dự án cuối cùng** kết thúc (tự dọn PID đã tắt).
 - **Xếp hàng GPU Tầng 3 (`exclusive_gpu_lock`):** Tránh 2–3 dự án cùng tràn vào card 8 GB VRAM gây OOM.
 - **Ghi sổ chi phí nguyên tử (`daily_spend.json`):** Khóa liên tiến trình + `os.replace`, không bao giờ mất dữ liệu chi tiêu.
+
+---
+
+## Kiểm chứng Đa nền tảng 3 OS & Hỗ trợ Local LLM Mở rộng
+
+Mọi bản phát hành được kiểm định tự động trên **Ubuntu Linux, macOS và Windows** qua [Cổng Chất lượng Đối chiếu Chéo 2 Trục](docs/CROSS_OS_QUALITY_GATE.md) (cài wheel sạch ngoài repo, test khóa đa tiến trình thật `fcntl`/`msvcrt`, đo tốc độ `StateDB` & `output_trimmer`, và so sánh chéo kết quả 3 OS):
+
+```bash
+uv run --extra dev pytest -v
+uv run python scripts/audit_step.py --step verify
+uv run python scripts/verify_cross_os.py run --step local_check --out data/os_report_local.json
+```
+
+- **Tương thích Local LLM linh hoạt:** Hỗ trợ **Ollama** nguyên bản (`:11434` + tự xả VRAM `keep_alive=0`) và tự nhận diện máy chủ chuẩn **OpenAI-compatible** (**LM Studio** `:1234/v1`, **llama.cpp** `:8080/v1`, **vLLM** `:8000/v1`) qua `TIERFORGE_LLM_BASE_URL` / `TIERFORGE_LLM_API_STYLE=auto`.
 - **Tách namespace checkpoint (`scoped_job_id`):** Các dự án dùng chung SQLite WAL không bao giờ đụng `job_id`.
 
 ---
