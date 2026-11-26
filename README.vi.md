@@ -97,4 +97,5 @@ Khi mở đồng thời nhiều dự án trên Antigravity / Claude Code trên c
 - **Zero OS-Mutation:** Không bao giờ sửa Registry Windows, dịch vụ hệ thống, mạng/IPv6 hay pagefile.
 - **Tài liệu chi tiết:** Xem [README.md](README.md) (bản tiếng Anh đầy đủ), [LEGAL_AND_COMPLIANCE.md](LEGAL_AND_COMPLIANCE.md), và [SECURITY.md](SECURITY.md).
 - **Website & Liên hệ:** [https://vieforge.dev](https://vieforge.dev) | `hello@vieforge.dev` | Bảo mật: `security@vieforge.dev`
+- **Ủng hộ dự án:** VieForge hoàn toàn miễn phí vĩnh viễn theo giấy phép **MIT**. Nếu công cụ giúp bạn tiết kiệm đáng kể chi phí Cloud API, bạn có thể [mời tác giả một ly cà phê trên Ko-fi](https://ko-fi.com/aivieforge) để tiếp sức duy trì máy trạm test local.
 - **Lưu ý Thương hiệu (Trademark):** Mã nguồn được phát hành theo giấy phép **MIT**, nhưng tên thương hiệu và nhận diện **VieForge** thuộc quyền sở hữu của **VieForge Contributors** (các bản fork cần sử dụng tên khác).

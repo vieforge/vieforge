@@ -179,5 +179,8 @@ See [LICENSE](LICENSE) and [LEGAL_AND_COMPLIANCE.md](LEGAL_AND_COMPLIANCE.md) fo
 
 ---
 
+### Support the Project
+VieForge is **100% MIT-licensed and free forever**. If it saves you Cloud API budget, you can [buy the maintainer a coffee on Ko-fi](https://ko-fi.com/aivieforge) to help cover local test hardware and maintenance costs.
+
 ### Trademark Notice
 The source code in this repository is licensed under the **MIT License**. The **VieForge** name, logo, and associated brand marks are not licensed under MIT and remain the property of **VieForge Contributors**. Forks and derivative works must use a distinct name and may not imply official endorsement.
