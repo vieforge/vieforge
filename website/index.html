@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>VieForge — 3-Tier Hybrid AI Agent Harness (16.9x Fewer Cloud Tokens)</title>
   <meta name="description" content="Code First, Local LLM Second, Cloud Last. Verified reproducible benchmarks: 1,459-token session overhead, 16.9x net Cloud token reduction (-94.1%) on real batch, CI log, and resume workloads." />
-  <meta name="theme-color" content="#070b14" />
+  <meta name="theme-color" content="#050811" />
   <link rel="canonical" href="https://vieforge.dev/" />
   <meta property="og:site_name" content="VieForge" />
   <meta property="og:title" content="VieForge — 3-Tier Hybrid AI Agent Harness (16.9x Fewer Cloud Tokens)" />
@@ -21,6 +21,9 @@
   <meta name="twitter:description" content="Cut Cloud AI Agent token burn by 11x–118x on real workloads. 100% Python stdlib, MIT clean-room, reproducible $0 benchmark." />
   <meta name="twitter:image" content="https://vieforge.dev/assets/og-card.png" />
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -41,19 +44,30 @@
   </script>
   <style>
     :root {
-      --bg: #070b14;
-      --surface: #0f172a;
-      --panel: #0f172a;
-      --surface-2: #162033;
-      --border: #1e293b;
-      --line: #1e293b;
+      --bg: #050811;
+      --bg-elevated: #0a101f;
+      --surface: #0c1324;
+      --panel: #0c1324;
+      --surface-2: #121c33;
+      --border: rgba(148, 163, 184, 0.14);
+      --border-strong: rgba(148, 163, 184, 0.24);
+      --line: rgba(148, 163, 184, 0.16);
+      --specular: rgba(255, 255, 255, 0.08);
       --text: #f8fafc;
-      --muted: #94a3b8;
+      --text-soft: #cbd5e1;
+      --muted: #8b9bb4;
       --accent: #38bdf8;
+      --accent-blue: #3b82f6;
       --accent-2: #22c55e;
+      --emerald: #34d399;
       --gold: #facc15;
       --danger: #f87171;
+      --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+      --radius: 16px;
+      --radius-sm: 10px;
     }
+
     * { box-sizing: border-box; }
     html {
       scroll-behavior: smooth;
@@ -62,302 +76,969 @@
     }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: radial-gradient(circle at top center, #0f1d36 0%, var(--bg) 52%);
+      font-family: var(--font-sans);
+      background-color: var(--bg);
       color: var(--text);
       line-height: 1.6;
       overflow-x: clip;
       max-width: 100%;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
     }
+
+    /* Subtle architectural dot-grid + radial top spotlight (Linear/Vercel aesthetic) */
+    .bg-atmosphere {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -12%, rgba(56, 189, 248, 0.16), transparent 65%),
+        radial-gradient(ellipse 55% 35% at 85% 12%, rgba(34, 197, 94, 0.08), transparent 60%);
+    }
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image: radial-gradient(rgba(148, 163, 184, 0.14) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 35%, transparent 90%);
+      -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 35%, transparent 90%);
+    }
+
     img, svg { max-width: 100%; height: auto; }
     code {
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      font-size: 0.9em;
+      font-family: var(--font-mono);
+      font-size: 0.88em;
       background: rgba(148, 163, 184, 0.12);
-      padding: 1px 5px;
-      border-radius: 5px;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      padding: 1px 6px;
+      border-radius: 6px;
+      color: #e2e8f0;
       overflow-wrap: anywhere;
       word-break: break-word;
     }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-    main, section, .card, .kpi, .prompt-box, .calc-out, .table-wrap, .terminal {
+    a { color: var(--accent); text-decoration: none; transition: color 0.15s ease; }
+    a:hover { color: #7dd3fc; }
+
+    .container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    main, section, .card, .bento-card, .kpi, .demo-window, .calc-out, .table-wrap, .terminal {
       min-width: 0;
       max-width: 100%;
     }
+    section[id] { scroll-margin-top: 76px; }
+
+    /* Sticky Minimal Glass Navbar */
     header {
-      position: sticky; top: 0; z-index: 20;
-      background: rgba(7, 11, 20, 0.92);
-      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(5, 8, 17, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
     }
     .nav {
-      display: flex; align-items: center; justify-content: space-between;
-      min-height: 64px; gap: 12px; padding: 10px 0;
-    }
-    .nav-top {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 16px;
     }
     .brand-link { display: inline-flex; align-items: center; flex-shrink: 0; }
-    .brand-logo { height: 34px; width: auto; display: block; }
-    .nav-links {
-      display: flex; align-items: center; gap: 16px; font-size: 14px; flex-wrap: wrap;
-      justify-content: flex-end;
+    .brand-logo { height: 32px; width: auto; display: block; }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
     }
-    .lang-btn-mobile { display: none; }
-    .lang-btn-desktop { display: inline-flex; }
+    .nav-center a {
+      color: var(--text-soft);
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 999px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .nav-center a:hover {
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px;
-      border: 1px solid var(--border); cursor: pointer; transition: 0.15s ease;
-      text-align: center; max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.14s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      text-align: center;
+      max-width: 100%;
+      white-space: nowrap;
     }
-    .btn-primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: 0; }
-    .btn-primary:hover { filter: brightness(1.1); text-decoration: none; }
-    .btn-ghost { background: var(--surface); color: var(--text); }
-    .btn-ghost:hover { background: var(--surface-2); text-decoration: none; }
-    .hero { padding: 56px 0 36px; text-align: center; }
-    .pill {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
-      background: rgba(56, 189, 248, 0.12); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3);
-      margin-bottom: 18px; max-width: 100%; line-height: 1.4; text-align: center;
+    .btn:active { transform: translateY(1px); }
+    .btn-sm { padding: 7px 13px; font-size: 13px; border-radius: 9px; }
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      color: #fff;
+      border: 1px solid rgba(125, 211, 252, 0.35);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 8px 24px -6px rgba(37, 99, 235, 0.55);
     }
+    .btn-primary:hover {
+      color: #fff;
+      filter: brightness(1.08);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 12px 28px -6px rgba(56, 189, 248, 0.6);
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.72);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover {
+      background: var(--surface-2);
+      border-color: var(--border-strong);
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      color: var(--text);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .mobile-drawer {
+      display: none;
+      position: fixed;
+      top: 57px;
+      left: 0;
+      right: 0;
+      z-index: 39;
+      background: rgba(5, 8, 17, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-strong);
+      padding: 12px 16px 18px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.65);
+    }
+    .mobile-drawer.open { display: block; }
+    .mobile-drawer a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 12px;
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+    .mobile-drawer a:last-of-type { border-bottom: 0; }
+    .mobile-drawer a:hover { background: rgba(56, 189, 248, 0.08); text-decoration: none; }
+
+    /* Hero Section */
+    .hero { padding: 64px 0 40px; text-align: center; }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      background: rgba(15, 23, 42, 0.85);
+      color: #cbd5e1;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      box-shadow: 0 1px 0 var(--specular) inset;
+      margin-bottom: 22px;
+      max-width: 100%;
+      line-height: 1.4;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.22);
+      flex-shrink: 0;
+    }
+
     h1 {
-      font-size: clamp(27px, 6.2vw, 54px); line-height: 1.12; margin: 0 0 16px;
-      letter-spacing: -0.8px; overflow-wrap: break-word;
+      font-size: clamp(32px, 5.6vw, 62px);
+      font-weight: 800;
+      line-height: 1.07;
+      margin: 0 auto 18px;
+      letter-spacing: -0.035em;
+      max-width: 880px;
+      text-wrap: balance;
+      background: linear-gradient(180deg, #ffffff 30%, #b6c4da 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    h1 .accent-grad {
+      background: linear-gradient(95deg, #38bdf8 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .lead {
-      max-width: 760px; margin: 0 auto 24px; color: var(--muted);
-      font-size: clamp(15px, 2.2vw, 17.5px); line-height: 1.65;
+      max-width: 720px;
+      margin: 0 auto 28px;
+      color: var(--muted);
+      font-size: clamp(15.5px, 2vw, 18px);
+      line-height: 1.65;
     }
-    .cta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+    .lead strong { color: var(--text); font-weight: 600; }
+
+    .cta-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .cta-row .btn { min-height: 46px; padding: 11px 22px; }
+
+    /* Interactive Mac-Style Product Demo Window in Hero */
+    .demo-window {
+      max-width: 880px;
+      margin: 0 auto 32px;
+      text-align: left;
+      background: linear-gradient(180deg, rgba(14, 22, 42, 0.95) 0%, rgba(7, 11, 22, 0.98) 100%);
+      border: 1px solid var(--border-strong);
+      border-radius: 18px;
+      box-shadow: 0 1px 0 var(--specular) inset, 0 28px 70px -20px rgba(0, 0, 0, 0.8), 0 0 60px -24px rgba(56, 189, 248, 0.25);
+      overflow: hidden;
+    }
+    .demo-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 16px;
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .win-dots { display: flex; align-items: center; gap: 7px; }
+    .win-dots span { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-r { background: #ef4444; opacity: 0.85; }
+    .dot-y { background: #eab308; opacity: 0.85; }
+    .dot-g { background: #22c55e; opacity: 0.85; }
+
+    .demo-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(5, 8, 17, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      flex-wrap: wrap;
+    }
+    .demo-tab {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .demo-tab:hover { color: var(--text); }
+    .demo-tab.active {
+      background: rgba(56, 189, 248, 0.16);
+      color: #7dd3fc;
+      box-shadow: 0 1px 0 rgba(125, 211, 252, 0.2) inset;
+    }
+
+    .demo-body { padding: 20px 22px; }
+    .demo-pane { display: none; }
+    .demo-pane.active { display: block; }
+    .pane-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .code-block {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #e2e8f0;
+      background: #04070f;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 12px;
+      padding: 15px 16px;
+      margin: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .code-block .c-dim { color: #64748b; }
+    .code-block .c-cyan { color: #38bdf8; }
+    .code-block .c-green { color: #4ade80; font-weight: 700; }
+    .code-block .c-gold { color: #facc15; }
+
+    .compare-split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .compare-box {
+      border-radius: 12px;
+      padding: 15px 16px;
+      border: 1px solid var(--border);
+      background: #04070f;
+    }
+    .compare-box.bad { border-color: rgba(248, 113, 113, 0.28); }
+    .compare-box.good-box { border-color: rgba(34, 197, 94, 0.36); background: rgba(6, 22, 18, 0.55); }
+    .compare-tag {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    .compare-num {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+
+    /* Ecosystem Trust Strip */
+    .ecosystem-strip {
+      max-width: 920px;
+      margin: 0 auto 30px;
+      text-align: center;
+    }
+    .eco-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .eco-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-soft);
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .chip:hover { border-color: rgba(56, 189, 248, 0.4); color: var(--text); }
+
+    /* KPI Strip */
     .kpi-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
-      gap: 12px; margin: 0 auto 26px; text-align: left;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 0 auto;
+      text-align: left;
     }
     .kpi {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px;
+      background: linear-gradient(180deg, rgba(16, 25, 46, 0.85) 0%, rgba(10, 16, 31, 0.9) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: 0 1px 0 var(--specular) inset;
+      transition: border-color 0.2s ease, transform 0.2s ease;
     }
+    .kpi:hover { border-color: rgba(56, 189, 248, 0.35); transform: translateY(-2px); }
     .kpi-val {
-      font-size: clamp(20px, 4.2vw, 27px); font-weight: 800; letter-spacing: -0.5px;
-      color: var(--accent-2); line-height: 1.15; display: flex; align-items: baseline;
-      flex-wrap: wrap; gap: 4px 6px;
+      font-family: var(--font-mono);
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--emerald);
+      line-height: 1.15;
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 6px;
     }
-    .kpi-sub { font-size: 0.62em; font-weight: 700; opacity: 0.92; }
     .kpi-val.cyan { color: var(--accent); }
     .kpi-val.gold { color: var(--gold); }
-    .kpi-label { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
-    .prompt-box {
-      max-width: 820px; margin: 0 auto; text-align: left;
-      background: var(--surface); border: 1px solid #26354f; border-radius: 14px; padding: 16px 18px;
-    }
-    .prompt-head {
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
-      margin-bottom: 10px; font-size: 13px; color: var(--muted); gap: 8px 12px;
-    }
-    .prompt-text {
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px;
-      color: #e2e8f0; margin: 0; line-height: 1.55;
-      overflow-wrap: anywhere; word-break: break-word;
-    }
-    section { padding: 44px 0; border-top: 1px solid rgba(30, 41, 59, 0.55); }
+    .kpi-sub { font-size: 0.6em; font-weight: 700; opacity: 0.9; }
+    .kpi-label { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.45; }
+
+    /* Sections */
+    section { padding: 64px 0; border-top: 1px solid rgba(148, 163, 184, 0.1); }
     section.hero { border-top: 0; }
+    .sec-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
     h2 {
-      font-size: clamp(22px, 4.6vw, 28px); line-height: 1.25; margin: 0 0 8px;
-      letter-spacing: -0.4px; overflow-wrap: break-word;
+      font-size: clamp(24px, 3.6vw, 34px);
+      font-weight: 800;
+      line-height: 1.18;
+      margin: 0 0 10px;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
     }
-    .sub { color: var(--muted); margin: 0 0 22px; max-width: 780px; font-size: 15px; line-height: 1.6; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 16px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 16px; }
+    .sub {
+      color: var(--muted);
+      margin: 0 0 28px;
+      max-width: 740px;
+      font-size: 15.5px;
+      line-height: 1.65;
+    }
+
+    /* Cards & Bento Grid */
     .card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
+      background: linear-gradient(180deg, rgba(14, 22, 42, 0.8) 0%, rgba(10, 16, 31, 0.92) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 1px 0 var(--specular) inset;
+      transition: border-color 0.2s ease, transform 0.2s ease;
     }
-    .card h3 { margin: 0 0 8px; font-size: 17.5px; line-height: 1.3; }
-    .card p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+    .card:hover { border-color: var(--border-strong); }
+    .card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; line-height: 1.3; letter-spacing: -0.015em; }
+    .card p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+
+    /* Asymmetrical Modular Bento Grid (Linear / Supabase standard) */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .bento-7 { grid-column: span 7; }
+    .bento-5 { grid-column: span 5; }
+    .bento-card {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(15, 24, 46, 0.85) 0%, rgba(9, 14, 28, 0.96) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 1px 0 var(--specular) inset;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .bento-card:hover { border-color: rgba(56, 189, 248, 0.35); transform: translateY(-2px); }
+    .bento-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.24);
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .bento-icon.green { background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.26); color: var(--emerald); }
+    .bento-icon.gold { background: rgba(250, 204, 21, 0.1); border-color: rgba(250, 204, 21, 0.26); color: var(--gold); }
+    .bento-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
+    .bento-card p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+    .bento-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.16);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+    .mini-tag {
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+    .mini-tag.ok { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.28); color: #86efac; }
+
     .tier-badge {
-      display: inline-block; font-size: 11.5px; font-weight: 700; padding: 3px 10px;
-      border-radius: 999px; margin-bottom: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
     }
-    .t1 { background: rgba(59, 130, 246, 0.18); color: #93c5fd; }
-    .t2 { background: rgba(34, 197, 94, 0.18); color: #86efac; }
-    .t3 { background: rgba(250, 204, 21, 0.18); color: #fde047; }
+    .t1 { background: rgba(59, 130, 246, 0.16); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; }
+    .t2 { background: rgba(34, 197, 94, 0.16); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
+    .t3 { background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.3); color: #fde047; }
+
+    /* Tables */
     .table-wrap {
-      overflow-x: auto; -webkit-overflow-scrolling: touch;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 0 var(--specular) inset;
     }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--border); }
-    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(22, 32, 51, 0.7); }
+    th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border); }
+    th {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(18, 28, 51, 0.72);
+    }
+    tbody tr { transition: background 0.12s ease; }
+    tbody tr:hover { background: rgba(56, 189, 248, 0.04); }
     tr:last-child td { border-bottom: 0; }
-    tr.total-row td { background: rgba(34, 197, 94, 0.08); font-weight: 700; }
-    .num { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; text-align: right; white-space: nowrap; }
+    tr.total-row td { background: rgba(34, 197, 94, 0.09); font-weight: 700; color: #fff; }
+    .num { font-family: var(--font-mono); text-align: right; white-space: nowrap; }
     .good { color: #4ade80; font-weight: 700; }
-    .bar-card { margin-top: 16px; }
-    .bar-row { margin-bottom: 14px; }
+
+    /* Bar Chart */
+    .bar-card { margin-top: 18px; }
+    .bar-row { margin-bottom: 16px; }
     .bar-row:last-child { margin-bottom: 0; }
     .bar-meta {
-      display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;
-      font-size: 13.5px; margin-bottom: 6px; gap: 4px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      font-size: 13.5px;
+      margin-bottom: 7px;
+      gap: 4px 12px;
     }
-    .bar-track { height: 12px; background: #0b1222; border-radius: 999px; overflow: hidden; border: 1px solid var(--border); }
-    .bar-fill { height: 100%; border-radius: 999px; }
+    .bar-track {
+      height: 12px;
+      background: #060a14;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .bar-fill { height: 100%; border-radius: 999px; transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
     .bar-cloud { background: linear-gradient(90deg, #ef4444, #f97316); }
-    .bar-vf { background: linear-gradient(90deg, #16a34a, #38bdf8); }
-    .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)); gap: 18px; align-items: start; }
-    .field { margin-bottom: 16px; }
-    .field label {
-      display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
-      font-size: 14px; margin-bottom: 6px; color: #e2e8f0;
+    .bar-vf { background: linear-gradient(90deg, #22c55e, #38bdf8); }
+
+    /* Calculator */
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
     }
-    .field input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .preset-btn {
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-soft);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preset-btn:hover { border-color: rgba(56, 189, 248, 0.45); color: #fff; }
+    .preset-btn.active {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: #7dd3fc;
+    }
+
+    .calc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: var(--text-soft);
+    }
+    .field label strong { font-family: var(--font-mono); color: var(--accent); font-size: 14px; }
+    .field input[type="range"] {
+      width: 100%;
+      height: 6px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
     .field select {
-      width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--border);
-      background: #0b1222; color: var(--text); font-size: 14px;
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      background: #060a14;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
     }
     .calc-out {
-      background: linear-gradient(160deg, #0f1d36 0%, #0b1324 100%);
-      border: 1px solid #26354f; border-radius: 14px; padding: 20px;
+      background: radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 55%),
+                  linear-gradient(160deg, #0f1c36 0%, #091021 100%);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 1px 0 var(--specular) inset;
     }
-    .calc-big { font-size: clamp(32px, 7vw, 38px); font-weight: 800; color: #4ade80; line-height: 1.1; margin: 6px 0 4px; }
+    .calc-big {
+      font-family: var(--font-mono);
+      font-size: clamp(34px, 5vw, 46px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #4ade80;
+      line-height: 1.05;
+      margin: 8px 0 4px;
+    }
     .calc-row {
-      display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
-      padding: 9px 0; border-bottom: 1px solid rgba(30, 41, 59, 0.8); font-size: 13.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      font-size: 13.8px;
     }
-    .calc-row:last-child { border-bottom: 0; }
-    .terminal {
-      background: #04070e; border: 1px solid #1e293b; border-radius: 14px; padding: 16px 18px;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12.8px;
-      line-height: 1.6; color: #cbd5e1; overflow-x: auto;
-      overflow-wrap: anywhere; word-break: break-word;
+    .calc-row:last-of-type { border-bottom: 0; }
+
+    .list-clean { list-style: none; margin: 14px 0 0; padding: 0; color: var(--muted); font-size: 14.5px; line-height: 1.58; }
+    .list-clean li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 10px;
     }
-    .terminal .green { color: #4ade80; font-weight: 700; }
-    .terminal .cyan { color: #38bdf8; }
-    .list-clean { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
-    .list-clean li { margin-bottom: 6px; }
-    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-    .chip {
-      padding: 6px 11px; border-radius: 8px; background: var(--surface-2);
-      border: 1px solid var(--border); font-size: 12.5px; color: #e2e8f0;
+    .list-clean li:last-child { margin-bottom: 0; }
+    .list-clean.yes li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #4ade80;
+      font-weight: 800;
     }
+    .list-clean.no li::before {
+      content: "–";
+      position: absolute;
+      left: 2px;
+      top: 0;
+      color: #f87171;
+      font-weight: 800;
+    }
+
     footer {
-      border-top: 1px solid var(--border); padding: 32px 0 44px; margin-top: 20px;
-      color: var(--muted); font-size: 13.5px;
+      border-top: 1px solid var(--border);
+      padding: 36px 0 48px;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 13.5px;
+      background: rgba(4, 7, 15, 0.6);
     }
-    .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .foot-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; }
+    .foot-links { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 
-    /* Mobile-First Responsive Polish (<= 720px) */
-    @media (max-width: 720px) {
+    /* Tablet Breakpoint (<= 960px) */
+    @media (max-width: 960px) {
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .bento-7, .bento-5 { grid-column: span 12; }
+      .calc-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Mobile-First Responsive Experience (<= 768px) */
+    @media (max-width: 768px) {
       .container { padding: 0 16px; }
-      .nav {
-        flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 0 9px; min-height: auto;
-      }
-      .nav-top { width: 100%; }
-      .brand-logo { height: 28px; }
-      .lang-btn-mobile { display: inline-flex; }
-      .lang-btn-desktop { display: none; }
-      .nav-links {
-        width: 100%; justify-content: flex-start; gap: 6px 14px;
-        font-size: 12.5px; padding-top: 7px; border-top: 1px solid rgba(30, 41, 59, 0.7);
-      }
-      .hero { padding: 24px 0 22px; }
-      .pill {
-        border-radius: 12px; padding: 7px 12px; font-size: 11.8px; margin-bottom: 14px;
-      }
-      h1 { font-size: clamp(25px, 7.2vw, 34px); letter-spacing: -0.6px; }
-      .lead { font-size: 14.8px; }
-      .cta-row { flex-direction: column; align-items: stretch; gap: 9px; }
-      .cta-row .btn { width: 100%; padding: 11px 16px; font-size: 14px; }
-      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-      .kpi { padding: 13px 12px; }
-      .kpi-val { font-size: 20px; }
-      .kpi-label { font-size: 11.8px; }
-      .prompt-box { padding: 13px 14px; }
-      .prompt-text { font-size: 12px; }
-      section { padding: 30px 0; }
-      h2 { font-size: 21px; }
-      .sub { font-size: 14px; margin-bottom: 16px; }
-      .card, .calc-out { padding: 15px; }
-      .terminal { padding: 13px 14px; font-size: 11.8px; }
+      .nav { height: 56px; gap: 10px; }
+      .brand-logo { height: 27px; }
+      .nav-center, .nav-gh-desktop { display: none; }
+      .menu-toggle { display: inline-flex; }
 
-      /* Convert data tables into clean scannable cards on mobile — zero horizontal cut-off */
-      .table-wrap { background: transparent; border: 0; border-radius: 0; overflow: visible; }
+      .hero { padding: 28px 0 24px; }
+      .status-pill { font-size: 11px; padding: 6px 12px; border-radius: 12px; margin-bottom: 16px; }
+      h1 { font-size: clamp(27px, 7.6vw, 38px); margin-bottom: 14px; }
+      .lead { font-size: 15px; margin-bottom: 22px; }
+      .cta-row { flex-direction: column; align-items: stretch; gap: 10px; margin-bottom: 26px; }
+      .cta-row .btn { width: 100%; min-height: 46px; }
+
+      .demo-window { border-radius: 14px; margin-bottom: 26px; }
+      .demo-bar { padding: 10px 12px; gap: 8px; }
+      .win-dots { display: none; }
+      .demo-tabs { width: 100%; justify-content: space-between; flex-wrap: nowrap; }
+      .demo-tab { flex: 1; text-align: center; padding: 7px 6px; font-size: 11.5px; white-space: nowrap; }
+      #copyActiveBtn { width: 100%; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.28); color: #7dd3fc; padding: 8px 12px !important; }
+      .demo-body { padding: 14px; }
+      .code-block { padding: 12px; font-size: 12px; }
+      .compare-split { grid-template-columns: 1fr; gap: 10px; }
+      .compare-num { font-size: 21px; }
+
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .kpi { padding: 14px 13px; border-radius: 13px; }
+      .kpi-val { font-size: 19px; }
+      .kpi-label { font-size: 12px; margin-top: 6px; }
+
+      section { padding: 40px 0; }
+      h2 { font-size: 23px; }
+      .sub { font-size: 14.2px; margin-bottom: 20px; }
+      .grid-3, .grid-2 { grid-template-columns: 1fr; gap: 14px; }
+      .card, .bento-card, .calc-out { padding: 17px; border-radius: 14px; }
+      .preset-row { gap: 6px; }
+      .preset-btn { flex: 1 1 auto; text-align: center; padding: 8px 10px; }
+
+      /* Scannable Mobile Cards for Data Tables (Zero Horizontal Scroll/Cutoff) */
+      .table-wrap { background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
       table.resp-table, table.resp-table thead, table.resp-table tbody,
       table.resp-table th, table.resp-table td, table.resp-table tr {
         display: block; width: 100%;
       }
       table.resp-table thead { display: none; }
       table.resp-table tr {
-        background: var(--surface); border: 1px solid var(--border);
-        border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        padding: 13px 15px;
+        margin-bottom: 10px;
       }
       table.resp-table tr:last-child { margin-bottom: 0; }
       table.resp-table tr.total-row {
-        background: rgba(34, 197, 94, 0.1); border-color: rgba(34, 197, 94, 0.4);
+        background: rgba(34, 197, 94, 0.1);
+        border-color: rgba(34, 197, 94, 0.38);
       }
       table.resp-table td {
-        display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
-        padding: 6px 0; border-bottom: 1px dashed rgba(30, 41, 59, 0.8);
-        font-size: 13.5px; text-align: right; white-space: normal;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        padding: 7px 0;
+        border-bottom: 1px dashed rgba(148, 163, 184, 0.14);
+        font-size: 13.5px;
+        text-align: right;
+        white-space: normal;
       }
       table.resp-table td:last-child { border-bottom: 0; padding-bottom: 0; }
       table.resp-table td:first-child {
-        display: block; text-align: left; font-weight: 700; color: var(--text);
-        padding: 0 0 8px; margin-bottom: 4px; border-bottom: 1px solid var(--border);
-        font-size: 14px; line-height: 1.4;
+        display: block;
+        text-align: left;
+        font-weight: 700;
+        color: var(--text);
+        padding: 0 0 9px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+        line-height: 1.4;
       }
       table.resp-table td:first-child::before { display: none; }
       table.resp-table td::before {
         content: attr(data-label);
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-size: 12px; font-weight: 600; color: var(--muted);
-        text-align: left; flex-shrink: 0;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+        text-align: left;
+        flex-shrink: 0;
       }
       table.resp-table tr.total-row td { background: transparent; }
+
       .calc-row { font-size: 13px; }
-      .foot-row { flex-direction: column; gap: 14px; }
+      .foot-row { flex-direction: column; gap: 16px; }
+      .foot-links { gap: 14px; }
     }
-    @media (max-width: 360px) {
+
+    @media (max-width: 350px) {
       .kpi-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <div class="bg-atmosphere" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
   <header>
     <div class="container nav">
-      <div class="nav-top">
-        <a href="#" class="brand-link">
-          <img src="assets/logo.svg" alt="VieForge" class="brand-logo" />
-        </a>
-        <button type="button" class="btn btn-ghost lang-toggle lang-btn-mobile" style="padding:5px 11px;font-size:12px;">EN / VI</button>
-      </div>
-      <div class="nav-links">
+      <a href="#" class="brand-link" aria-label="VieForge Home">
+        <img src="assets/logo.svg" alt="VieForge" class="brand-logo" />
+      </a>
+      <nav class="nav-center" aria-label="Primary">
         <a href="#benchmarks" data-i18n="navBench">Benchmarks</a>
         <a href="#calculator" data-i18n="navCalc">Calculator</a>
         <a href="#architecture" data-i18n="navArch">Architecture</a>
         <a href="#honest-scope" data-i18n="navHonest">Honest Scope</a>
-        <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener">GitHub</a>
-        <button type="button" id="langBtn" class="btn btn-ghost lang-toggle lang-btn-desktop" style="padding:5px 11px;font-size:12px;">EN / VI</button>
+      </nav>
+      <div class="nav-actions">
+        <button type="button" id="langBtn" class="btn btn-ghost btn-sm lang-toggle" aria-label="Switch language">EN / VI</button>
+        <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" class="btn btn-primary btn-sm nav-gh-desktop">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.95c-3.2.7-3.87-1.54-3.87-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a10.9 10.9 0 0 1 5.76 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.8 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.42.36.78 1.06.78 2.14v3.17c0 .31.21.66.79.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+          GitHub
+        </a>
+        <button type="button" id="menuBtn" class="menu-toggle" aria-label="Toggle Menu" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
       </div>
     </div>
   </header>
 
+  <div id="mobileDrawer" class="mobile-drawer" aria-label="Mobile Navigation">
+    <a href="#benchmarks" class="drawer-link"><span data-i18n="navBench">Benchmarks</span><span style="color:var(--muted);">→</span></a>
+    <a href="#calculator" class="drawer-link"><span data-i18n="navCalc">Calculator</span><span style="color:var(--muted);">→</span></a>
+    <a href="#architecture" class="drawer-link"><span data-i18n="navArch">Architecture</span><span style="color:var(--muted);">→</span></a>
+    <a href="#honest-scope" class="drawer-link"><span data-i18n="navHonest">Honest Scope</span><span style="color:var(--muted);">→</span></a>
+    <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" class="drawer-link"><span>GitHub Repository</span><span style="color:var(--accent);">↗</span></a>
+  </div>
+
   <main class="container">
     <section class="hero">
-      <div class="pill" data-i18n="heroPill">MIT Open-Source • 100% Python Stdlib Core • Reproducible Benchmarks</div>
-      <h1 data-i18n="heroTitle">Code First. Local LLM Second.<br />Cloud Last.</h1>
+      <div class="status-pill">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span data-i18n="heroPill">v0.3.0 · 3-OS Parity Verified · MIT 100% Python Stdlib</span>
+      </div>
+      <h1 data-i18n="heroTitle">Code First. Local LLM Second.<br /><span class="accent-grad">Cloud Last.</span></h1>
       <p class="lead" data-i18n="heroLead">
-        Don't burn expensive Cloud AI Agent quota on loops, noisy logs, or failed retries.
-        VieForge adds only <strong>1,459 tokens</strong> of one-time session overhead and cuts real-world Cloud token burn by <strong>11x–118x</strong> across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.
+        Stop burning Cloud AI Agent quota on repetitive loops, raw CI logs, and crashed retries.
+        VieForge adds only <strong>1,459 tokens</strong> of one-time overhead and cuts real Cloud token burn by <strong>11x–118x</strong> across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.
       </p>
       <div class="cta-row">
         <a class="btn btn-primary" href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" data-i18n="ctaGithub">Star on GitHub</a>
-        <a class="btn btn-ghost" href="#benchmarks" data-i18n="ctaBench">See Real Token Numbers</a>
+        <a class="btn btn-ghost" href="#benchmarks" data-i18n="ctaBench">See Verified Benchmarks</a>
         <a class="btn btn-ghost" href="https://github.com/vieforge/vieforge/blob/main/AGENT_INSTALL.md" target="_blank" rel="noopener" data-i18n="ctaGuide">Zero-Knowledge Install</a>
       </div>
 
+      <!-- Interactive Product Window (Linear / Raycast / Vercel style) -->
+      <div class="demo-window">
+        <div class="demo-bar">
+          <div class="win-dots" aria-hidden="true">
+            <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+          </div>
+          <div class="demo-tabs" role="tablist">
+            <button type="button" class="demo-tab active" data-tab="prompt" role="tab" aria-selected="true" data-i18n="tabPrompt">1-Prompt Setup</button>
+            <button type="button" class="demo-tab" data-tab="cli" role="tab" aria-selected="false" data-i18n="tabCli">CLI Quickstart</button>
+            <button type="button" class="demo-tab" data-tab="diff" role="tab" aria-selected="false" data-i18n="tabDiff">Before vs After</button>
+          </div>
+          <button type="button" id="copyActiveBtn" class="btn btn-ghost btn-sm" style="padding:5px 11px;font-size:12px;" data-i18n="copyBtn">Copy</button>
+        </div>
+        <div class="demo-body">
+          <div class="demo-pane active" id="pane-prompt">
+            <div class="pane-meta">
+              <span data-i18n="promptLabel">New to terminal or MCP? Paste this 1 sentence into your AI Agent:</span>
+              <span style="font-family:var(--font-mono);color:var(--emerald);font-size:12px;" data-i18n="paneZero">0 manual config</span>
+            </div>
+            <p id="agentPrompt" class="code-block">Clone https://github.com/vieforge/vieforge, read AGENT_INSTALL.md, run python scripts/quick_setup.py, and show me the Savings Receipt in plain language.</p>
+          </div>
+
+          <div class="demo-pane" id="pane-cli">
+            <div class="pane-meta">
+              <span data-i18n="cliLabel">Run locally in 30 seconds — $0, works offline even without Ollama:</span>
+              <span style="font-family:var(--font-mono);color:var(--accent);font-size:12px;">Windows · macOS · Linux</span>
+            </div>
+            <div id="cliSnippet" class="code-block">
+              <div><span class="c-cyan">$</span> git clone https://github.com/vieforge/vieforge.git &amp;&amp; cd vieforge</div>
+              <div><span class="c-cyan">$</span> python scripts/quick_setup.py</div>
+              <div><span class="c-cyan">$</span> python scripts/benchmark_token_savings.py</div>
+              <div class="c-dim"># Output (0.3s deterministic local run):</div>
+              <div>COMBINED (incl. 1,459 overhead) : 52,732 -&gt; <span class="c-green">3,114 tokens (16.9x fewer | -94.1%)</span></div>
+            </div>
+          </div>
+
+          <div class="demo-pane" id="pane-diff">
+            <div class="pane-meta">
+              <span data-i18n="diffLabel">Real token consumption across 100-doc batch + 390-line CI log + 50-item crash/resume:</span>
+              <span style="font-family:var(--font-mono);color:var(--gold);font-size:12px;">ceil(chars / 4)</span>
+            </div>
+            <div class="compare-split">
+              <div class="compare-box bad">
+                <div class="compare-tag" style="color:#fca5a5;" data-i18n="diffBadTag">Without VieForge (Cloud-Only)</div>
+                <div class="compare-num" style="color:#f87171;">52,732 tok</div>
+                <div style="font-size:13px;color:var(--muted);" data-i18n="diffBadDesc">Cloud Agent reads every document, raw traceback, and re-runs failed items from scratch.</div>
+              </div>
+              <div class="compare-box good-box">
+                <div class="compare-tag" style="color:#86efac;" data-i18n="diffGoodTag">With VieForge (incl. 1,459 overhead)</div>
+                <div class="compare-num" style="color:#4ade80;">3,114 tok <span style="font-size:14px;">(-94.1%)</span></div>
+                <div style="font-size:13px;color:#cbd5e1;" data-i18n="diffGoodDesc">Local Python + SQLite WAL + Ollama handle bulk loops &amp; log trimming; Cloud sees compact JSON.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ecosystem Stack Strip -->
+      <div class="ecosystem-strip">
+        <div class="eco-label" data-i18n="ecoLabel">Works seamlessly with your AI Agents &amp; Local LLM Stack</div>
+        <div class="eco-pills">
+          <span class="chip">Antigravity</span>
+          <span class="chip">Claude Code</span>
+          <span class="chip">Cursor</span>
+          <span class="chip">Windsurf</span>
+          <span class="chip">Codex CLI</span>
+          <span class="chip">MCP Server</span>
+          <span class="chip">Ollama</span>
+          <span class="chip">LM Studio</span>
+          <span class="chip">llama.cpp</span>
+          <span class="chip">vLLM</span>
+          <span class="chip">SQLite WAL</span>
+        </div>
+      </div>
+
+      <!-- 4 Verified KPI Cards -->
       <div class="kpi-grid">
         <div class="kpi">
           <div class="kpi-val cyan">1,459 <span class="kpi-sub">tok</span></div>
@@ -376,17 +1057,10 @@
           <div class="kpi-label" data-i18n="kpi4">Tier 2 Local Backbone cost with SQLite WAL interrupt/resume</div>
         </div>
       </div>
-
-      <div class="prompt-box">
-        <div class="prompt-head">
-          <span data-i18n="promptLabel">New to coding? Paste this 1 prompt into your AI Agent:</span>
-          <button id="copyBtn" class="btn btn-ghost" style="padding:4px 10px;font-size:12px;" data-i18n="copyBtn">Copy Prompt</button>
-        </div>
-        <p id="agentPrompt" class="prompt-text">Clone https://github.com/vieforge/vieforge, read AGENT_INSTALL.md, run python scripts/quick_setup.py, and show me the Savings Receipt in plain language.</p>
-      </div>
     </section>
 
     <section id="benchmarks">
+      <div class="sec-kicker" data-i18n="kickerBench">Reproducible Telemetry</div>
       <h2 data-i18n="benchTitle">Exact Token Burn — Verified, Not Marketing Hype</h2>
       <p class="sub" data-i18n="benchSub">
         Every number below is generated deterministically on your own machine in 0.3 seconds by running <code>python scripts/benchmark_token_savings.py</code> (standard <code>ceil(chars / 4)</code> token estimator, $0 local run).
@@ -459,18 +1133,18 @@
           <div class="bar-track"><div class="bar-fill bar-vf" style="width:5.9%;"></div></div>
         </div>
       </div>
-
-      <div class="terminal" style="margin-top:18px;">
-        <div><span class="cyan">$</span> python scripts/benchmark_token_savings.py</div>
-        <div>=== VieForge Reproducible Token Savings Benchmark ($0 Local Run) ===</div>
-        <div>One-time Session Overhead : 1,459 tokens (SKILL.md=691 + AGENTS.md=448 + MCP=320)</div>
-        <div>COMBINED (incl. overhead) : 52,732 -&gt; <span class="green">3,114 tokens (16.9x fewer | -94.1%)</span></div>
-      </div>
     </section>
 
     <section id="calculator">
+      <div class="sec-kicker" data-i18n="kickerCalc">Interactive Estimator</div>
       <h2 data-i18n="calcTitle">Interactive Workload Savings Calculator</h2>
-      <p class="sub" data-i18n="calcSub">Adjust your real batch volume to see how many Cloud tokens VieForge actually uses and how many times (x) it cuts your burn.</p>
+      <p class="sub" data-i18n="calcSub">Pick a preset or slide to match your real batch volume to see exact monthly Cloud token &amp; USD savings.</p>
+
+      <div class="preset-row" role="group" aria-label="Workload presets">
+        <button type="button" class="preset-btn" data-items="40" data-tok="500" data-runs="12" data-model="5.4" data-i18n="preSolo">Solo Dev (40 items · 12 runs)</button>
+        <button type="button" class="preset-btn active" data-items="100" data-tok="600" data-runs="20" data-model="5.4" data-i18n="preAgency">Agency / Batch (100 items · 20 runs)</button>
+        <button type="button" class="preset-btn" data-items="350" data-tok="1200" data-runs="50" data-model="27.0" data-i18n="preHeavy">Heavy CI / Frontier (350 items · 50 runs)</button>
+      </div>
 
       <div class="calc-grid">
         <div class="card">
@@ -497,9 +1171,9 @@
         </div>
 
         <div class="calc-out">
-          <div style="font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;" data-i18n="calcOutHead">Estimated Cloud Token Reduction</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;" data-i18n="calcOutHead">Estimated Cloud Token Reduction</div>
           <div class="calc-big" id="outMult">34.1x</div>
-          <div style="font-size:14px;color:#93c5fd;margin-bottom:14px;" id="outPct">-97.1% Cloud token burn</div>
+          <div style="font-size:14px;color:#7dd3fc;margin-bottom:16px;font-weight:500;" id="outPct">-97.1% Cloud token burn</div>
 
           <div class="calc-row">
             <span data-i18n="outCloudLbl">Cloud-Only Tokens / month</span>
@@ -517,12 +1191,12 @@
             <span data-i18n="outSavedUsdLbl">Estimated Monthly Savings</span>
             <strong class="num good" id="outSavedUsd">$6.29 / mo</strong>
           </div>
-          <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
             <span data-i18n="calcSupportNote">100% MIT &amp; free forever. Saved you API budget?</span>
             <span style="display:inline-flex;gap:12px;align-items:center;flex-wrap:wrap;">
               <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;white-space:nowrap;" data-i18n="calcSupportCta">Buy a coffee on Ko-fi ☕</a>
               <span style="opacity:0.4;">·</span>
-              <button type="button" class="open-qr-btn" style="background:none;border:none;padding:0;color:var(--accent-2);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;">VietQR (VN)</button>
+              <button type="button" class="open-qr-btn" style="background:none;border:none;padding:0;color:var(--emerald);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;">VietQR (VN)</button>
             </span>
           </div>
         </div>
@@ -530,27 +1204,29 @@
     </section>
 
     <section id="architecture">
+      <div class="sec-kicker" data-i18n="kickerArch">System Design</div>
       <h2 data-i18n="archTitle">3-Tier Hybrid Architecture</h2>
       <p class="sub" data-i18n="archSub">Every subtask runs on the lowest-cost tier that satisfies accuracy requirements — keeping Cloud Agents focused on high-leverage thinking.</p>
+
       <div class="grid-3">
         <div class="card">
-          <span class="tier-badge t1">TIER 1 — CLOUD BRAIN</span>
+          <span class="tier-badge t1">TIER 1 · CLOUD BRAIN</span>
           <h3 data-i18n="t1Title">Architecture &amp; Approval Gates</h3>
           <p data-i18n="t1Desc">Cloud Agents (Antigravity, Claude Code, Cursor, Windsurf, Codex) handle design, code edits, reviews, and root-cause debugging — never bulk loops.</p>
         </div>
         <div class="card">
-          <span class="tier-badge t2">TIER 2 — LOCAL BACKBONE ($0)</span>
-          <h3 data-i18n="t2Title">SQLite WAL + Ollama Leases</h3>
-          <p data-i18n="t2Desc">Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-91%), and ref-counted local LLM VRAM leases.</p>
+          <span class="tier-badge t2">TIER 2 · LOCAL BACKBONE ($0)</span>
+          <h3 data-i18n="t2Title">SQLite WAL + Local LLM Leases</h3>
+          <p data-i18n="t2Desc">Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-91%), and ref-counted Ollama / OpenAI-compat routing.</p>
         </div>
         <div class="card">
-          <span class="tier-badge t3">TIER 3 — ISOLATED MUSCLE</span>
+          <span class="tier-badge t3">TIER 3 · ISOLATED MUSCLE</span>
           <h3 data-i18n="t3Title">GPU Subprocess &amp; Capped APIs</h3>
           <p data-i18n="t3Desc">OS-isolated child processes with exclusive GPU locking for 8 GB+ cards, plus paid APIs guarded by --dry-run, MAX_RETRY &lt;= 2, MAX_JOB_USD, and DAILY_USD_CAP.</p>
         </div>
       </div>
 
-      <h3 style="margin:30px 0 12px;font-size:20px;" data-i18n="hwTitle">Hardware Profiles (Auto-Detected by preflight_check.py)</h3>
+      <h3 style="margin:36px 0 14px;font-size:19px;font-weight:700;" data-i18n="hwTitle">Hardware Profiles (Auto-Detected by preflight_check.py)</h3>
       <div class="table-wrap">
         <table class="resp-table" id="hwTable">
           <thead>
@@ -571,22 +1247,91 @@
       </div>
     </section>
 
+    <!-- Modular Asymmetrical Bento Feature Grid -->
+    <section id="features">
+      <div class="sec-kicker" data-i18n="kickerFeat">Engineering Craft</div>
+      <h2 data-i18n="featTitle">Engineered for Real-World Workstations</h2>
+      <p class="sub" data-i18n="featSub">Commercial-safe, cross-platform verified across Linux, macOS &amp; Windows, and built for concurrent multi-project workloads.</p>
+
+      <div class="bento-grid">
+        <div class="bento-card bento-7">
+          <div>
+            <div class="bento-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <h3 data-i18n="f1Title">Multi-Project Concurrency &amp; 3-OS Parity Gate</h3>
+            <p data-i18n="f1Desc">Run 3+ workspaces simultaneously without colliding job IDs, losing spend logs, or prematurely unloading another project's Ollama VRAM. Verified on real Ubuntu, macOS, and Windows CI runners.</p>
+          </div>
+          <div class="bento-footer">
+            <span class="mini-tag ok">7/7 3-OS CI Parity</span>
+            <span class="mini-tag">fcntl / msvcrt</span>
+            <span class="mini-tag">OllamaLeaseManager</span>
+          </div>
+        </div>
+
+        <div class="bento-card bento-5">
+          <div>
+            <div class="bento-icon green" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <h3 data-i18n="f2Title">100% MIT Clean-Room Core</h3>
+            <p data-i18n="f2Desc">Zero third-party dependencies in <code>core/</code>. Automated <code>license_audit.py</code> blocks BUSL-1.1, AGPL-3.0, and CC-BY-NC packages.</p>
+          </div>
+          <div class="bento-footer">
+            <span class="mini-tag ok">0 Core Deps</span>
+            <span class="mini-tag">MIT License</span>
+          </div>
+        </div>
+
+        <div class="bento-card bento-5">
+          <div>
+            <div class="bento-icon gold" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
+            </div>
+            <h3 data-i18n="f4Title">Ollama + OpenAI-Compatible Routing</h3>
+            <p data-i18n="f4Desc">Native Ollama <code>keep_alive=0</code> VRAM hygiene plus automatic <code>/v1/chat/completions</code> routing for LM Studio, llama.cpp, vLLM, and OpenRouter.</p>
+          </div>
+          <div class="bento-footer">
+            <span class="mini-tag">Ollama</span>
+            <span class="mini-tag">LM Studio</span>
+            <span class="mini-tag">vLLM</span>
+          </div>
+        </div>
+
+        <div class="bento-card bento-7">
+          <div>
+            <div class="bento-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <h3 data-i18n="f3Title">Zero OS-Mutation + 44x Faster SQLite WAL</h3>
+            <p data-i18n="f3Desc">Never alters Windows Registry, OS services, network stacks, or pagefiles. Single-transaction batch checkpointing handles 1,000 items in ~29 ms and ships as a clean cross-OS wheel.</p>
+          </div>
+          <div class="bento-footer">
+            <span class="mini-tag ok">1k items ~29ms</span>
+            <span class="mini-tag">10k log trim ~13ms</span>
+            <span class="mini-tag">Zero OS-Mutation</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="honest-scope">
+      <div class="sec-kicker" data-i18n="kickerHonest">Break-Even Reality</div>
       <h2 data-i18n="honestTitle">Radical Honesty: When VieForge Shines vs. When You Don't Need It</h2>
       <p class="sub" data-i18n="honestSub">We prefer developer trust over hype. Here is the exact break-even reality.</p>
       <div class="grid-2">
-        <div class="card" style="border-color:rgba(34,197,94,0.35);">
+        <div class="card" style="border-color:rgba(34,197,94,0.32);">
           <h3 style="color:#4ade80;" data-i18n="yesTitle">Massive Savings (10x – 118x)</h3>
-          <ul class="list-clean">
+          <ul class="list-clean yes">
             <li data-i18n="yes1">Processing 10 to 5,000+ docs, tickets, emails, CSV rows, or media items in batches.</li>
             <li data-i18n="yes2">Running noisy test suites, CI builds, or download logs before asking a Cloud Agent to debug.</li>
             <li data-i18n="yes3">Long multi-stage pipelines where crashes/interrupts normally force expensive full re-runs.</li>
             <li data-i18n="yes4">Running 2–4 projects simultaneously on one 8 GB+ GPU machine without VRAM OOM crashes.</li>
           </ul>
         </div>
-        <div class="card" style="border-color:rgba(248,113,113,0.3);">
+        <div class="card" style="border-color:rgba(248,113,113,0.28);">
           <h3 style="color:#fca5a5;" data-i18n="noTitle">Minimal Benefit (Skip VieForge Here)</h3>
-          <ul class="list-clean">
+          <ul class="list-clean no">
             <li data-i18n="no1">Quick 1-turn Q&amp;A or editing a single 50-line file (the 1,459-token session overhead won't pay back in 1 short chat).</li>
             <li data-i18n="no2">Purely novel architecture brainstorming that requires a frontier Cloud model for every sentence anyway.</li>
             <li data-i18n="no3"><strong>Break-even rule:</strong> VieForge pays off its 1,459-token overhead after just <strong>1 noisy log</strong> or <strong>3–5 batch items</strong>.</li>
@@ -594,63 +1339,33 @@
         </div>
       </div>
     </section>
-
-    <section id="features">
-      <h2 data-i18n="featTitle">Engineered for Real-World Workstations</h2>
-      <p class="sub" data-i18n="featSub">Commercial-safe, cross-platform, and multi-project concurrency ready from day one.</p>
-      <div class="grid-3">
-        <div class="card">
-          <h3 data-i18n="f1Title">Multi-Project Concurrency</h3>
-          <p data-i18n="f1Desc">Run 3+ workspaces simultaneously without colliding job IDs, losing spend logs, or prematurely unloading another project's Ollama VRAM.</p>
-        </div>
-        <div class="card">
-          <h3 data-i18n="f2Title">100% MIT Clean-Room Core</h3>
-          <p data-i18n="f2Desc">Zero mandatory third-party dependencies in core/. Automated license_audit.py blocks BUSL-1.1, AGPL-3.0, and CC-BY-NC packages.</p>
-        </div>
-        <div class="card">
-          <h3 data-i18n="f3Title">Zero OS-Mutation Policy</h3>
-          <p data-i18n="f3Desc">Never alters Windows Registry, OS services, network stacks, or pagefiles. Works cleanly on Windows, macOS (Apple Silicon), and Linux.</p>
-        </div>
-      </div>
-      <div class="badges">
-        <span class="chip">Antigravity</span>
-        <span class="chip">Claude Code</span>
-        <span class="chip">Cursor</span>
-        <span class="chip">Windsurf</span>
-        <span class="chip">Codex CLI</span>
-        <span class="chip">MCP Server</span>
-        <span class="chip">Ollama</span>
-        <span class="chip">SQLite WAL</span>
-        <span class="chip">BYOA Browser Bridge</span>
-      </div>
-    </section>
   </main>
 
   <footer>
     <div class="container foot-row">
       <div>
-        <strong>VieForge</strong> — <span data-i18n="footTag">MIT Licensed Core • Crafted in Vietnam</span><br />
+        <strong style="color:var(--text);">VieForge</strong> — <span data-i18n="footTag">MIT Licensed Core • Crafted in Vietnam</span><br />
         <span style="font-size:12px;">The VieForge name and logo remain trademarks of VieForge Contributors.</span>
       </div>
-      <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+      <div class="foot-links">
         <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener">GitHub</a>
         <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" data-i18n="footSupport">Support ☕</a>
-        <button type="button" class="open-qr-btn" style="background:none;border:none;padding:0;color:inherit;font-size:inherit;cursor:pointer;font-family:inherit;">VietQR (VN)</button>
+        <button type="button" class="open-qr-btn" style="background:none;border:none;padding:0;color:var(--emerald);font-weight:600;font-size:inherit;cursor:pointer;font-family:inherit;">VietQR (VN)</button>
         <a href="mailto:hello@vieforge.dev">hello@vieforge.dev</a>
         <a href="mailto:security@vieforge.dev">security@vieforge.dev</a>
       </div>
     </div>
   </footer>
 
-  <div id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(2,6,23,0.78);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
-    <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:360px;width:100%;padding:22px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.55);position:relative;">
-      <button type="button" id="closeQrBtn" aria-label="Close" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;">&times;</button>
+  <div id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(2,6,23,0.8);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--panel);border:1px solid var(--border-strong);border-radius:18px;max-width:360px;width:100%;padding:24px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.65);position:relative;">
+      <button type="button" id="closeQrBtn" aria-label="Close" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;">&times;</button>
       <h3 id="qrTitle" style="margin:0 0 6px;font-size:18px;" data-i18n="qrTitle">Support VieForge via VietQR</h3>
       <p style="margin:0 0 14px;font-size:13px;color:var(--muted);" data-i18n="qrSub">Scan with any Vietnamese banking app (VPBank • 0% fee). Thank you for supporting MIT open-source!</p>
-      <img src="assets/vietqr.png" alt="VietQR VPBank NGUYEN THANH HOANG 374331566" style="width:100%;max-width:260px;border-radius:14px;display:block;margin:0 auto 14px;background:#fff;" />
+      <img src="assets/vietqr.png" alt="VietQR VPBank NGUYEN THANH HOANG 374331566" style="width:100%;max-width:250px;border-radius:14px;display:block;margin:0 auto 16px;background:#fff;" />
       <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
-        <button type="button" id="copyAcctBtn" class="btn btn-ghost" style="padding:7px 14px;font-size:12.5px;" data-i18n="qrCopy">Copy Account: 374331566</button>
-        <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" class="btn btn-primary" style="padding:7px 14px;font-size:12.5px;">Ko-fi (Global) ☕</a>
+        <button type="button" id="copyAcctBtn" class="btn btn-ghost btn-sm" data-i18n="qrCopy">Copy Account: 374331566</button>
+        <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ko-fi (Global) ☕</a>
       </div>
     </div>
   </div>
@@ -662,20 +1377,32 @@
         navCalc: "Calculator",
         navArch: "Architecture",
         navHonest: "Honest Scope",
-        heroPill: "MIT Open-Source • 100% Python Stdlib Core • Reproducible Benchmarks",
-        heroTitle: "Code First. Local LLM Second.<br />Cloud Last.",
-        heroLead: "Don't burn expensive Cloud AI Agent quota on loops, noisy logs, or failed retries. VieForge adds only <strong>1,459 tokens</strong> of one-time session overhead and cuts real-world Cloud token burn by <strong>11x–118x</strong> across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.",
+        heroPill: "v0.3.0 · 3-OS Parity Verified · MIT 100% Python Stdlib",
+        heroTitle: 'Code First. Local LLM Second.<br /><span class="accent-grad">Cloud Last.</span>',
+        heroLead: "Stop burning Cloud AI Agent quota on repetitive loops, raw CI logs, and crashed retries. VieForge adds only <strong>1,459 tokens</strong> of one-time overhead and cuts real Cloud token burn by <strong>11x–118x</strong> across Antigravity, Claude Code, Cursor, Windsurf, and Codex CLI.",
         ctaGithub: "Star on GitHub",
-        ctaBench: "See Real Token Numbers",
+        ctaBench: "See Verified Benchmarks",
         ctaGuide: "Zero-Knowledge Install",
+        tabPrompt: "1-Prompt",
+        tabCli: "CLI Quickstart",
+        tabDiff: "Before / After",
+        copyBtn: "Copy",
+        copied: "Copied!",
+        promptLabel: "New to terminal or MCP? Paste this 1 sentence into your AI Agent:",
+        paneZero: "0 manual config",
+        promptText: "Clone https://github.com/vieforge/vieforge, read AGENT_INSTALL.md, run python scripts/quick_setup.py, and show me the Savings Receipt in plain language.",
+        cliLabel: "Run locally in 30 seconds — $0, works offline even without Ollama:",
+        diffLabel: "Real token consumption across 100-doc batch + 390-line CI log + 50-item crash/resume:",
+        diffBadTag: "Without VieForge (Cloud-Only)",
+        diffBadDesc: "Cloud Agent reads every document, raw traceback, and re-runs failed items from scratch.",
+        diffGoodTag: "With VieForge (incl. 1,459 overhead)",
+        diffGoodDesc: "Local Python + SQLite WAL + Ollama handle bulk loops & log trimming; Cloud sees compact JSON.",
+        ecoLabel: "Works seamlessly with your AI Agents & Local LLM Stack",
         kpi1: "Exact one-time session overhead (SKILL.md + AGENTS.md + 5 MCP tools)",
         kpi2: "Net Cloud token reduction across all 3 real workloads (overhead included)",
         kpi3: "Token reduction on 100-document batch extraction (23,662 → 200 tok)",
         kpi4: "Tier 2 Local Backbone cost with SQLite WAL interrupt/resume",
-        promptLabel: "New to coding? Paste this 1 prompt into your AI Agent:",
-        copyBtn: "Copy Prompt",
-        copied: "Copied!",
-        promptText: "Clone https://github.com/vieforge/vieforge, read AGENT_INSTALL.md, run python scripts/quick_setup.py, and show me the Savings Receipt in plain language.",
+        kickerBench: "Reproducible Telemetry",
         benchTitle: "Exact Token Burn — Verified, Not Marketing Hype",
         benchSub: "Every number below is generated deterministically on your own machine in 0.3 seconds by running <code>python scripts/benchmark_token_savings.py</code> (standard <code>ceil(chars / 4)</code> token estimator, $0 local run).",
         thWorkload: "Real-World Workload",
@@ -693,8 +1420,12 @@
         barCloudVal: "52,732 tokens (100%)",
         barVfLabel: "With VieForge (incl. 1,459-token one-time session overhead)",
         barVfVal: "3,114 tokens (5.9% — 16.9x less)",
+        kickerCalc: "Interactive Estimator",
         calcTitle: "Interactive Workload Savings Calculator",
-        calcSub: "Adjust your real batch volume to see how many Cloud tokens VieForge actually uses and how many times (x) it cuts your burn.",
+        calcSub: "Pick a preset or slide to match your real batch volume to see exact monthly Cloud token & USD savings.",
+        preSolo: "Solo Dev (40 items · 12 runs)",
+        preAgency: "Agency / Batch (100 items · 20 runs)",
+        preHeavy: "Heavy CI / Frontier (350 items · 50 runs)",
         lblItems: "Items per batch (docs, tickets, files, shots)",
         lblTok: "Avg tokens per item (input + output)",
         lblRuns: "Batch runs per month",
@@ -704,12 +1435,13 @@
         outVfLbl: "VieForge Cloud Tokens / month (incl. overhead)",
         outCloudUsdLbl: "Cloud-Only API Cost / month",
         outSavedUsdLbl: "Estimated Monthly Savings",
+        kickerArch: "System Design",
         archTitle: "3-Tier Hybrid Architecture",
         archSub: "Every subtask runs on the lowest-cost tier that satisfies accuracy requirements — keeping Cloud Agents focused on high-leverage thinking.",
         t1Title: "Architecture & Approval Gates",
         t1Desc: "Cloud Agents (Antigravity, Claude Code, Cursor, Windsurf, Codex) handle design, code edits, reviews, and root-cause debugging — never bulk loops.",
-        t2Title: "SQLite WAL + Ollama Leases",
-        t2Desc: "Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-91%), and ref-counted local LLM VRAM leases.",
+        t2Title: "SQLite WAL + Local LLM Leases",
+        t2Desc: "Deterministic Python, SHA-256 deduplication, per-item checkpoints, clean-room log trimming (-91%), and ref-counted Ollama / OpenAI-compat routing.",
         t3Title: "GPU Subprocess & Capped APIs",
         t3Desc: "OS-isolated child processes with exclusive GPU locking for 8 GB+ cards, plus paid APIs guarded by --dry-run, MAX_RETRY <= 2, MAX_JOB_USD, and DAILY_USD_CAP.",
         hwTitle: "Hardware Profiles (Auto-Detected by preflight_check.py)",
@@ -717,6 +1449,18 @@
         hwSpec: "Workstation",
         hwModel: "Recommended Local Model",
         hwMode: "Tier 3 Strategy",
+        kickerFeat: "Engineering Craft",
+        featTitle: "Engineered for Real-World Workstations",
+        featSub: "Commercial-safe, cross-platform verified across Linux, macOS & Windows, and built for concurrent multi-project workloads.",
+        f1Title: "Multi-Project Concurrency & 3-OS Parity Gate",
+        f1Desc: "Run 3+ workspaces simultaneously without colliding job IDs, losing spend logs, or prematurely unloading another project's Ollama VRAM. Verified on real Ubuntu, macOS, and Windows CI runners.",
+        f2Title: "100% MIT Clean-Room Core",
+        f2Desc: "Zero third-party dependencies in <code>core/</code>. Automated <code>license_audit.py</code> blocks BUSL-1.1, AGPL-3.0, and CC-BY-NC packages.",
+        f4Title: "Ollama + OpenAI-Compatible Routing",
+        f4Desc: "Native Ollama <code>keep_alive=0</code> VRAM hygiene plus automatic <code>/v1/chat/completions</code> routing for LM Studio, llama.cpp, vLLM, and OpenRouter.",
+        f3Title: "Zero OS-Mutation + 44x Faster SQLite WAL",
+        f3Desc: "Never alters Windows Registry, OS services, network stacks, or pagefiles. Single-transaction batch checkpointing handles 1,000 items in ~29 ms and ships as a clean cross-OS wheel.",
+        kickerHonest: "Break-Even Reality",
         honestTitle: "Radical Honesty: When VieForge Shines vs. When You Don't Need It",
         honestSub: "We prefer developer trust over hype. Here is the exact break-even reality.",
         yesTitle: "Massive Savings (10x – 118x)",
@@ -728,14 +1472,6 @@
         no1: "Quick 1-turn Q&A or editing a single 50-line file (the 1,459-token session overhead won't pay back in 1 short chat).",
         no2: "Purely novel architecture brainstorming that requires a frontier Cloud model for every sentence anyway.",
         no3: "<strong>Break-even rule:</strong> VieForge pays off its 1,459-token overhead after just <strong>1 noisy log</strong> or <strong>3–5 batch items</strong>.",
-        featTitle: "Engineered for Real-World Workstations",
-        featSub: "Commercial-safe, cross-platform, and multi-project concurrency ready from day one.",
-        f1Title: "Multi-Project Concurrency",
-        f1Desc: "Run 3+ workspaces simultaneously without colliding job IDs, losing spend logs, or prematurely unloading another project's Ollama VRAM.",
-        f2Title: "100% MIT Clean-Room Core",
-        f2Desc: "Zero mandatory third-party dependencies in core/. Automated license_audit.py blocks BUSL-1.1, AGPL-3.0, and CC-BY-NC packages.",
-        f3Title: "Zero OS-Mutation Policy",
-        f3Desc: "Never alters Windows Registry, OS services, network stacks, or pagefiles. Works cleanly on Windows, macOS (Apple Silicon), and Linux.",
         calcSupportNote: "100% MIT & free forever. Saved you API budget?",
         calcSupportCta: "Buy a coffee on Ko-fi ☕",
         footSupport: "Support ☕",
@@ -750,20 +1486,32 @@
         navCalc: "Máy tính tiết kiệm",
         navArch: "Kiến trúc 3 tầng",
         navHonest: "Giới hạn thật",
-        heroPill: "Mã nguồn mở MIT • 100% Python Stdlib • Số liệu đo kiểm chứng được",
-        heroTitle: "Code trước. Local LLM thứ hai.<br />Cloud sau cùng.",
+        heroPill: "v0.3.0 · Đã kiểm định 3 OS · MIT 100% Python Stdlib",
+        heroTitle: 'Code trước. Local LLM thứ hai.<br /><span class="accent-grad">Cloud sau cùng.</span>',
         heroLead: "Đừng đốt hạn mức Cloud AI Agent vào vòng lặp hàng loạt, log rác hay chạy lại từ đầu khi lỗi. VieForge chỉ tốn đúng <strong>1.459 token</strong> chi phí nền 1 lần mỗi phiên, nhưng giảm lượng token Cloud tiêu thụ thực tế tới <strong>11x–118x lần</strong> trên Antigravity, Claude Code, Cursor, Windsurf và Codex CLI.",
         ctaGithub: "Xem trên GitHub",
         ctaBench: "Xem bảng đo Token thật",
         ctaGuide: "Cài đặt cho người mới",
+        tabPrompt: "1 Câu lệnh",
+        tabCli: "Chạy CLI",
+        tabDiff: "Trước / Sau",
+        copyBtn: "Sao chép",
+        copied: "Đã chép!",
+        promptLabel: "Không rành terminal hay MCP? Chỉ cần dán đúng 1 câu này vào AI Agent:",
+        paneZero: "0 cấu hình tay",
+        promptText: "Hãy tải repo https://github.com/vieforge/vieforge, đọc file AGENT_INSTALL.md, chạy python scripts/quick_setup.py và giải thích kết quả cùng bảng tiết kiệm (Savings Receipt) bằng tiếng Việt dễ hiểu giúp tôi.",
+        cliLabel: "Chạy ngay trên máy trong 30 giây — $0, chạy được cả khi chưa cài Ollama:",
+        diffLabel: "Tổng token Cloud thực chi cho lô 100 tài liệu + nén log CI 390 dòng + job 50 item bị ngắt:",
+        diffBadTag: "Không dùng VieForge (Chỉ Cloud)",
+        diffBadDesc: "Cloud Agent phải đọc từng tài liệu, toàn bộ log lỗi thô và chạy lại từ đầu khi bị sập.",
+        diffGoodTag: "Dùng VieForge (gồm 1.459 token nền)",
+        diffGoodDesc: "Python + SQLite WAL + Ollama xử lý toàn bộ vòng lặp & nén log; Cloud chỉ đọc bản tóm tắt JSON gọn.",
+        ecoLabel: "Tương thích mượt với hệ sinh thái AI Agent & Local LLM",
         kpi1: "Chi phí nền 1 lần/phiên (SKILL.md 691 + AGENTS.md 448 + 5 MCP tools 320)",
         kpi2: "Mức giảm thực ròng trên cả 3 khối lượng việc thật (đã cộng chi phí nền)",
         kpi3: "Mức giảm khi xử lý lô 100 tài liệu (23.662 → chỉ còn 200 token Cloud)",
         kpi4: "Chi phí chạy Tầng 2 Local (SQLite WAL tự nối tiếp $0 khi bị ngắt)",
-        promptLabel: "Không biết lập trình? Chỉ cần dán đúng 1 câu này vào AI Agent của bạn:",
-        copyBtn: "Sao chép câu lệnh",
-        copied: "Đã sao chép!",
-        promptText: "Hãy tải repo https://github.com/vieforge/vieforge, đọc file AGENT_INSTALL.md, chạy python scripts/quick_setup.py và giải thích kết quả cùng bảng tiết kiệm (Savings Receipt) bằng tiếng Việt dễ hiểu giúp tôi.",
+        kickerBench: "Số liệu tự kiểm chứng",
         benchTitle: "Thực sự tốn bao nhiêu Token? Giảm bao nhiêu lần?",
         benchSub: "Mọi con số dưới đây đều có thể tự kiểm chứng trên máy bạn trong 0.3 giây bằng lệnh <code>python scripts/benchmark_token_savings.py</code> (chuẩn đo <code>ceil(chars / 4)</code>, chạy local $0).",
         thWorkload: "Khối lượng công việc thực tế",
@@ -781,8 +1529,12 @@
         barCloudVal: "52.732 token (100%)",
         barVfLabel: "Dùng VieForge (đã bao gồm 1.459 token nền cố định)",
         barVfVal: "3.114 token (5,9% — giảm 16,9x)",
+        kickerCalc: "Ước tính tương tác",
         calcTitle: "Máy tính Ước lượng Token & Chi phí Theo Khối lượng Của Bạn",
-        calcSub: "Kéo thanh trượt theo khối lượng việc thực tế để thấy VieForge chỉ tốn bao nhiêu token Cloud và giảm bao nhiêu lần.",
+        calcSub: "Chọn nhanh cấu hình mẫu hoặc kéo thanh trượt theo khối lượng việc thực tế để xem mức tiết kiệm hàng tháng.",
+        preSolo: "Dev cá nhân (40 mục · 12 lượt)",
+        preAgency: "Agency / Xử lý lô (100 mục · 20 lượt)",
+        preHeavy: "Team CI nặng (350 mục · 50 lượt)",
         lblItems: "Số lượng mục mỗi lô (tài liệu, email, ticket, file, shot)",
         lblTok: "Số token trung bình mỗi mục (đầu vào + đầu ra)",
         lblRuns: "Số lượt chạy mỗi tháng",
@@ -792,12 +1544,13 @@
         outVfLbl: "Token Cloud thực chi với VieForge / tháng (gồm nền)",
         outCloudUsdLbl: "Chi phí API Cloud nếu làm trực tiếp / tháng",
         outSavedUsdLbl: "Ước tính tiết kiệm mỗi tháng",
+        kickerArch: "Kiến trúc hệ thống",
         archTitle: "Kiến trúc Lai 3 Tầng",
         archSub: "Mỗi tác vụ tự động chạy ở tầng chi phí thấp nhất mà vẫn đảm bảo độ chính xác — giữ Cloud Agent cho việc suy nghĩ chiến lược.",
         t1Title: "Kiến trúc & Cổng duyệt",
         t1Desc: "Cloud Agent (Antigravity, Claude Code, Cursor, Windsurf, Codex) tập trung thiết kế, sửa code, review và gỡ lỗi gốc — không chạy vòng lặp hàng loạt tốn token.",
-        t2Title: "SQLite WAL + Quản lý Lease Ollama",
-        t2Desc: "Python thuần, chống chạy trùng SHA-256, checkpoint từng item (resume $0), nén log clean-room (-91%) và chia sẻ VRAM Ollama an toàn.",
+        t2Title: "SQLite WAL + Quản lý Lease Local LLM",
+        t2Desc: "Python thuần, chống chạy trùng SHA-256, checkpoint từng item (resume $0), nén log clean-room (-91%) và định tuyến Ollama / OpenAI-compatible an toàn.",
         t3Title: "Subprocess GPU & API có trần chi phí",
         t3Desc: "Tách tiến trình con + khóa GPU độc quyền cho card 8 GB+, cùng API trả phí luôn bị khóa bởi --dry-run, MAX_RETRY <= 2, MAX_JOB_USD và DAILY_USD_CAP.",
         hwTitle: "Cấu hình Phần cứng (Tự nhận diện qua preflight_check.py)",
@@ -805,6 +1558,18 @@
         hwSpec: "Phần cứng",
         hwModel: "Model Local khuyến nghị",
         hwMode: "Chiến lược Tầng 3",
+        kickerFeat: "Chất lượng kỹ thuật",
+        featTitle: "Thiết kế cho Máy trạm Thực tế",
+        featSub: "Sạch bản quyền thương mại, kiểm định đối chiếu chéo trên Linux, macOS & Windows và sẵn sàng đa nhiệm nhiều dự án.",
+        f1Title: "Đa nhiệm nhiều dự án & Cổng đối chiếu 3 OS",
+        f1Desc: "Mở đồng thời 3+ dự án không đụng job_id, không mất sổ chi phí và không đá xả VRAM Ollama của dự án khác. Đã kiểm chứng thật trên máy chủ CI Ubuntu, macOS và Windows.",
+        f2Title: "Lõi 100% MIT Sạch Bản Quyền",
+        f2Desc: "Không phụ thuộc thư viện ngoài trong <code>core/</code>. Công cụ <code>license_audit.py</code> tự động chặn gói BUSL-1.1, AGPL-3.0 và CC-BY-NC.",
+        f4Title: "Hỗ trợ Ollama + Chuẩn OpenAI-Compatible",
+        f4Desc: "Giữ cơ chế xả VRAM <code>keep_alive=0</code> của Ollama đồng thời tự nhận diện <code>/v1/chat/completions</code> cho LM Studio, llama.cpp, vLLM và OpenRouter.",
+        f3Title: "Không Can Thiệp OS + SQLite WAL nhanh gấp 44x",
+        f3Desc: "Tuyệt đối không sửa Registry Windows, dịch vụ hệ thống, mạng hay pagefile. Đăng ký lô 1.000 item chỉ mất ~29 ms và đóng gói wheel cài sạch trên cả 3 hệ điều hành.",
+        kickerHonest: "Minh bạch điểm hòa vốn",
         honestTitle: "Nói thẳng: Khi nào VieForge giảm 10x–118x & Khi nào KHÔNG cần dùng",
         honestSub: "Minh bạch kỹ thuật thay vì thổi phồng. Đây là điểm hòa vốn thực tế.",
         yesTitle: "Tiết kiệm cực lớn (10x – 118x lần)",
@@ -816,14 +1581,6 @@
         no1: "Hỏi đáp ngắn 1–2 câu hoặc sửa nhanh 1 file 50 dòng (1.459 token nền chưa kịp hoàn vốn).",
         no2: "Sáng tạo nội dung hoàn toàn mới mà từng câu chữ đều bắt buộc dùng model Cloud đầu bảng.",
         no3: "<strong>Điểm hòa vốn:</strong> VieForge hoàn vốn 1.459 token nền chỉ sau <strong>1 lần nén log lỗi</strong> hoặc <strong>3–5 mục xử lý lô</strong>.",
-        featTitle: "Thiết kế cho Máy trạm Thực tế",
-        featSub: "Sạch bản quyền thương mại, đa nền tảng và an toàn đa nhiệm nhiều dự án ngay từ ngày đầu.",
-        f1Title: "Đa nhiệm nhiều dự án song song",
-        f1Desc: "Mở đồng thời 3+ dự án mà không đụng job_id, không mất sổ chi phí và không đá xả VRAM Ollama của dự án khác đang chạy.",
-        f2Title: "Lõi 100% MIT Sạch Bản Quyền",
-        f2Desc: "Không phụ thuộc thư viện ngoài trong core/. Công cụ license_audit.py tự động chặn gói BUSL-1.1, AGPL-3.0 và CC-BY-NC.",
-        f3Title: "Không Can Thiệp Hệ Điều Hành",
-        f3Desc: "Tuyệt đối không sửa Registry Windows, dịch vụ hệ thống, mạng hay pagefile. Chạy mượt trên Windows, macOS (Apple Silicon) và Linux.",
         calcSupportNote: "Miễn phí vĩnh viễn (MIT). Giúp bạn tiết kiệm tiền API?",
         calcSupportCta: "Mời ly cà phê trên Ko-fi ☕",
         footSupport: "Ủng hộ ☕",
@@ -839,6 +1596,8 @@
     let lang = (_urlLang === "vi" || _urlLang === "en")
       ? _urlLang
       : ((navigator.language || "").toLowerCase().startsWith("vi") ? "vi" : "en");
+    let activeTab = "prompt";
+
     function updateCalc() {
       const items = Number(document.getElementById("inItems").value);
       const tokPerItem = Number(document.getElementById("inTok").value);
@@ -850,7 +1609,6 @@
       document.getElementById("valRuns").textContent = runs.toLocaleString();
 
       const cloudTokMonth = items * tokPerItem * runs;
-      // Per run: 1,459 session overhead + 200 MCP dispatch/summary + 1 token per item metadata
       const vfTokPerRun = 1459 + 200 + items;
       const vfTokMonth = vfTokPerRun * runs;
 
@@ -892,32 +1650,86 @@
       updateCalc();
     }
 
+    // Hero Interactive Demo Tabs
+    document.querySelectorAll(".demo-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        activeTab = tab.getAttribute("data-tab");
+        document.querySelectorAll(".demo-tab").forEach((b) => {
+          const isAct = b === tab;
+          b.classList.toggle("active", isAct);
+          b.setAttribute("aria-selected", String(isAct));
+        });
+        document.querySelectorAll(".demo-pane").forEach((p) => {
+          p.classList.toggle("active", p.id === "pane-" + activeTab);
+        });
+        document.getElementById("copyActiveBtn").style.visibility = activeTab === "diff" ? "hidden" : "visible";
+      });
+    });
+
+    document.getElementById("copyActiveBtn").addEventListener("click", async () => {
+      const txt = activeTab === "cli"
+        ? "git clone https://github.com/vieforge/vieforge.git && cd vieforge\npython scripts/quick_setup.py\npython scripts/benchmark_token_savings.py"
+        : document.getElementById("agentPrompt").textContent;
+      try {
+        await navigator.clipboard.writeText(txt);
+        const btn = document.getElementById("copyActiveBtn");
+        btn.textContent = I18N[lang].copied;
+        setTimeout(() => { btn.textContent = I18N[lang].copyBtn; }, 1600);
+      } catch (_) {}
+    });
+
+    // Calculator Presets
+    document.querySelectorAll(".preset-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".preset-btn").forEach((b) => b.classList.toggle("active", b === btn));
+        document.getElementById("inItems").value = btn.getAttribute("data-items");
+        document.getElementById("inTok").value = btn.getAttribute("data-tok");
+        document.getElementById("inRuns").value = btn.getAttribute("data-runs");
+        document.getElementById("inModel").value = btn.getAttribute("data-model");
+        updateCalc();
+      });
+    });
+
+    ["inItems", "inTok", "inRuns", "inModel"].forEach((id) => {
+      const handler = () => {
+        document.querySelectorAll(".preset-btn").forEach((b) => b.classList.remove("active"));
+        updateCalc();
+      };
+      document.getElementById(id).addEventListener("input", handler);
+      document.getElementById(id).addEventListener("change", handler);
+    });
+
+    // Language toggle
     document.querySelectorAll(".lang-toggle").forEach((btn) => {
       btn.addEventListener("click", () => {
         lang = lang === "en" ? "vi" : "en";
         renderLang();
       });
     });
-    ["inItems", "inTok", "inRuns", "inModel"].forEach((id) => {
-      document.getElementById(id).addEventListener("input", updateCalc);
-      document.getElementById(id).addEventListener("change", updateCalc);
+
+    // Mobile Navigation Drawer
+    const menuBtn = document.getElementById("menuBtn");
+    const mobileDrawer = document.getElementById("mobileDrawer");
+    const closeDrawer = () => {
+      mobileDrawer.classList.remove("open");
+      menuBtn.setAttribute("aria-expanded", "false");
+    };
+    menuBtn.addEventListener("click", () => {
+      const open = mobileDrawer.classList.toggle("open");
+      menuBtn.setAttribute("aria-expanded", String(open));
     });
-    document.getElementById("copyBtn").addEventListener("click", async () => {
-      const txt = document.getElementById("agentPrompt").textContent;
-      try {
-        await navigator.clipboard.writeText(txt);
-        const btn = document.getElementById("copyBtn");
-        btn.textContent = I18N[lang].copied;
-        setTimeout(() => { btn.textContent = I18N[lang].copyBtn; }, 1600);
-      } catch (_) {}
-    });
+    document.querySelectorAll(".drawer-link").forEach((a) => a.addEventListener("click", closeDrawer));
+
+    // VietQR Modal
     const qrModal = document.getElementById("qrModal");
     const openQr = () => { qrModal.style.display = "flex"; };
     const closeQr = () => { qrModal.style.display = "none"; };
     document.querySelectorAll(".open-qr-btn").forEach((b) => b.addEventListener("click", openQr));
     document.getElementById("closeQrBtn").addEventListener("click", closeQr);
     qrModal.addEventListener("click", (e) => { if (e.target === qrModal) closeQr(); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeQr(); });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { closeQr(); closeDrawer(); }
+    });
     document.getElementById("copyAcctBtn").addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText("374331566");
@@ -926,6 +1738,7 @@
         setTimeout(() => { btn.textContent = I18N[lang].qrCopy; }, 1600);
       } catch (_) {}
     });
+
     renderLang();
   </script>
 </body>
