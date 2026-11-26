@@ -148,12 +148,61 @@ class StateDB:
         return str(row["status"])
 
     def register_items(self, job_id: str, items: list[tuple[str, str]]) -> dict[str, int]:
-        """Bulk register `(item_id, input_hash)` pairs. Returns counts of new/skipped/reset."""
+        """Bulk register `(item_id, input_hash)` pairs in a single SQLite transaction.
+
+        - New item -> inserted as 'pending'.
+        - Existing item with SAME input_hash -> keeps existing status ('done' skipped on resume).
+        - Existing item with CHANGED input_hash -> reset to 'pending' and retry_count=0.
+        Returns counts of resulting statuses.
+        """
         self.create_job(job_id)
+        now = self._now()
+        existing_rows = self._conn.execute(
+            "SELECT item_id, input_hash, status FROM items WHERE job_id = ?",
+            (job_id,),
+        ).fetchall()
+        existing: dict[str, tuple[str, str]] = {
+            str(r["item_id"]): (str(r["input_hash"]), str(r["status"])) for r in existing_rows
+        }
+
+        to_insert: list[tuple[str, str, str, str]] = []
+        to_reset: list[tuple[str, str, str, str]] = []
         counts = {"pending": 0, "done": 0, "failed": 0}
+
         for item_id, input_hash in items:
-            st = self.register_item(job_id, item_id, input_hash)
-            counts[st] = counts.get(st, 0) + 1
+            prev = existing.get(item_id)
+            if prev is None:
+                to_insert.append((job_id, item_id, input_hash, now))
+                existing[item_id] = (input_hash, "pending")
+                counts["pending"] += 1
+            elif prev[0] != input_hash:
+                to_reset.append((input_hash, now, job_id, item_id))
+                existing[item_id] = (input_hash, "pending")
+                counts["pending"] += 1
+            else:
+                st = prev[1]
+                counts[st] = counts.get(st, 0) + 1
+
+        if to_insert:
+            self._conn.executemany(
+                """
+                INSERT INTO items (job_id, item_id, input_hash, status, retry_count, actual_cost_usd, updated_at)
+                VALUES (?, ?, ?, 'pending', 0, 0.0, ?)
+                """,
+                to_insert,
+            )
+        if to_reset:
+            self._conn.executemany(
+                """
+                UPDATE items
+                SET input_hash = ?, status = 'pending', retry_count = 0,
+                    output_json = NULL, last_error = NULL, updated_at = ?
+                WHERE job_id = ? AND item_id = ?
+                """,
+                to_reset,
+            )
+        if to_insert or to_reset:
+            self._conn.commit()
         return counts
 
     def get_pending_items(self, job_id: str, max_retries: int = 2) -> list[ItemRecord]:
@@ -199,6 +248,40 @@ class StateDB:
             (out_str, float(cost_usd), now, job_id, item_id),
         )
         self._conn.commit()
+
+    def mark_done_batch(
+        self,
+        job_id: str,
+        updates: list[tuple[str, Any, float]],
+    ) -> int:
+        """Mark multiple `(item_id, output, cost_usd)` items done in a single transaction."""
+        if not updates:
+            return 0
+        now = self._now()
+        rows = [
+            (
+                json.dumps(output, ensure_ascii=False) if output is not None else None,
+                float(cost_usd),
+                now,
+                job_id,
+                item_id,
+            )
+            for item_id, output, cost_usd in updates
+        ]
+        self._conn.executemany(
+            """
+            UPDATE items
+            SET status = 'done',
+                output_json = ?,
+                actual_cost_usd = ROUND(actual_cost_usd + ?, 6),
+                last_error = NULL,
+                updated_at = ?
+            WHERE job_id = ? AND item_id = ?
+            """,
+            rows,
+        )
+        self._conn.commit()
+        return len(rows)
 
     def mark_failed(
         self,

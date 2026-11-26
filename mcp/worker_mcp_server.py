@@ -26,12 +26,14 @@ if str(REPO_ROOT) not in sys.path:
 from core.cost_tracker import CostTracker
 from core.llm_router import LLMRouter
 from core.output_trimmer import compact_job_summary
+from core.paths import default_data_dir
 from core.state_db import StateDB, compute_input_hash, scoped_job_id
 from core.subprocess_runner import run_isolated
 from core.vram_manager import recommend_local_model
 from scripts.preflight_check import run_preflight
 
-DEFAULT_DB = REPO_ROOT / os.getenv("TIERFORGE_STATE_DB", "data/tierforge_state.db")
+_ENV_DB = os.getenv("TIERFORGE_STATE_DB", "").strip()
+DEFAULT_DB = Path(_ENV_DB).expanduser() if _ENV_DB else (default_data_dir() / "tierforge_state.db")
 
 
 def tool_preflight_env() -> str:

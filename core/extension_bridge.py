@@ -337,13 +337,20 @@ def _make_handler(state: ExtensionBridgeState):
             got = self.headers.get("X-TierForge-Token", "").strip()
             return secrets.compare_digest(got, state.token)
 
-        def _read_json(self) -> dict[str, Any]:
+        def _drain_body(self) -> bytes:
             length = int(self.headers.get("Content-Length", "0") or "0")
             if length <= 0:
+                return b""
+            return self.rfile.read(min(length, 1_048_576))
+
+        def _parse_json_bytes(self, raw: bytes) -> dict[str, Any]:
+            if not raw:
                 return {}
-            body = self.rfile.read(length).decode("utf-8", errors="replace")
-            data = json.loads(body)
+            data = json.loads(raw.decode("utf-8", errors="replace"))
             return data if isinstance(data, dict) else {}
+
+        def _read_json(self) -> dict[str, Any]:
+            return self._parse_json_bytes(self._drain_body())
 
         def _send_html(self, status: int, html: str) -> None:
             raw = html.encode("utf-8")
@@ -368,6 +375,8 @@ def _make_handler(state: ExtensionBridgeState):
 
         def do_POST(self) -> None:  # noqa: N802
             route = self.path.split("?")[0]
+            # Always drain POST body before any early 401/403/200 return so TCP never resets on Windows/POSIX
+            raw_body = self._drain_body()
 
             # 1-Click Layer-2 browser launch from local /setup wizard (localhost same-origin only)
             if route == "/setup/launch-browser":
@@ -376,7 +385,7 @@ def _make_handler(state: ExtensionBridgeState):
                     self._send_json(403, {"ok": False, "error": "localhost_origin_required"})
                     return
                 try:
-                    body = self._read_json()
+                    body = self._parse_json_bytes(raw_body)
                     from core.cdp_bridge import launch_managed_browser
 
                     ep = launch_managed_browser(
@@ -411,7 +420,7 @@ def _make_handler(state: ExtensionBridgeState):
                 self._send_json(401, {"ok": False, "error": "unauthorized"})
                 return
             try:
-                body = self._read_json()
+                body = self._parse_json_bytes(raw_body)
             except Exception as exc:
                 self._send_json(400, {"ok": False, "error": f"invalid_json: {exc}"})
                 return

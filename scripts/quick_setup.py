@@ -26,6 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from core.paths import default_data_dir, resolve_asset
 from core.vram_manager import recommend_local_model
 from scripts.install_skill import (
     build_codex_toml_snippet,
@@ -81,8 +82,9 @@ def main() -> int:
         print(f"  [{agent}] {dest} ({len(files)} files)")
 
     # 3. Generate absolute-path MCP configs
-    mcp_json_path = REPO_ROOT / "data" / "mcp_config.generated.json"
-    codex_toml_path = REPO_ROOT / "data" / "codex_mcp.generated.toml"
+    data_dir = default_data_dir()
+    mcp_json_path = data_dir / "mcp_config.generated.json"
+    codex_toml_path = data_dir / "codex_mcp.generated.toml"
     snippet = build_mcp_snippet()
     toml_text = build_codex_toml_snippet()
     if not args.dry_run:
@@ -93,7 +95,7 @@ def main() -> int:
         print(f"  JSON (Antigravity/Claude/Cursor/Windsurf): {mcp_json_path}")
         print(f"  TOML (Codex CLI)                         : {codex_toml_path}")
     else:
-        print("\n=== Step 3: [DRY-RUN] Would write MCP configs to data/ ===")
+        print(f"\n=== Step 3: [DRY-RUN] Would write MCP configs to {data_dir} ===")
 
     # 4. Run 5-minute demo
     if not args.skip_demo and not args.dry_run:
@@ -105,14 +107,15 @@ def main() -> int:
                 f"  (Ollama not ready yet -> running offline --mock-llm demo. "
                 f"To enable real local LLM later, run: ollama pull {rec['model']})"
             )
+        demo_script = resolve_asset("examples/01_batch_doc_processor/run_demo.py")
         demo_cmd = [
             sys.executable,
-            str(REPO_ROOT / "examples" / "01_batch_doc_processor" / "run_demo.py"),
+            str(demo_script),
             "--reset",
         ]
         if use_mock:
             demo_cmd.append("--mock-llm")
-        subprocess.run(demo_cmd, cwd=str(REPO_ROOT), check=False)
+        subprocess.run(demo_cmd, cwd=str(Path.cwd()), check=False)
 
     print("\n=== Setup Complete! ===")
     print("Next steps:")

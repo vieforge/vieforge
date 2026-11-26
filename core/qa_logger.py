@@ -13,9 +13,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from core.paths import default_data_dir, resolve_asset
+
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_QA_CODES_PATH = ROOT_DIR / "config" / "qa_error_codes.json"
-DEFAULT_QA_LOG_PATH = ROOT_DIR / "logs" / "qa_feedback.jsonl"
+DEFAULT_QA_CODES_PATH = resolve_asset("config/qa_error_codes.json")
+DEFAULT_QA_LOG_PATH = default_data_dir() / "qa_feedback.jsonl"
 
 
 def load_qa_codes(codes_path: Path | None = None) -> dict[str, dict[str, Any]]:

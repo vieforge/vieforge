@@ -210,6 +210,8 @@ def check_companions() -> dict[str, Any]:
 
 
 def check_configs() -> dict[str, Any]:
+    from core.paths import resolve_asset
+
     required_files = [
         "config/pricing.example.json",
         "config/budget_limits.json",
@@ -219,7 +221,7 @@ def check_configs() -> dict[str, Any]:
     results: dict[str, str] = {}
     all_ok = True
     for rel in required_files:
-        path = REPO_ROOT / rel
+        path = resolve_asset(rel)
         if not path.is_file():
             results[rel] = "MISSING"
             all_ok = False

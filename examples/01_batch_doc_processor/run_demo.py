@@ -24,6 +24,7 @@ if str(REPO_ROOT) not in sys.path:
 from core.cost_tracker import CostTracker
 from core.llm_router import LLMRouter
 from core.output_trimmer import compact_job_summary
+from core.paths import default_data_dir
 from core.state_db import StateDB, compute_input_hash
 from core.vram_manager import recommend_local_model
 
@@ -79,13 +80,14 @@ def main() -> int:
     parser.add_argument("--reset", action="store_true", help="Delete existing demo SQLite DB before running.")
     args = parser.parse_args()
 
-    db_path = REPO_ROOT / args.db
+    data_dir = default_data_dir()
+    db_path = (data_dir / "demo_01_state.db") if args.db == "data/demo_01_state.db" else Path(args.db).expanduser()
     if args.reset and db_path.exists():
         db_path.unlink()
 
     rec_hw = recommend_local_model()
     model_name = args.model or rec_hw["model"]
-    tracker = CostTracker(job_id=args.job_id, daily_spend_path=REPO_ROOT / "data" / "demo_daily_spend.json")
+    tracker = CostTracker(job_id=args.job_id, daily_spend_path=data_dir / "demo_daily_spend.json")
 
     if args.dry_run:
         local_est = tracker.estimate_dry_run(

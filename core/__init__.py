@@ -37,6 +37,7 @@ from core.extension_bridge import (
 from core.license_audit import LicenseAuditReport, LicenseFinding, run_license_audit
 from core.llm_router import LLMResponse, LLMRouter
 from core.output_trimmer import TrimResult, compact_job_summary, trim_output
+from core.paths import default_data_dir, is_source_checkout, resolve_asset
 from core.pipeline_runner import (
     GateBlockedError,
     GateStatus,
@@ -105,6 +106,9 @@ __all__ = [
     "TrimResult",
     "compact_job_summary",
     "trim_output",
+    "default_data_dir",
+    "is_source_checkout",
+    "resolve_asset",
     "GateBlockedError",
     "GateStatus",
     "JobWorkspace",

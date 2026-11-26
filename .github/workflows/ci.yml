@@ -25,8 +25,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dev dependencies
-        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+      - name: Install dev dependencies & build backend
+        run: python -m pip install --upgrade pip && pip install hatchling && pip install -e ".[dev]"
 
       - name: Lint with Ruff
         run: ruff check .
@@ -37,10 +37,42 @@ jobs:
       - name: Run Unit Test Suite (pytest)
         run: pytest -v
 
-      - name: Run Pre-Flight, MCP Check, Benchmark & Step Auditor
+      - name: Run 2-Axis Cross-OS Verification (Core Gate + Clean Wheel E2E + OS Lock)
         run: |
-          python scripts/preflight_check.py --json
-          python mcp/worker_mcp_server.py --check
-          python scripts/benchmark_token_savings.py --json
-          python examples/01_batch_doc_processor/run_demo.py --dry-run
-          python scripts/audit_step.py --step ci_matrix
+          python scripts/verify_cross_os.py run \
+            --step "ci_${{ matrix.os }}_py${{ matrix.python-version }}" \
+            --os-label "${{ matrix.os }}-py${{ matrix.python-version }}" \
+            --out "data/os_report_${{ matrix.os }}_py${{ matrix.python-version }}.json"
+
+      - name: Upload OS Verification Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: os-report-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: data/os_report_${{ matrix.os }}_py${{ matrix.python-version }}.json
+
+  cross-os-parity-gate:
+    needs: test-and-audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download All 3-OS Verification Reports
+        uses: actions/download-artifact@v4
+        with:
+          path: ci_reports
+          pattern: os-report-*
+          merge-multiple: true
+
+      - name: Cross-Verify 3-OS Behavioral Parity & Publish Scorecard
+        run: |
+          python scripts/verify_cross_os.py compare ci_reports/os_report_*.json \
+            --markdown-out ci_reports/parity_scorecard.md
+          cat ci_reports/parity_scorecard.md >> "$GITHUB_STEP_SUMMARY"

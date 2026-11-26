@@ -15,12 +15,13 @@ from pathlib import Path
 from typing import Any
 
 from core.concurrency import CrossProcessLock, atomic_write_json
+from core.paths import default_data_dir, resolve_asset
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_PRICING_PATH = ROOT_DIR / "config" / "pricing.json"
-EXAMPLE_PRICING_PATH = ROOT_DIR / "config" / "pricing.example.json"
-DEFAULT_BUDGET_LIMITS_PATH = ROOT_DIR / "config" / "budget_limits.json"
-DEFAULT_DAILY_SPEND_PATH = ROOT_DIR / "data" / "daily_spend.json"
+DEFAULT_PRICING_PATH = resolve_asset("config/pricing.json")
+EXAMPLE_PRICING_PATH = resolve_asset("config/pricing.example.json")
+DEFAULT_BUDGET_LIMITS_PATH = resolve_asset("config/budget_limits.json")
+DEFAULT_DAILY_SPEND_PATH = default_data_dir() / "daily_spend.json"
 
 
 class BudgetExceededError(RuntimeError):

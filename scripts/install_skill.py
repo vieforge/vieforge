@@ -24,7 +24,12 @@ from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SKILL_SRC = REPO_ROOT / "skills" / "three-tier-orchestrator"
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from core.paths import default_data_dir, resolve_asset
+
+SKILL_SRC = resolve_asset("skills/three-tier-orchestrator")
 MCP_SERVER_PATH = REPO_ROOT / "mcp" / "worker_mcp_server.py"
 
 ALL_TARGETS = ("antigravity", "claude", "cursor", "windsurf", "codex")
@@ -61,7 +66,7 @@ def build_mcp_snippet(python_exe: str | None = None) -> dict[str, Any]:
     """Generate a drop-in JSON MCP config snippet with machine-local absolute paths."""
     py = str(Path(python_exe or sys.executable).resolve())
     server = str(MCP_SERVER_PATH.resolve())
-    db_path = str((REPO_ROOT / "data" / "tierforge_state.db").resolve())
+    db_path = str((default_data_dir() / "tierforge_state.db").resolve())
     return {
         "mcpServers": {
             "tierforge-worker": {

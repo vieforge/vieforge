@@ -30,6 +30,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from core.llm_router import LLMRouter
 from core.output_trimmer import compact_job_summary, trim_output
+from core.paths import resolve_asset
 from core.state_db import StateDB, compute_input_hash
 
 
@@ -56,8 +57,8 @@ class WorkloadBenchmark:
 
 def measure_baseline_overhead() -> dict[str, Any]:
     """Measure exact one-time context token overhead of VieForge's SKILL.md + AGENTS.md."""
-    skill_path = REPO_ROOT / "skills" / "three-tier-orchestrator" / "SKILL.md"
-    agents_path = REPO_ROOT / "AGENTS.md"
+    skill_path = resolve_asset("skills/three-tier-orchestrator/SKILL.md")
+    agents_path = resolve_asset("AGENTS.md")
     skill_text = skill_path.read_text(encoding="utf-8") if skill_path.exists() else ""
     agents_text = agents_path.read_text(encoding="utf-8") if agents_path.exists() else ""
     mcp_tool_schema_est = 320  # 5 compact MCP tool definitions exposed by worker_mcp_server.py
