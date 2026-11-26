@@ -38,11 +38,7 @@ jobs:
         run: pytest -v
 
       - name: Run 2-Axis Cross-OS Verification (Core Gate + Clean Wheel E2E + OS Lock)
-        run: |
-          python scripts/verify_cross_os.py run \
-            --step "ci_${{ matrix.os }}_py${{ matrix.python-version }}" \
-            --os-label "${{ matrix.os }}-py${{ matrix.python-version }}" \
-            --out "data/os_report_${{ matrix.os }}_py${{ matrix.python-version }}.json"
+        run: python scripts/verify_cross_os.py run --step "ci_${{ matrix.os }}_py${{ matrix.python-version }}" --os-label "${{ matrix.os }}-py${{ matrix.python-version }}" --out "data/os_report_${{ matrix.os }}_py${{ matrix.python-version }}.json"
 
       - name: Upload OS Verification Report Artifact
         if: always()
