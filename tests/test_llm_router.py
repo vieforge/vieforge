@@ -166,3 +166,28 @@ def test_ollama_native_http_roundtrip_and_batch_session_keep_alive(tmp_path: Pat
     finally:
         srv.shutdown()
         srv.server_close()
+
+
+def test_sqlite_response_cache_hit_and_bypass(tmp_path: Path) -> None:
+    calls = {"n": 0}
+
+    def _handler(prompt: str, _system: str) -> str:
+        calls["n"] += 1
+        return f"ans:{calls['n']}:{prompt}"
+
+    cache_db = tmp_path / "llm_cache.db"
+    router = LLMRouter(model="qwen2.5:7b", mock=True, mock_handler=_handler, cache_db_path=cache_db)
+
+    r1 = router.generate("hello")
+    assert r1.cache_hit is False
+    assert r1.text == "ans:1:hello"
+
+    r2 = router.generate("hello")
+    assert r2.cache_hit is True
+    assert r2.text == "ans:1:hello"
+    assert calls["n"] == 1
+
+    r3 = router.generate("hello", use_cache=False)
+    assert r3.cache_hit is False
+    assert r3.text == "ans:2:hello"
+    assert calls["n"] == 2

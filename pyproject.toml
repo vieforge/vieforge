@@ -68,6 +68,7 @@ packages = ["core", "mcp", "scripts"]
 "skills" = "core/_bundled_assets/skills"
 "AGENTS.md" = "core/_bundled_assets/AGENTS.md"
 "examples/01_batch_doc_processor/run_demo.py" = "core/_bundled_assets/examples/01_batch_doc_processor/run_demo.py"
+"examples/03_ci_log_triage/run_ci_triage.py" = "core/_bundled_assets/examples/03_ci_log_triage/run_ci_triage.py"
 "extensions/tierforge-bridge" = "core/_bundled_assets/extensions/tierforge-bridge"
 
 [tool.pytest.ini_options]

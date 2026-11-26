@@ -15,15 +15,19 @@ Key engineering features:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
+import sqlite3
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Callable, Iterator
 
 from core.concurrency import OllamaLeaseManager
@@ -40,6 +44,7 @@ class LLMResponse:
     parsed_json: dict[str, Any] | list[Any] | None = None
     attempts: int = 1
     mocked: bool = False
+    cache_hit: bool = False
 
 
 def _extract_json_text(raw: str) -> str:
@@ -94,6 +99,7 @@ class LLMRouter:
         api_style: str | None = None,
         mock: bool = False,
         mock_handler: Callable[[str, str], str] | None = None,
+        cache_db_path: Path | str | None = None,
     ) -> None:
         raw_url = (
             base_url
@@ -113,6 +119,10 @@ class LLMRouter:
         self._active_keep_alive: int | str | None = None
         self.mock = mock
         self.mock_handler = mock_handler
+        raw_cache = cache_db_path or os.getenv("TIERFORGE_LLM_CACHE_DB")
+        self.cache_db_path: Path | None = Path(raw_cache).expanduser() if raw_cache else None
+        if self.cache_db_path is not None:
+            self._init_cache_db()
 
     @property
     def chat_endpoint(self) -> str:
@@ -216,6 +226,41 @@ class LLMRouter:
         msg = choices[0].get("message", {}) if isinstance(choices[0], dict) else {}
         return str(msg.get("content", "")).strip()
 
+    def _init_cache_db(self) -> None:
+        assert self.cache_db_path is not None
+        self.cache_db_path.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.cache_db_path, timeout=5.0) as conn:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS llm_cache ("
+                "cache_key TEXT PRIMARY KEY, model TEXT NOT NULL, "
+                "response_text TEXT NOT NULL, created_at REAL NOT NULL)"
+            )
+
+    def _cache_key(self, prompt: str, system: str, json_mode: bool) -> str:
+        raw = json.dumps(
+            {"model": self.model, "system": system, "prompt": prompt, "json_mode": json_mode},
+            sort_keys=True,
+            ensure_ascii=False,
+        )
+        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+    def _cache_get(self, key: str) -> str | None:
+        if self.cache_db_path is None:
+            return None
+        with sqlite3.connect(self.cache_db_path, timeout=5.0) as conn:
+            row = conn.execute("SELECT response_text FROM llm_cache WHERE cache_key = ?", (key,)).fetchone()
+            return str(row[0]) if row is not None else None
+
+    def _cache_put(self, key: str, text: str) -> None:
+        if self.cache_db_path is None:
+            return
+        with sqlite3.connect(self.cache_db_path, timeout=5.0) as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO llm_cache (cache_key, model, response_text, created_at) VALUES (?, ?, ?, ?)",
+                (key, self.model, text, time.time()),
+            )
+
     def generate(
         self,
         prompt: str,
@@ -224,7 +269,14 @@ class LLMRouter:
         json_mode: bool = False,
         temperature: float = 0.2,
         keep_alive: int | str | None = None,
+        use_cache: bool = True,
     ) -> LLMResponse:
+        cache_key = self._cache_key(prompt, system, json_mode) if (use_cache and self.cache_db_path is not None) else None
+        if cache_key is not None:
+            cached = self._cache_get(cache_key)
+            if cached is not None:
+                return LLMResponse(text=cached, model=self.model, mocked=self.mock, cache_hit=True)
+
         if self.mock:
             if self.mock_handler is not None:
                 text = self.mock_handler(prompt, system)
@@ -232,6 +284,8 @@ class LLMRouter:
                 text = json.dumps({"summary": prompt[:80], "status": "ok", "mock": True})
             else:
                 text = f"[mock:{self.model}] {prompt[:120]}"
+            if cache_key is not None:
+                self._cache_put(cache_key, text)
             return LLMResponse(text=text, model=self.model, mocked=True)
 
         messages: list[dict[str, str]] = []
@@ -241,6 +295,8 @@ class LLMRouter:
 
         if self.api_style == "openai":
             content = self._generate_openai(messages, json_mode=json_mode, temperature=temperature)
+            if cache_key is not None:
+                self._cache_put(cache_key, content)
             return LLMResponse(text=content, model=self.model, mocked=False)
 
         payload: dict[str, Any] = {
@@ -259,6 +315,8 @@ class LLMRouter:
             raise RuntimeError(f"Ollama request failed ({self.base_url}): {exc}") from exc
 
         content = str(data.get("message", {}).get("content", "")).strip()
+        if cache_key is not None:
+            self._cache_put(cache_key, content)
         return LLMResponse(text=content, model=self.model, mocked=False)
 
     def generate_json(
