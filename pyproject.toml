@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vieforge"
-version = "0.1.0"
+version = "0.2.0"
 description = "VieForge — Code First, Local LLM Second, Cloud Last. 3-Tier Hybrid AI Agent Harness for checkpointed, budget-guarded local execution."
 readme = "README.md"
 license = { text = "MIT" }
@@ -46,13 +46,20 @@ dev = [
   "ruff>=0.6.0",
 ]
 
+[project.scripts]
+vieforge-setup = "scripts.quick_setup:main"
+vieforge-preflight = "scripts.preflight_check:main"
+vieforge-bench = "scripts.benchmark_token_savings:main"
+vieforge-mcp = "mcp.worker_mcp_server:main"
+vieforge-audit = "scripts.audit_step:main"
+
 [project.urls]
 Homepage = "https://vieforge.dev"
 Repository = "https://github.com/vieforge/vieforge"
 Issues = "https://github.com/vieforge/vieforge/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["core", "mcp"]
+packages = ["core", "mcp", "scripts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

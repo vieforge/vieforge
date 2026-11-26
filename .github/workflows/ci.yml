@@ -37,7 +37,10 @@ jobs:
       - name: Run Unit Test Suite (pytest)
         run: pytest -v
 
-      - name: Run Pre-Flight & Step Auditor
+      - name: Run Pre-Flight, MCP Check, Benchmark & Step Auditor
         run: |
           python scripts/preflight_check.py --json
+          python mcp/worker_mcp_server.py --check
+          python scripts/benchmark_token_savings.py --json
+          python examples/01_batch_doc_processor/run_demo.py --dry-run
           python scripts/audit_step.py --step ci_matrix

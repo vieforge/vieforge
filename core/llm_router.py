@@ -1,13 +1,16 @@
-"""Local LLM Router (Ollama / OpenAI-compatible) with Batch-Scoped VRAM Hygiene.
+"""Local LLM Router (Ollama + OpenAI-compatible) with Batch-Scoped VRAM Hygiene.
 
 Key engineering features:
-  1. Single calls default to `keep_alive=0` for immediate VRAM release.
-  2. `with router.batch_session(keep_alive="2m"):` keeps the model warm during a Tier 2
-     batch loop (avoiding 5-10x cold-start reload overhead) and explicitly unloads VRAM
-     (`keep_alive=0`) once in the `finally` block when the batch ends.
-  3. `generate_json(...)` enforces JSON output + schema key checks with up to 2 local
+  1. Works natively with Ollama (`/api/chat` + `keep_alive` VRAM control) AND any
+     OpenAI-compatible local/remote server (`/v1/chat/completions` — LM Studio,
+     llama.cpp server, vLLM, Jan, OpenRouter) via `api_style="auto"|"ollama"|"openai"`.
+  2. Single Ollama calls default to `keep_alive=0` for immediate VRAM release.
+  3. `with router.batch_session(keep_alive="2m"):` keeps the Ollama model warm during
+     a Tier 2 batch loop (avoiding 5-10x cold-start reload overhead) and explicitly
+     unloads VRAM (`keep_alive=0`) once in the `finally` block when the last lease exits.
+  4. `generate_json(...)` enforces JSON output + schema key checks with up to 2 local
      self-repair retries so compact 3B/7B models stay reliable.
-  4. Built-in `mock=True` mode for $0 offline testing and 5-minute onboarding demos.
+  5. Built-in `mock=True` mode for $0 offline testing and 5-minute onboarding demos.
 """
 
 from __future__ import annotations
@@ -16,6 +19,7 @@ import json
 import os
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 from contextlib import contextmanager
@@ -26,6 +30,7 @@ from core.concurrency import OllamaLeaseManager
 from core.vram_manager import unload_ollama_model
 
 CODE_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL | re.IGNORECASE)
+VALID_API_STYLES = ("auto", "ollama", "openai")
 
 
 @dataclass
@@ -45,8 +50,39 @@ def _extract_json_text(raw: str) -> str:
     return stripped
 
 
+def _resolve_api_style(raw_url: str, requested_style: str) -> tuple[str, str]:
+    """Resolve effective API style ('ollama' or 'openai') and normalized base URL.
+
+    Preserves Ollama native `/api/chat` + `keep_alive=0` hygiene for default Ollama
+    endpoints (`:11434`, even if `/v1` suffix is given) unless `api_style='openai'`
+    is explicitly requested. Non-Ollama `/v1` URLs (e.g. LM Studio `:1234/v1`,
+    llama.cpp `:8080/v1`, vLLM `:8000/v1`) auto-select OpenAI-compatible mode.
+    """
+    style = requested_style.strip().lower()
+    if style not in VALID_API_STYLES:
+        raise ValueError(f"Unsupported api_style '{requested_style}'. Expected one of {VALID_API_STYLES}.")
+
+    cleaned = raw_url.strip().rstrip("/")
+    parsed = urllib.parse.urlparse(cleaned)
+    is_ollama_port = parsed.port == 11434
+
+    if style == "ollama":
+        base = cleaned[:-3].rstrip("/") if cleaned.endswith("/v1") else cleaned
+        return "ollama", base
+
+    if style == "openai":
+        base = cleaned if cleaned.endswith("/v1") else f"{cleaned}/v1"
+        return "openai", base
+
+    # auto mode
+    if cleaned.endswith("/v1") and not is_ollama_port:
+        return "openai", cleaned
+    base = cleaned[:-3].rstrip("/") if cleaned.endswith("/v1") else cleaned
+    return "ollama", base
+
+
 class LLMRouter:
-    """Stdlib-only Ollama / OpenAI-compatible local LLM router."""
+    """Stdlib-only Ollama & OpenAI-compatible local LLM router."""
 
     def __init__(
         self,
@@ -55,6 +91,7 @@ class LLMRouter:
         api_key: str | None = None,
         timeout_sec: float | None = None,
         default_keep_alive: int | str = 0,
+        api_style: str | None = None,
         mock: bool = False,
         mock_handler: Callable[[str, str], str] | None = None,
     ) -> None:
@@ -63,9 +100,10 @@ class LLMRouter:
             or os.getenv("TIERFORGE_LLM_BASE_URL")
             or os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
         ).strip().rstrip("/")
-        self.base_url = raw_url[:-3].rstrip("/") if raw_url.endswith("/v1") else raw_url
+        req_style = api_style or os.getenv("TIERFORGE_LLM_API_STYLE", "auto")
+        self.api_style, self.base_url = _resolve_api_style(raw_url, req_style)
         self.model = model or os.getenv("TIERFORGE_LLM_MODEL") or os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
-        self.api_key = api_key or os.getenv("TIERFORGE_LLM_API_KEY", "ollama")
+        self.api_key = api_key if api_key is not None else os.getenv("TIERFORGE_LLM_API_KEY", "ollama")
         self.timeout_sec = (
             timeout_sec
             if timeout_sec is not None
@@ -76,6 +114,12 @@ class LLMRouter:
         self.mock = mock
         self.mock_handler = mock_handler
 
+    @property
+    def chat_endpoint(self) -> str:
+        if self.api_style == "openai":
+            return f"{self.base_url}/chat/completions"
+        return f"{self.base_url}/api/chat"
+
     @contextmanager
     def batch_session(
         self,
@@ -83,10 +127,13 @@ class LLMRouter:
         unload_on_exit: bool = True,
         lease_manager: OllamaLeaseManager | None = None,
     ) -> Iterator[LLMRouter]:
-        """Keep model loaded in VRAM across a batch, then unload only if no other project holds a lease."""
+        """Keep Ollama model loaded across a batch, then unload when the last lease exits."""
         prev = self._active_keep_alive
         self._active_keep_alive = keep_alive
-        leases = lease_manager or (None if self.mock else OllamaLeaseManager())
+        use_ollama_lease = self.api_style == "ollama" and not self.mock
+        leases = lease_manager if use_ollama_lease else None
+        if use_ollama_lease and leases is None:
+            leases = OllamaLeaseManager()
         lease_id = f"{os.getpid()}-{uuid.uuid4().hex[:8]}"
         if leases is not None:
             leases.acquire(lease_id, model=self.model)
@@ -97,7 +144,7 @@ class LLMRouter:
             safe_to_unload = True
             if leases is not None:
                 safe_to_unload = leases.release(lease_id)
-            if unload_on_exit and safe_to_unload and not self.mock:
+            if unload_on_exit and safe_to_unload and use_ollama_lease:
                 unload_ollama_model(
                     model=self.model,
                     base_url=self.base_url,
@@ -111,6 +158,63 @@ class LLMRouter:
         if self._active_keep_alive is not None:
             return self._active_keep_alive
         return self.default_keep_alive
+
+    def _post_json(self, url: str, payload: dict[str, Any], headers: dict[str, str]) -> dict[str, Any]:
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=self.timeout_sec) as resp:
+            return json.loads(resp.read().decode("utf-8", errors="replace"))
+
+    def _generate_openai(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        json_mode: bool,
+        temperature: float,
+    ) -> str:
+        headers: dict[str, str] = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        payload: dict[str, Any] = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": temperature,
+            "stream": False,
+        }
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
+
+        try:
+            data = self._post_json(self.chat_endpoint, payload, headers)
+        except urllib.error.HTTPError as exc:
+            # Some local OpenAI-compatible servers reject response_format={"type":"json_object"} with HTTP 400/422.
+            if json_mode and exc.code in (400, 422):
+                payload.pop("response_format", None)
+                try:
+                    data = self._post_json(self.chat_endpoint, payload, headers)
+                except urllib.error.URLError as retry_exc:
+                    raise RuntimeError(
+                        f"OpenAI-compatible LLM request failed ({self.chat_endpoint}): {retry_exc}"
+                    ) from retry_exc
+            else:
+                raise RuntimeError(
+                    f"OpenAI-compatible LLM request failed ({self.chat_endpoint}): HTTP {exc.code}"
+                ) from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError(
+                f"OpenAI-compatible LLM request failed ({self.chat_endpoint}): {exc}"
+            ) from exc
+
+        choices = data.get("choices") or []
+        if not choices or not isinstance(choices, list):
+            raise RuntimeError(f"OpenAI-compatible response missing 'choices': {data}")
+        msg = choices[0].get("message", {}) if isinstance(choices[0], dict) else {}
+        return str(msg.get("content", "")).strip()
 
     def generate(
         self,
@@ -130,10 +234,14 @@ class LLMRouter:
                 text = f"[mock:{self.model}] {prompt[:120]}"
             return LLMResponse(text=text, model=self.model, mocked=True)
 
-        messages = []
+        messages: list[dict[str, str]] = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
+
+        if self.api_style == "openai":
+            content = self._generate_openai(messages, json_mode=json_mode, temperature=temperature)
+            return LLMResponse(text=content, model=self.model, mocked=False)
 
         payload: dict[str, Any] = {
             "model": self.model,
@@ -145,15 +253,8 @@ class LLMRouter:
         if json_mode:
             payload["format"] = "json"
 
-        req = urllib.request.Request(
-            f"{self.base_url}/api/chat",
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout_sec) as resp:
-                data = json.loads(resp.read().decode("utf-8", errors="replace"))
+            data = self._post_json(self.chat_endpoint, payload, {"Content-Type": "application/json"})
         except urllib.error.URLError as exc:
             raise RuntimeError(f"Ollama request failed ({self.base_url}): {exc}") from exc
 

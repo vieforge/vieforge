@@ -69,3 +69,26 @@ def test_install_skill_and_absolute_mcp_snippet(tmp_path: Path) -> None:
     copied = install_skill(dest, dry_run=False)
     assert len(copied) >= 3
     assert (dest / "SKILL.md").is_file()
+
+
+def test_release_version_sync_and_website_seo_assets() -> None:
+    import re
+
+    import core
+
+    repo_root = Path(__file__).resolve().parent.parent
+    pyproject_text = (repo_root / "pyproject.toml").read_text(encoding="utf-8")
+    m = re.search(r'^version\s*=\s*"([^"]+)"', pyproject_text, re.MULTILINE)
+    assert m is not None
+    assert m.group(1) == core.__version__
+
+    website_dir = repo_root / "website"
+    index_html = (website_dir / "index.html").read_text(encoding="utf-8")
+    assert "https://vieforge.dev/assets/og-card.png" in index_html
+    assert 'name="twitter:card"' in index_html
+    assert "application/ld+json" in index_html
+    assert (website_dir / "robots.txt").is_file()
+    assert (website_dir / "sitemap.xml").is_file()
+    og_png = website_dir / "assets" / "og-card.png"
+    assert og_png.is_file()
+    assert og_png.stat().st_size > 10_000

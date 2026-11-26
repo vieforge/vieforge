@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vieforge.dev/sitemap.xml
