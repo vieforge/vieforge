@@ -21,6 +21,10 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="website/assets/vieforge-demo.gif" alt="VieForge Live Demo — 0.3s Benchmark, Browser Bridge Offload & VieForge Lens" width="760" />
+</p>
+
 Turn any consumer workstation into a **checkpointed, budget-guarded, multi-project local AI worker** to cut Cloud Agent quota and API spend by **70–90%**. Built on open **MCP (Model Context Protocol)** + **Agent Skill (`SKILL.md` / `AGENTS.md`)** standards for **Antigravity, Claude Code, Cursor, Codeium/Windsurf, Cline, VS Code Copilot, and Codex CLI**.
 
 ---

@@ -20,6 +20,10 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="website/assets/vieforge-demo.gif" alt="VieForge 動作デモ — 0.3秒ベンチマーク・ブラウザ連携計測・VieForge Lens" width="760" />
+</p>
+
 **VieForge** は、お手元のPCや社内ワークステーションを **チェックポイント保存・予算上限ガード・複数プロジェクト並列対応のローカルAI実行基盤** に変えるオープンソース（MIT）ハーネスです。
 
 反復的なバッチ処理、膨大なCIログ解析、途中エラーによる再実行をローカルへ逃がすことで、**Antigravity・Claude Code・Cursor・Codeium/Windsurf・Cline・VS Code Copilot・Codex CLI** のクラウドAI消費量とAPI費用を **実測 70〜90% 削減** します。

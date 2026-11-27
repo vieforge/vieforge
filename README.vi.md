@@ -20,6 +20,10 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="website/assets/vieforge-demo.gif" alt="Demo trực quan VieForge — Benchmark 0.3 giây, đo Extension Bridge & VieForge Lens" width="760" />
+</p>
+
 Biến mọi máy tính cá nhân thành một **worker AI cục bộ có checkpoint, khóa ngân sách và hỗ trợ đa dự án**, giúp giảm **70–90%** lượng token Cloud Agent và chi phí API. Xây dựng theo chuẩn mở **MCP (Model Context Protocol)** + **Agent Skill (`SKILL.md` / `AGENTS.md`)** cho **Antigravity, Claude Code, Cursor, Codeium/Windsurf, Cline, VS Code Copilot và Codex CLI**.
 
 ---
