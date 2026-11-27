@@ -71,8 +71,8 @@
     "faq3A": "Ollama単体には項目別SQLite WAL障害再開、SHA-256重複排除、91% CIログ圧縮、USD予算上限ガード、複数プロジェクト間のVRAMリース制御、MCPサーバーがありません。VieForgeはこれらを100% Python標準ライブラリで一体化しています。",
     "faq4Q": "商用プロジェクトや企業内でも無料で使えますか？",
     "faq4A": "はい、コアエンジンは永久無料のMITライセンスです。<code>python -m core.license_audit</code> がAGPL・BUSL-1.1・CC-BY-NC依存を自動検知してブロックします。",
-    "faq5Q": "どのローカルLLMとAI IDEに対応していますか？",
-    "faq5A": "<strong>Ollama</strong> に加え <strong>LM Studio・llama.cpp・vLLM</strong> などのOpenAI互換サーバーに対応。<strong>Antigravity・Claude Code・Cursor・Codeium/Windsurf・Cline・VS Code Copilot・Codex CLI</strong> 向け設定を自動生成します。",
+    "faq5Q": "どのLLM・推論モデル・AI IDEに対応していますか？",
+    "faq5A": "<strong>Ollama・LM Studio・llama.cpp・vLLM・Jan</strong> のローカル自動検出に加え、<strong>Google Gemini・Anthropic Claude（Messages API直接対応）・OpenAI・DeepSeek・Groq・OpenRouter</strong> の計11プリセットに対応（DeepSeek-R1/o3等の推論モデル含む）。<strong>Antigravity・Claude Code・Cursor・Codeium/Windsurf・Cline・VS Code Copilot・Codex CLI</strong> の設定を自動生成します。",
     "footTag": "MITライセンス・オープンコア • ゼロテレメトリ"
   },
   "de": {

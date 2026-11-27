@@ -1,5 +1,5 @@
 <p align="right">
-  <a href="README.md">English</a> | <strong>Tiếng Việt</strong>
+  <a href="README.md">English</a> | <strong>Tiếng Việt</strong> | <a href="README.ja.md">日本語</a>
 </p>
 
 # VieForge
