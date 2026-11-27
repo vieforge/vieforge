@@ -1,17 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64" role="img" aria-label="VieForge Wordmark">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="VieForge Isometric Forge Logo">
   <defs>
-    <linearGradient id="vfBg2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#1e293b"/>
+    <linearGradient id="vfBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050811"/>
+      <stop offset="100%" stop-color="#0f172a"/>
     </linearGradient>
-    <linearGradient id="vfV2" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="tierTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7dd3fc"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="tierMid" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="55%" stop-color="#3b82f6"/>
-      <stop offset="100%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="tierBase" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="forgeSpark" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="55%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#f97316"/>
     </linearGradient>
   </defs>
-  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#vfBg2)" stroke="#334155" stroke-width="1.5"/>
-  <path d="M15 18 L24.5 18 L32 36 L39.5 18 L49 18 L35.5 48 L28.5 48 Z" fill="url(#vfV2)"/>
-  <polygon points="32,10 33.2,13.2 36.6,13.2 33.9,15.2 34.9,18.4 32,16.4 29.1,18.4 30.1,15.2 27.4,13.2 30.8,13.2" fill="#facc15"/>
-  <text x="76" y="42" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="32" font-weight="800" letter-spacing="-0.5" fill="#f8fafc">Vie<tspan fill="#38bdf8">Forge</tspan></text>
+  <rect width="64" height="64" rx="16" fill="url(#vfBg)"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="14.5" fill="none" stroke="#334155" stroke-width="1.5"/>
+  <!-- Bottom Tier (Tier 0 / Emerald Forge Base) -->
+  <polygon points="15,31 23,31 32,48 41,31 49,31 35,55 29,55" fill="url(#tierBase)"/>
+  <!-- Middle Tier (Tier 1 / Electric Blue Core) -->
+  <polygon points="13,24 22,24 32,42 42,24 51,24 35.5,48.5 28.5,48.5" fill="url(#tierMid)"/>
+  <!-- Top Tier (Tier 2 / Bright Cyan Apex) -->
+  <polygon points="11,17 21,17 32,36 43,17 53,17 35.5,42 28.5,42" fill="url(#tierTop)"/>
+  <!-- Isometric inner facet shadow -->
+  <polygon points="22.5,17 32,33.5 41.5,17 36.5,17 32,24.8 27.5,17" fill="#050811" opacity="0.65"/>
+  <!-- Forged Gold Energy Spark rising from the V core -->
+  <polygon points="32,7 34.4,13.4 40.2,15 34.4,16.8 32,23 29.6,16.8 23.8,15 29.6,13.4" fill="url(#forgeSpark)"/>
 </svg>
