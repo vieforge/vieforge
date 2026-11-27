@@ -15,8 +15,8 @@
 | 3 | 自動テスト全件パス（オフライン `$0`） | `pytest -q` | 全テスト PASS（失敗 0件） |
 | 4 | 0.3秒トークン削減ベンチマーク | `vieforge bench` | 純削減率 `-90%` 以上（初回1,459トークン込み） |
 | 5 | 障害中断 → 再開の冪等性確認 | `python examples/01_batch_doc_processor/run_demo.py --reset --mock-llm --simulate-interrupt-after 2` 後に再実行 | 完了済み2件が再実行されず残り3件のみ処理 |
-| 6 | シークレット自動秘匿の確認 | `pytest -q tests/test_core_modules.py -k redact` | `sk-`, `ghp_`, `Bearer` 等がマスクされる |
-| 7 | 予算上限ガード（`BudgetExceededError`） | `pytest -q tests/test_core_modules.py -k budget` | 上限超過時に確実に停止 |
+| 6 | シークレット自動秘匿の確認 | `pytest -q -k redact` | `sk-`, `ghp_`, `Bearer` 等がマスクされる |
+| 7 | 予算上限ガード（`BudgetExceededError`） | `pytest -q tests/test_cost_guard.py` | 上限超過時に確実に停止 |
 | 8 | 複数LLMプロバイダ・推論モデル対応 | `pytest -q tests/test_llm_router.py` | 全テスト PASS（Claude / Gemini / `<think>` 含む） |
 | 9 | 非root Docker 構成の確認 | `Dockerfile` の `USER vieforge` を確認 | root権限不要で起動可能 |
 | 10 | クリーンアンインストール確認 | `pip uninstall -y vieforge` | OS設定・レジストリへの残留ゼロ |
