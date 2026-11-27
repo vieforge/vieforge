@@ -32,7 +32,13 @@ from core.paths import default_data_dir
 from core.state_db import StateDB, compute_input_hash, scoped_job_id
 from core.subprocess_runner import run_isolated
 from core.vram_manager import recommend_local_model
+from scripts.benchmark_token_savings import run_all_benchmarks
 from scripts.preflight_check import run_preflight
+from scripts.savings_report import collect_project_savings
+
+PANEL_APP_URI = "ui://vieforge/panel.html"
+PANEL_HTML_PATH = REPO_ROOT / "plugins" / "vieforge-lens" / "ui" / "panel.html"
+PANEL_BUNDLED_HTML_PATH = REPO_ROOT / "core" / "_bundled_assets" / "plugins" / "vieforge-lens" / "ui" / "panel.html"
 
 _ENV_DB = os.getenv("TIERFORGE_STATE_DB", "").strip()
 DEFAULT_DB = Path(_ENV_DB).expanduser() if _ENV_DB else (default_data_dir() / "tierforge_state.db")
@@ -297,13 +303,43 @@ def tool_get_job_summary(job_id: str, db_path: str = "", project_id: str = "") -
         return compact_job_summary(db.get_job_summary(effective_job_id))
 
 
+def _load_panel_html() -> str:
+    for candidate in (PANEL_HTML_PATH, PANEL_BUNDLED_HTML_PATH):
+        if candidate.is_file():
+            return candidate.read_text(encoding="utf-8")
+    return "<!doctype html><html><body><h3>VieForge Lens UI asset not found.</h3></body></html>"
+
+
+def tool_open_vieforge_panel(project_dir: str = "") -> dict[str, Any]:
+    """Return structured live savings + 3-tier health payload for the VieForge Lens Side Pane."""
+    target = Path(project_dir).expanduser() if project_dir else (Path.cwd() if (Path.cwd() / "data").is_dir() else default_data_dir())
+    url = os.getenv("TIERFORGE_LLM_BASE_URL", "http://127.0.0.1:11434")
+    preflight = run_preflight(url)
+    preflight["recommended_local_model"] = recommend_local_model()
+    savings = collect_project_savings([target])
+    return {
+        "panel": "vieforge-lens",
+        "savings": savings,
+        "preflight": preflight,
+    }
+
+
+def tool_app_run_benchmark() -> dict[str, Any]:
+    """App-only helper: run reproducible 0.3s benchmark and return updated panel telemetry."""
+    payload = tool_open_vieforge_panel()
+    payload["benchmark"] = run_all_benchmarks()
+    return payload
+
+
 def build_mcp_server() -> Any:
     """Create and configure the MCP server (supports both mcp 2.x MCPServer and 1.x FastMCP)."""
     server_cls: Any = None
+    is_v2 = False
     try:
         from mcp.server.mcpserver import MCPServer
 
         server_cls = MCPServer
+        is_v2 = True
     except ImportError:
         try:
             from mcp.server.fastmcp import FastMCP
@@ -321,6 +357,34 @@ def build_mcp_server() -> Any:
     mcp.tool(name="estimate_batch_dry_run")(tool_estimate_batch_dry_run)
     mcp.tool(name="run_local_batch")(tool_run_local_batch)
     mcp.tool(name="get_job_summary")(tool_get_job_summary)
+
+    pane_meta = {
+        "ui": {"resourceUri": PANEL_APP_URI},
+        "com.google.antigravity/ui": {
+            "entrypoints": [
+                {"type": "aux_pane", "title": "VieForge Lens"},
+                {"type": "global", "title": "VieForge Lens"},
+            ]
+        },
+    }
+    app_only_meta = {"ui": {"visibility": ["app"]}}
+
+    if is_v2:
+        mcp.tool(name="open_vieforge_panel", title="VieForge Lens", meta=pane_meta, structured_output=True)(
+            tool_open_vieforge_panel
+        )
+        mcp.tool(name="app_refresh_panel", meta=app_only_meta, structured_output=True)(tool_open_vieforge_panel)
+        mcp.tool(name="app_run_benchmark", meta=app_only_meta, structured_output=True)(tool_app_run_benchmark)
+        mcp.resource(
+            PANEL_APP_URI,
+            name="VieForge Lens UI",
+            mime_type="text/html;profile=mcp-app",
+            meta={"ui": {"prefersBorder": False}},
+        )(_load_panel_html)
+    else:
+        mcp.tool(name="open_vieforge_panel")(tool_open_vieforge_panel)
+        mcp.resource(PANEL_APP_URI, mime_type="text/html;profile=mcp-app")(_load_panel_html)
+
     return mcp
 
 

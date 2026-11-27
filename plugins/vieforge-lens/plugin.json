@@ -1,0 +1,9 @@
+{
+  "name": "vieforge-lens",
+  "description": "VieForge Lens — Side Pane Token Savings Meter, 3-Tier Health Monitor, Usage Tier (L0–L3), and 1-Click Local Benchmark for Antigravity 2.0.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "Open VieForge Lens to inspect my real local token savings and 3-tier health",
+    "Run a 0.3s VieForge token savings benchmark"
+  ]
+}

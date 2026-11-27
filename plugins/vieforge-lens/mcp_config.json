@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "lens": {
+      "command": "vieforge-mcp",
+      "args": [],
+      "env": {
+        "TIERFORGE_LLM_BASE_URL": "http://127.0.0.1:11434",
+        "TIERFORGE_OLLAMA_KEEP_ALIVE": "0"
+      }
+    }
+  }
+}

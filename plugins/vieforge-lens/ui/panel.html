@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VieForge Lens — Side Pane</title>
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: var(--color-background-primary, #050811);
+      --card: var(--color-background-secondary, #0c1324);
+      --card-alt: var(--color-background-tertiary, #121c33);
+      --text: var(--color-text-primary, #f8fafc);
+      --muted: var(--color-text-secondary, #94a3b8);
+      --border: var(--color-border-primary, rgba(148, 163, 184, 0.2));
+      --ok: var(--color-text-success, #34d399);
+      --warn: var(--color-text-warning, #facc15);
+      --err: var(--color-text-danger, #f87171);
+      --accent: #38bdf8;
+      --font: var(--font-sans, system-ui, -apple-system, sans-serif);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 14px; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; line-height: 1.5; }
+    .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+    .pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(56,189,248,0.14); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
+    .actions { display: flex; gap: 6px; }
+    button { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: rgba(56,189,248,0.18); border-color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px; margin-bottom: 10px; }
+    .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .v { font-size: 20px; font-weight: 800; margin-top: 3px; color: var(--ok); }
+    .v.accent { color: var(--accent); }
+    .bar-bg { height: 9px; background: var(--card-alt); border-radius: 999px; overflow: hidden; margin: 8px 0 4px; }
+    .bar-fg { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #38bdf8); transition: width 0.25s ease; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; gap: 8px; }
+    .row:last-child { border-bottom: 0; }
+    .status-ok { color: var(--ok); font-weight: 700; }
+    .status-warn { color: var(--warn); font-weight: 700; }
+    .status-err { color: var(--err); font-weight: 700; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; color: var(--muted); }
+    #statusLine { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <div class="brand">
+      <span>VieForge Lens</span>
+      <span class="pill" id="tierBadge">L2</span>
+    </div>
+    <div class="actions">
+      <button type="button" id="langToggle">VI / EN</button>
+      <button type="button" id="btnRefresh" class="primary">Refresh</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card" style="margin:0;">
+      <div class="k" id="lblSavedTok">Tokens Saved</div>
+      <div class="v" id="valSavedTok">—</div>
+    </div>
+    <div class="card" style="margin:0;">
+      <div class="k" id="lblReduction">Reduction</div>
+      <div class="v accent" id="valReduction">—</div>
+    </div>
+    <div class="card" style="margin:0;">
+      <div class="k" id="lblUsdSaved">Est. USD Saved</div>
+      <div class="v" id="valUsdSaved">—</div>
+    </div>
+    <div class="card" style="margin:0;">
+      <div class="k" id="lblWork">Tracked Work</div>
+      <div class="v accent" id="valWork" style="font-size:15px;">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="k" id="lblMeter">Zero-Waste Efficiency</div>
+    <div class="bar-bg"><div class="bar-fg" id="meterBar"></div></div>
+    <div class="mono" id="meterDetail">Waiting for VieForge MCP server...</div>
+  </div>
+
+  <div class="card">
+    <div class="k" id="lblHealth" style="margin-bottom:6px;">3-Tier Local Health</div>
+    <div id="healthList"></div>
+  </div>
+
+  <div class="card">
+    <div class="k" id="lblProjects" style="margin-bottom:6px;">Tracked Projects</div>
+    <div id="projList"></div>
+  </div>
+
+  <div class="actions" style="flex-wrap:wrap;">
+    <button type="button" id="btnBench">Run 0.3s Benchmark</button>
+  </div>
+  <div id="statusLine" class="mono"></div>
+
+  <script>
+    const TEXT = {
+      en: {
+        savedTok: "Tokens Saved", reduction: "Reduction", usdSaved: "Est. USD Saved",
+        work: "Tracked Work", meter: "Zero-Waste Efficiency", health: "3-Tier Local Health",
+        projects: "Tracked Projects", refresh: "Refresh", bench: "Run 0.3s Benchmark",
+        loading: "Refreshing local telemetry ($0)...", ready: "Live local telemetry (0 Cloud tokens)"
+      },
+      vi: {
+        savedTok: "Token Tiết Kiệm", reduction: "Mức Giảm", usdSaved: "Ước Tính Tiết Kiệm",
+        work: "Khối Lượng Đã Đo", meter: "Hiệu Suất 3 Tầng", health: "Sức Khỏe 3 Tầng Local",
+        projects: "Dự Án Đang Theo Dõi", refresh: "Làm mới", bench: "Chạy Benchmark 0.3s",
+        loading: "Đang quét telemetry cục bộ ($0)...", ready: "Dữ liệu cục bộ trực tiếp (0 token Cloud)"
+      }
+    };
+    let uiLang = "vi";
+    let lastData = null;
+    let rpcId = 1;
+    const pending = new Map();
+
+    function applyText() {
+      const t = TEXT[uiLang] || TEXT.en;
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set("lblSavedTok", t.savedTok);
+      set("lblReduction", t.reduction);
+      set("lblUsdSaved", t.usdSaved);
+      set("lblWork", t.work);
+      set("lblMeter", t.meter);
+      set("lblHealth", t.health);
+      set("lblProjects", t.projects);
+      set("btnRefresh", t.refresh);
+      set("btnBench", t.bench);
+    }
+
+    function addRow(parent, left, right, cls) {
+      const r = document.createElement("div");
+      r.className = "row";
+      const l = document.createElement("span");
+      l.textContent = left;
+      const v = document.createElement("span");
+      v.textContent = right;
+      if (cls) v.className = cls;
+      r.append(l, v);
+      parent.appendChild(r);
+    }
+
+    function renderData(data) {
+      if (!data) return;
+      lastData = data;
+      const sav = data.savings || {};
+      const tot = sav.totals || {};
+      const tier = sav.usage_tier || {};
+      const pre = data.preflight || {};
+      const checks = pre.checks || {};
+
+      document.getElementById("tierBadge").textContent = (tier.id || "L0").split("_")[0];
+      document.getElementById("valSavedTok").textContent = (tot.saved_tokens || 0).toLocaleString();
+      document.getElementById("valReduction").textContent = "-" + Number(tot.reduction_pct || 0).toFixed(1) + "% (" + Number(tot.multiplier || 1).toFixed(1) + "x)";
+      document.getElementById("valUsdSaved").textContent = "$" + Number(tot.saved_usd || 0).toFixed(4);
+      document.getElementById("valWork").textContent =
+        (tot.checkpoint_done_items || 0) + " items · " + (tot.tier0_qa_runs || 0) + " QA";
+
+      const pct = Math.max(0, Math.min(100, Number(tot.reduction_pct || 0)));
+      document.getElementById("meterBar").style.width = pct.toFixed(1) + "%";
+      document.getElementById("meterDetail").textContent =
+        (tot.cloud_only_tokens || 0).toLocaleString() + " -> " + (tot.vieforge_tokens || 0).toLocaleString() + " tok | " + (tier.name || "");
+
+      const hl = document.getElementById("healthList");
+      hl.replaceChildren();
+      const py = checks.python || {};
+      const sq = checks.sqlite || {};
+      const ol = checks.ollama || {};
+      const gp = checks.gpu || {};
+      addRow(hl, "Python / SQLite WAL", (py.version || "?") + " / " + (sq.wal_mode ? "WAL OK" : "OFF"), sq.wal_mode ? "status-ok" : "status-warn");
+      addRow(hl, "Local LLM (" + (ol.api_style || "ollama") + ")", ol.status === "OK" ? ((ol.models_sample && ol.models_sample[0]) || "OK") : (ol.status || "OFF"), ol.status === "OK" ? "status-ok" : "status-warn");
+      addRow(hl, "GPU / Profile", gp.profile || "CPU-Only", "mono");
+
+      const pl = document.getElementById("projList");
+      pl.replaceChildren();
+      (sav.per_project || []).forEach((p) => {
+        addRow(pl, p.project || "workspace", "items=" + p.done_items + " · qa=" + p.tier0_qa_runs + " · cache=" + p.llm_cache_hits, "mono");
+      });
+      document.getElementById("statusLine").textContent = (TEXT[uiLang] || TEXT.en).ready;
+    }
+
+    function sendRpc(method, params) {
+      return new Promise((resolve, reject) => {
+        const id = rpcId++;
+        pending.set(id, { resolve, reject });
+        window.parent.postMessage({ jsonrpc: "2.0", id, method, params: params || {} }, "*");
+      });
+    }
+
+    window.addEventListener("message", (ev) => {
+      const msg = ev.data;
+      if (!msg || typeof msg !== "object") return;
+      if (msg.id && pending.has(msg.id)) {
+        const p = pending.get(msg.id);
+        pending.delete(msg.id);
+        if (msg.error) p.reject(msg.error);
+        else p.resolve(msg.result);
+        return;
+      }
+      if (msg.method === "ui/notifications/tool-result") {
+        const res = msg.params || {};
+        if (res.structuredContent) renderData(res.structuredContent);
+        else if (res.content && res.content[0] && res.content[0].text) {
+          try { renderData(JSON.parse(res.content[0].text)); } catch (_) {}
+        }
+      }
+      if (msg.method === "ui/notifications/host-context-changed") {
+        const vars = (msg.params && msg.params.styles && msg.params.styles.variables) || {};
+        Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, String(v)));
+      }
+    });
+
+    async function callTool(name, args) {
+      document.getElementById("statusLine").textContent = (TEXT[uiLang] || TEXT.en).loading;
+      try {
+        const res = await sendRpc("tools/call", { name, arguments: args || {} });
+        if (res && res.structuredContent) renderData(res.structuredContent);
+        else if (res && res.content && res.content[0] && res.content[0].text) {
+          renderData(JSON.parse(res.content[0].text));
+        }
+      } catch (err) {
+        document.getElementById("statusLine").textContent = "RPC error: " + String(err && err.message ? err.message : err);
+      }
+    }
+
+    document.getElementById("langToggle").addEventListener("click", () => {
+      uiLang = uiLang === "vi" ? "en" : "vi";
+      applyText();
+      if (lastData) renderData(lastData);
+    });
+    document.getElementById("btnRefresh").addEventListener("click", () => callTool("app_refresh_panel", {}));
+    document.getElementById("btnBench").addEventListener("click", () => callTool("app_run_benchmark", {}));
+
+    applyText();
+    (async () => {
+      try {
+        await sendRpc("ui/initialize", { appInfo: { name: "VieForge Lens", version: "0.4.2" }, appCapabilities: {}, protocolVersion: "2026-01-26" });
+        window.parent.postMessage({ jsonrpc: "2.0", method: "ui/notifications/initialized", params: {} }, "*");
+      } catch (_) {}
+    })();
+  </script>
+</body>
+</html>
