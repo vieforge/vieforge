@@ -102,7 +102,7 @@ python scripts/benchmark_token_savings.py
 | 50-Item Job Crashed at 30/50 + SQLite Checkpoint Resume | 17,920 | 457 | **39.2x** | **-97.4%** |
 | **COMBINED NET (incl. 1,459-token session overhead)** | **52,732** | **3,114** | **16.9x** | **-94.1%** |
 
-> **Break-even transparency:** VieForge pays off its 1,459-token one-time session overhead after just **1 noisy CI log** or **3–5 batch items**. For quick 1-turn Q&A or single-file edits, you do not need to invoke VieForge.
+> **Break-even transparency:** VieForge pays off its 1,459-token one-time session overhead after just **1 noisy CI log** or **3–5 batch items**. For quick 1-turn Q&A or single-file edits, you do not need to invoke VieForge. Run **`vieforge savings`** (or `vieforge savings --html savings.html`) to measure your real local token & USD savings and see your Usage Tier (`L0`–`L3`) — full empirical breakdown in [docs/REAL_WORLD_SAVINGS_BENCHMARK.md](docs/REAL_WORLD_SAVINGS_BENCHMARK.md).
 
 ---
 

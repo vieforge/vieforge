@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "session_overhead_tokens": 1459,
+  "cloud_baseline_provider": "external/text-frontier",
+  "cloud_input_usd_per_1m": 3.0,
+  "cloud_output_usd_per_1m": 15.0,
+  "tiers": [
+    {
+      "id": "L0_CASUAL",
+      "name": "L0 — Casual / Single-File Edit",
+      "segment": "Quick Q&A, single-file tweaks (<3 items/session)",
+      "min_items": 0,
+      "max_items": 4,
+      "expected_reduction_pct": "0% (below 1,459-token break-even)",
+      "recommendation": "Use Cloud Agent directly; invoke VieForge when handling >=1 noisy CI log or >=5 batch items."
+    },
+    {
+      "id": "L1_SOLO_DEV",
+      "name": "L1 — Solo Indie / Vibe Coder",
+      "segment": "Individual developers, freelancers, daily CI/test triage (5–50 items)",
+      "min_items": 5,
+      "max_items": 50,
+      "expected_reduction_pct": "70%–88% (3.5x–8.5x fewer Cloud tokens)",
+      "recommendation": "Enable `vieforge setup` + `--mock-llm` or Ollama `qwen2.5:7b` for CI logs & small batch loops."
+    },
+    {
+      "id": "L2_POWER_STUDIO",
+      "name": "L2 — Power Dev / AI Content Studio",
+      "segment": "Multi-project workstations, AI media/doc pipelines, 8–24GB VRAM (51–500 items)",
+      "min_items": 51,
+      "max_items": 500,
+      "expected_reduction_pct": "88%–95% (8.5x–20x fewer Cloud tokens)",
+      "recommendation": "Use `LLMRouter.batch_session()`, `TIERFORGE_LLM_CACHE_DB`, and `exclusive_gpu=True`."
+    },
+    {
+      "id": "L3_TEAM_ENTERPRISE",
+      "name": "L3 — Team / Agency / Enterprise Pipeline",
+      "segment": "High-volume batching, multi-repo CI triage, Docker workers (500+ items)",
+      "min_items": 501,
+      "max_items": 999999999,
+      "expected_reduction_pct": "94%–99% (16x–118x fewer Cloud tokens)",
+      "recommendation": "Deploy non-root Docker worker (`compose.yml`) + `core/policy_guard.py` + OTel `gen_ai.*` traces."
+    }
+  ]
+}

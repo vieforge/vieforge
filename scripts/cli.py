@@ -28,6 +28,7 @@ SUBCOMMANDS: dict[str, tuple[str, str]] = {
     "check": ("scripts.preflight_check", "Check Python, SQLite WAL, Ollama/OpenAI-compat LLM & GPU"),
     "doctor": ("scripts.preflight_check", "Run full environment, LLM & GPU diagnostics (alias for check)"),
     "bench": ("scripts.benchmark_token_savings", "Run reproducible $0 Cloud token savings benchmark"),
+    "savings": ("scripts.savings_report", "Measure real token & USD savings across your local projects"),
     "mcp": ("scripts.mcp_server", "Start lightweight stdio MCP worker server (or --check)"),
     "audit": ("scripts.audit_step", "Run 2-Axis quality gate & export 3-Judge audit prompt"),
     "verify-os": ("scripts.verify_cross_os", "Run clean-wheel E2E + multi-process OS lock & parity gate"),

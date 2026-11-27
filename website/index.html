@@ -1118,7 +1118,7 @@
             </div>
             <div id="cliSnippet" class="code-block">
               <div><span class="c-cyan">$</span> pip install vieforge</div>
-              <div><span class="c-cyan">$</span> vieforge setup</div>
+              <div><span class="c-cyan">$</span> vieforge setup &amp;&amp; vieforge savings</div>
               <div><span class="c-cyan">$</span> vieforge bench</div>
               <div class="c-dim"># Output (0.3s deterministic local run):</div>
               <div>COMBINED (incl. 1,459 overhead) : 52,732 -&gt; <span class="c-green">3,114 tokens (16.9x fewer | -94.1%)</span></div>
@@ -1850,7 +1850,7 @@
 
     document.getElementById("copyActiveBtn").addEventListener("click", async () => {
       const txt = activeTab === "cli"
-        ? "pip install vieforge\nvieforge setup\nvieforge bench"
+        ? "pip install vieforge\nvieforge setup && vieforge savings\nvieforge bench"
         : document.getElementById("agentPrompt").textContent;
       try {
         await navigator.clipboard.writeText(txt);
