@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,33 +23,63 @@
     body { margin: 0; padding: 14px; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; line-height: 1.5; }
     .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
     .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
-    .pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(56,189,248,0.14); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
-    .actions { display: flex; gap: 6px; }
-    button { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .badge { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: rgba(52, 211, 153, 0.14); color: var(--ok); border: 1px solid rgba(52, 211, 153, 0.32); }
+    .actions { display: flex; align-items: center; gap: 6px; }
+    button { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 6px 11px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: border-color 0.15s ease, background 0.15s ease; }
     button:hover { border-color: var(--accent); }
-    button.primary { background: rgba(56,189,248,0.18); border-color: var(--accent); }
-    select { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
-    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px; margin-bottom: 10px; }
-    .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
-    .v { font-size: 20px; font-weight: 800; margin-top: 3px; color: var(--ok); }
+    button.primary { background: rgba(56, 189, 248, 0.16); border-color: rgba(56, 189, 248, 0.5); color: var(--text); }
+    button.full { width: 100%; padding: 9px 12px; font-size: 12.5px; }
+    select { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 5px 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 12px 13px; margin-bottom: 10px; }
+    .hero { background: linear-gradient(135deg, rgba(52, 211, 153, 0.10), rgba(56, 189, 248, 0.08)); border-color: rgba(56, 189, 248, 0.3); }
+    .hero-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .hero-title { font-size: 12px; font-weight: 700; color: var(--muted); }
+    .hero-mult { font-size: 11.5px; font-weight: 700; color: var(--accent); background: rgba(56, 189, 248, 0.14); padding: 2px 8px; border-radius: 999px; }
+    .hero-pct { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; color: var(--ok); line-height: 1.15; margin: 4px 0 2px; }
+    .hero-sub { font-size: 12.5px; color: var(--text); opacity: 0.92; margin-bottom: 9px; }
+    .bar-bg { height: 9px; background: var(--card-alt); border-radius: 999px; overflow: hidden; margin-bottom: 9px; }
+    .bar-fg { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #38bdf8); transition: width 0.3s ease; }
+    .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .cmp-box { background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); border-radius: 9px; padding: 7px 9px; }
+    .cmp-k { font-size: 11px; color: var(--muted); }
+    .cmp-v { font-size: 13.5px; font-weight: 800; margin-top: 2px; }
+    .cmp-v.ok { color: var(--ok); }
+
+    .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+    .stat-card { margin: 0; }
+    .k { font-size: 11.5px; font-weight: 700; color: var(--muted); }
+    .v { font-size: 19px; font-weight: 800; margin-top: 3px; color: var(--text); }
+    .v.ok { color: var(--ok); }
     .v.accent { color: var(--accent); }
-    .bar-bg { height: 9px; background: var(--card-alt); border-radius: 999px; overflow: hidden; margin: 8px 0 4px; }
-    .bar-fg { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #38bdf8); transition: width 0.25s ease; }
-    .row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; gap: 8px; }
-    .row:last-child { border-bottom: 0; }
-    .status-ok { color: var(--ok); font-weight: 700; }
-    .status-warn { color: var(--warn); font-weight: 700; }
-    .status-err { color: var(--err); font-weight: 700; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; color: var(--muted); }
-    #statusLine { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+    .sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+    .sec-title { font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 7px; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; gap: 10px; }
+    .row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .row-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; background: var(--muted); }
+    .dot.ok { background: var(--ok); }
+    .dot.warn { background: var(--warn); }
+    .dot.info { background: var(--accent); }
+    .status-ok { color: var(--ok); font-weight: 700; text-align: right; }
+    .status-warn { color: var(--warn); font-weight: 700; text-align: right; }
+    .status-muted { color: var(--muted); font-weight: 600; text-align: right; }
+
+    .proj-item { padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .proj-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .proj-name { font-weight: 700; font-size: 12.5px; color: var(--text); }
+    .proj-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+    .helper { font-size: 11.5px; color: var(--muted); margin-top: 6px; text-align: center; }
+    #statusLine { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
   </style>
 </head>
 <body>
   <div class="head">
     <div class="brand">
       <span>VieForge Lens</span>
-      <span class="pill" id="tierBadge">L2</span>
+      <span class="badge" id="statusBadge">Đang bật</span>
     </div>
     <div class="actions">
       <select id="langSelect" aria-label="Language">
@@ -59,152 +89,314 @@
         <option value="de">Deutsch</option>
         <option value="ko">한국어</option>
       </select>
-      <button type="button" id="btnRefresh" class="primary">Refresh</button>
+      <button type="button" id="btnRefresh">Làm mới</button>
     </div>
   </div>
 
-  <div class="grid">
-    <div class="card" style="margin:0;">
-      <div class="k" id="lblSavedTok">Tokens Saved</div>
-      <div class="v" id="valSavedTok">—</div>
+  <div class="card hero">
+    <div class="hero-top">
+      <div class="hero-title" id="lblHeroTitle">Tiết kiệm chi phí AI Cloud</div>
+      <div class="hero-mult" id="valMult">—</div>
     </div>
-    <div class="card" style="margin:0;">
-      <div class="k" id="lblReduction">Reduction</div>
-      <div class="v accent" id="valReduction">—</div>
-    </div>
-    <div class="card" style="margin:0;">
-      <div class="k" id="lblUsdSaved">Est. USD Saved</div>
-      <div class="v" id="valUsdSaved">—</div>
-    </div>
-    <div class="card" style="margin:0;">
-      <div class="k" id="lblWork">Tracked Work</div>
-      <div class="v accent" id="valWork" style="font-size:15px;">—</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="k" id="lblMeter">Zero-Waste Efficiency</div>
+    <div class="hero-pct" id="valReduction">—</div>
+    <div class="hero-sub" id="heroSummary">Đang đọc dữ liệu trực tiếp trên máy bạn...</div>
     <div class="bar-bg"><div class="bar-fg" id="meterBar"></div></div>
-    <div class="mono" id="meterDetail">Waiting for VieForge MCP server...</div>
+    <div class="compare">
+      <div class="cmp-box">
+        <div class="cmp-k" id="lblCloudOnly">Nếu chỉ dùng Cloud</div>
+        <div class="cmp-v" id="valCloudOnly">—</div>
+      </div>
+      <div class="cmp-box">
+        <div class="cmp-k" id="lblWithVf">Dùng qua VieForge</div>
+        <div class="cmp-v ok" id="valWithVf">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card stat-card">
+      <div class="k" id="lblSavedTok">Token giữ lại được</div>
+      <div class="v ok" id="valSavedTok">—</div>
+      <div class="sub" id="valUsdSaved">—</div>
+    </div>
+    <div class="card stat-card">
+      <div class="k" id="lblWork">Việc chạy miễn phí</div>
+      <div class="v accent" id="valWorkTotal">—</div>
+      <div class="sub" id="valWorkDetail">—</div>
+    </div>
   </div>
 
   <div class="card">
-    <div class="k" id="lblHealth" style="margin-bottom:6px;">3-Tier Local Health</div>
+    <div class="sec-title" id="lblHealth">Trạng thái máy của bạn</div>
     <div id="healthList"></div>
   </div>
 
   <div class="card">
-    <div class="k" id="lblProjects" style="margin-bottom:6px;">Tracked Projects</div>
+    <div class="sec-title" id="lblProjects">Dự án đang được theo dõi</div>
     <div id="projList"></div>
   </div>
 
-  <div class="actions" style="flex-wrap:wrap;">
-    <button type="button" id="btnBench">Run 0.3s Benchmark</button>
+  <div class="card" style="margin-bottom:0;">
+    <button type="button" id="btnBench" class="primary full">Chạy thử kiểm tra nhanh (miễn phí, 0.3 giây)</button>
+    <div class="helper" id="lblBenchHelp">Đo tốc độ xử lý ngay trên máy bạn — không tốn token Cloud.</div>
   </div>
-  <div id="statusLine" class="mono"></div>
+  <div id="statusLine"></div>
 
   <script>
     const TEXT = {
       en: {
-        savedTok: "Tokens Saved", reduction: "Reduction", usdSaved: "Est. USD Saved",
-        work: "Tracked Work", meter: "Zero-Waste Efficiency", health: "3-Tier Local Health",
-        projects: "Tracked Projects", refresh: "Refresh", bench: "Run 0.3s Benchmark",
-        loading: "Refreshing local telemetry ($0)...", ready: "Live local telemetry (0 Cloud tokens)"
+        badgeActive: "Active", badgeReady: "Ready", refresh: "Refresh",
+        heroTitle: "Cloud AI tokens saved",
+        heroSummaryOk: "Your machine handles repetitive checks locally, so you pay far less for Cloud AI.",
+        heroSummaryIdle: "Ready to track — run the quick check below to see live savings.",
+        cloudOnly: "Without VieForge", withVf: "With VieForge",
+        tokUnit: "tokens", lighterSuffix: "lighter",
+        savedTok: "Tokens kept", usdPrefix: "Est. saved ~",
+        work: "Free local runs", workUnit: "runs",
+        tasksWord: "tasks", checksWord: "auto-checks", cacheWord: "cached",
+        health: "Your computer status",
+        hStorage: "Progress memory", hStorageOk: "Ready", hStorageWarn: "Needs check",
+        hLocalAi: "Free local AI", hLocalAiOn: "Running", hLocalAiOff: "Off (light mode)",
+        hHardware: "Processing hardware", hCpuOnly: "CPU only",
+        projects: "Tracked projects",
+        noProjects: "No project runs yet — click the button below to test right away.",
+        benchBtn: "Run quick speed check (free, 0.3s)",
+        benchHelp: "Tests local speed on your computer — 100% free, 0 Cloud tokens.",
+        loading: "Refreshing live data on your computer ($0)...",
+        ready: "Live data from your computer · 0 Cloud tokens used"
       },
       vi: {
-        savedTok: "Token Tiết Kiệm", reduction: "Mức Giảm", usdSaved: "Ước Tính Tiết Kiệm",
-        work: "Khối Lượng Đã Đo", meter: "Hiệu Suất 3 Tầng", health: "Sức Khỏe 3 Tầng Local",
-        projects: "Dự Án Đang Theo Dõi", refresh: "Làm mới", bench: "Chạy Benchmark 0.3s",
-        loading: "Đang quét telemetry cục bộ ($0)...", ready: "Dữ liệu cục bộ trực tiếp (0 token Cloud)"
+        badgeActive: "Đang bảo vệ", badgeReady: "Sẵn sàng", refresh: "Làm mới",
+        heroTitle: "Mức tiết kiệm AI Cloud",
+        heroSummaryOk: "Máy bạn đang gánh phần việc lặp lại miễn phí, giúp giảm mạnh chi phí AI Cloud.",
+        heroSummaryIdle: "Sẵn sàng theo dõi — bấm nút kiểm tra bên dưới để xem kết quả ngay.",
+        cloudOnly: "Nếu chỉ dùng Cloud", withVf: "Dùng qua VieForge",
+        tokUnit: "token", lighterSuffix: "nhẹ hơn",
+        savedTok: "Token giữ lại được", usdPrefix: "Ước tính tiết kiệm ~",
+        work: "Việc chạy miễn phí", workUnit: "lượt",
+        tasksWord: "tác vụ", checksWord: "lần kiểm lỗi", cacheWord: "dùng lại đệm",
+        health: "Trạng thái máy của bạn",
+        hStorage: "Bộ nhớ lưu tiến độ", hStorageOk: "Sẵn sàng", hStorageWarn: "Cần kiểm tra",
+        hLocalAi: "AI miễn phí trên máy", hLocalAiOn: "Đang bật", hLocalAiOff: "Chưa bật (chế độ nhẹ)",
+        hHardware: "Phần cứng xử lý", hCpuOnly: "Chỉ dùng CPU",
+        projects: "Các dự án đang theo dõi",
+        noProjects: "Chưa có dữ liệu dự án — bấm nút bên dưới để chạy thử ngay.",
+        benchBtn: "Chạy thử kiểm tra nhanh (miễn phí, 0.3 giây)",
+        benchHelp: "Đo tốc độ xử lý ngay trên máy bạn — hoàn toàn miễn phí, không tốn token Cloud.",
+        loading: "Đang cập nhật dữ liệu trực tiếp trên máy ($0)...",
+        ready: "Dữ liệu đọc trực tiếp từ máy bạn · 0 token Cloud"
       },
       ja: {
-        savedTok: "削減トークン数", reduction: "削減率", usdSaved: "推定削減額",
-        work: "計測済み作業", meter: "3層ゼロウェスト効率", health: "ローカル3層ヘルス",
-        projects: "監視中プロジェクト", refresh: "更新", bench: "0.3秒ベンチマーク",
-        loading: "ローカル計測データを更新中 ($0)...", ready: "ローカル実測データ (クラウド消費 0)"
+        badgeActive: "稼働中", badgeReady: "準備完了", refresh: "更新",
+        heroTitle: "クラウドAI削減率",
+        heroSummaryOk: "反復チェックをPC側で無料処理し、クラウドAIの消費を大きく抑えています。",
+        heroSummaryIdle: "計測準備完了 — 下のボタンで0.3秒テストを実行できます。",
+        cloudOnly: "通常クラウド利用", withVf: "VieForge利用",
+        tokUnit: "トークン", lighterSuffix: "軽量",
+        savedTok: "節約トークン数", usdPrefix: "推定節約 約",
+        work: "ローカル無料実行", workUnit: "回",
+        tasksWord: "件の作業", checksWord: "回の自動検査", cacheWord: "キャッシュ",
+        health: "PCの動作状態",
+        hStorage: "進捗保存メモリ", hStorageOk: "正常", hStorageWarn: "要確認",
+        hLocalAi: "ローカル無料AI", hLocalAiOn: "稼働中", hLocalAiOff: "オフ（軽量モード）",
+        hHardware: "処理ハードウェア", hCpuOnly: "CPUのみ",
+        projects: "監視中のプロジェクト",
+        noProjects: "まだ記録がありません — 下のボタンで今すぐ試せます。",
+        benchBtn: "クイック速度テストを実行（無料・0.3秒）",
+        benchHelp: "PC上の処理速度を計測します（完全無料・クラウド消費0）。",
+        loading: "PC上の最新データを読み込み中 ($0)...",
+        ready: "PC上の実測データ · クラウドトークン消費 0"
       },
       de: {
-        savedTok: "Gesparte Tokens", reduction: "Reduktion", usdSaved: "Gesch. Ersparnis",
-        work: "Erfasste Arbeit", meter: "3-Tier-Effizienz", health: "Lokaler 3-Tier-Status",
-        projects: "Überwachte Projekte", refresh: "Aktualisieren", bench: "0,3s-Benchmark",
-        loading: "Lokale Telemetrie wird geladen ($0)...", ready: "Lokale Live-Daten (0 Cloud-Tokens)"
+        badgeActive: "Aktiv", badgeReady: "Bereit", refresh: "Aktualisieren",
+        heroTitle: "Gesparte Cloud-KI-Tokens",
+        heroSummaryOk: "Dein Rechner erledigt Routineprüfungen lokal und spart dir Cloud-KI-Kosten.",
+        heroSummaryIdle: "Bereit — starte unten den kurzen Schnelltest für Live-Werte.",
+        cloudOnly: "Nur Cloud-KI", withVf: "Mit VieForge",
+        tokUnit: "Tokens", lighterSuffix: "leichter",
+        savedTok: "Gesparte Tokens", usdPrefix: "Geschätzt ~",
+        work: "Kostenlose lokale Läufe", workUnit: "Läufe",
+        tasksWord: "Aufgaben", checksWord: "Prüfungen", cacheWord: "Cache",
+        health: "Status deines Rechners",
+        hStorage: "Fortschrittsspeicher", hStorageOk: "Bereit", hStorageWarn: "Prüfen",
+        hLocalAi: "Lokale Gratis-KI", hLocalAiOn: "Aktiv", hLocalAiOff: "Aus (Leichtmodus)",
+        hHardware: "Rechenhardware", hCpuOnly: "Nur CPU",
+        projects: "Überwachte Projekte",
+        noProjects: "Noch keine Projektdaten — klicke unten für einen Schnelltest.",
+        benchBtn: "Schnelltest starten (kostenlos, 0,3 Sek.)",
+        benchHelp: "Prüft die lokale Geschwindigkeit auf deinem Rechner — 0 Cloud-Tokens.",
+        loading: "Lokale Live-Daten werden aktualisiert ($0)...",
+        ready: "Live-Daten von deinem Rechner · 0 Cloud-Tokens"
       },
       ko: {
-        savedTok: "절감 토큰", reduction: "절감률", usdSaved: "예상 절감액",
-        work: "측정된 작업", meter: "3계층 제로-웨이스트 효율", health: "로컬 3계층 상태",
-        projects: "추적 중인 프로젝트", refresh: "새로고침", bench: "0.3초 벤치마크",
-        loading: "로컬 텔레메트리 불러오는 중 ($0)...", ready: "실시간 로컬 데이터 (클라우드 토큰 0)"
+        badgeActive: "보호 중", badgeReady: "준비됨", refresh: "새로고침",
+        heroTitle: "클라우드 AI 절감률",
+        heroSummaryOk: "반복 점검을 내 PC에서 무료로 처리해 클라우드 AI 비용을 크게 줄이고 있습니다.",
+        heroSummaryIdle: "측정 준비 완료 — 아래 버튼으로 0.3초 빠른 테스트를 해보세요.",
+        cloudOnly: "클라우드만 사용 시", withVf: "VieForge 사용 시",
+        tokUnit: "토큰", lighterSuffix: "가벼움",
+        savedTok: "아낀 토큰 수", usdPrefix: "예상 절감 약 ",
+        work: "무료 로컬 실행", workUnit: "회",
+        tasksWord: "작업", checksWord: "자동 점검", cacheWord: "캐시",
+        health: "내 컴퓨터 상태",
+        hStorage: "진행 저장 메모리", hStorageOk: "준비됨", hStorageWarn: "확인 필요",
+        hLocalAi: "무료 로컬 AI", hLocalAiOn: "실행 중", hLocalAiOff: "꺼짐 (가벼운 모드)",
+        hHardware: "처리 하드웨어", hCpuOnly: "CPU 전용",
+        projects: "추적 중인 프로젝트",
+        noProjects: "아직 기록이 없습니다 — 아래 버튼으로 바로 테스트해 보세요.",
+        benchBtn: "빠른 속도 테스트 실행 (무료, 0.3초)",
+        benchHelp: "내 컴퓨터에서 처리 속도를 측정합니다 — 100% 무료, 클라우드 토큰 0.",
+        loading: "내 컴퓨터에서 최신 데이터를 불러오는 중 ($0)...",
+        ready: "내 컴퓨터 실시간 데이터 · 클라우드 토큰 0 사용"
       }
     };
+
     const SUPPORTED = ["en", "vi", "ja", "de", "ko"];
     let uiLang = "vi";
     let lastData = null;
     let rpcId = 1;
     const pending = new Map();
 
-    function applyText() {
-      const t = TEXT[uiLang] || TEXT.en;
-      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-      set("lblSavedTok", t.savedTok);
-      set("lblReduction", t.reduction);
-      set("lblUsdSaved", t.usdSaved);
-      set("lblWork", t.work);
-      set("lblMeter", t.meter);
-      set("lblHealth", t.health);
-      set("lblProjects", t.projects);
-      set("btnRefresh", t.refresh);
-      set("btnBench", t.bench);
+    function tr() {
+      return TEXT[uiLang] || TEXT.en;
     }
 
-    function addRow(parent, left, right, cls) {
+    function fmtUsd(v) {
+      const n = Number(v || 0);
+      if (n <= 0) return "$0.00";
+      if (n < 0.01) return "$" + n.toFixed(4);
+      return "$" + n.toFixed(2);
+    }
+
+    function applyText() {
+      const t = tr();
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set("btnRefresh", t.refresh);
+      set("lblHeroTitle", t.heroTitle);
+      set("lblCloudOnly", t.cloudOnly);
+      set("lblWithVf", t.withVf);
+      set("lblSavedTok", t.savedTok);
+      set("lblWork", t.work);
+      set("lblHealth", t.health);
+      set("lblProjects", t.projects);
+      set("btnBench", t.benchBtn);
+      set("lblBenchHelp", t.benchHelp);
+      if (!lastData) {
+        set("statusBadge", t.badgeReady);
+        set("heroSummary", t.heroSummaryIdle);
+        set("statusLine", t.ready);
+      }
+    }
+
+    function addStatusRow(parent, dotCls, leftText, rightText, rightCls) {
       const r = document.createElement("div");
       r.className = "row";
-      const l = document.createElement("span");
-      l.textContent = left;
-      const v = document.createElement("span");
-      v.textContent = right;
-      if (cls) v.className = cls;
-      r.append(l, v);
+      const left = document.createElement("div");
+      left.className = "row-left";
+      const dot = document.createElement("span");
+      dot.className = "dot " + dotCls;
+      const lbl = document.createElement("span");
+      lbl.textContent = leftText;
+      left.append(dot, lbl);
+
+      const val = document.createElement("span");
+      val.className = rightCls;
+      val.textContent = rightText;
+      r.append(left, val);
       parent.appendChild(r);
     }
 
     function renderData(data) {
       if (!data) return;
       lastData = data;
+      const t = tr();
       const sav = data.savings || {};
       const tot = sav.totals || {};
-      const tier = sav.usage_tier || {};
       const pre = data.preflight || {};
       const checks = pre.checks || {};
 
-      document.getElementById("tierBadge").textContent = (tier.id || "L0").split("_")[0];
-      document.getElementById("valSavedTok").textContent = (tot.saved_tokens || 0).toLocaleString();
-      document.getElementById("valReduction").textContent = "-" + Number(tot.reduction_pct || 0).toFixed(1) + "% (" + Number(tot.multiplier || 1).toFixed(1) + "x)";
-      document.getElementById("valUsdSaved").textContent = "$" + Number(tot.saved_usd || 0).toFixed(4);
-      document.getElementById("valWork").textContent =
-        (tot.checkpoint_done_items || 0) + " items · " + (tot.tier0_qa_runs || 0) + " QA";
-
+      const savedTokens = Number(tot.saved_tokens || 0);
+      const cloudOnly = Number(tot.cloud_only_tokens || 0);
+      const withVf = Number(tot.vieforge_tokens || 0);
       const pct = Math.max(0, Math.min(100, Number(tot.reduction_pct || 0)));
+      const mult = Number(tot.multiplier || 1);
+      const doneItems = Number(tot.checkpoint_done_items || 0);
+      const qaRuns = Number(tot.tier0_qa_runs || 0);
+      const totalRuns = doneItems + qaRuns;
+
+      document.getElementById("statusBadge").textContent = totalRuns > 0 ? t.badgeActive : t.badgeReady;
+      document.getElementById("valReduction").textContent = pct.toFixed(1) + "%";
+      document.getElementById("valMult").textContent = mult.toFixed(1) + "x " + t.lighterSuffix;
+      document.getElementById("heroSummary").textContent = totalRuns > 0 ? t.heroSummaryOk : t.heroSummaryIdle;
       document.getElementById("meterBar").style.width = pct.toFixed(1) + "%";
-      document.getElementById("meterDetail").textContent =
-        (tot.cloud_only_tokens || 0).toLocaleString() + " -> " + (tot.vieforge_tokens || 0).toLocaleString() + " tok | " + (tier.name || "");
+
+      document.getElementById("valCloudOnly").textContent = cloudOnly.toLocaleString() + " " + t.tokUnit;
+      document.getElementById("valWithVf").textContent = withVf.toLocaleString() + " " + t.tokUnit;
+
+      document.getElementById("valSavedTok").textContent = savedTokens.toLocaleString();
+      document.getElementById("valUsdSaved").textContent = t.usdPrefix + fmtUsd(tot.saved_usd);
+
+      document.getElementById("valWorkTotal").textContent = totalRuns.toLocaleString() + " " + t.workUnit;
+      document.getElementById("valWorkDetail").textContent =
+        doneItems + " " + t.tasksWord + " · " + qaRuns + " " + t.checksWord;
 
       const hl = document.getElementById("healthList");
       hl.replaceChildren();
-      const py = checks.python || {};
       const sq = checks.sqlite || {};
       const ol = checks.ollama || {};
       const gp = checks.gpu || {};
-      addRow(hl, "Python / SQLite WAL", (py.version || "?") + " / " + (sq.wal_mode ? "WAL OK" : "OFF"), sq.wal_mode ? "status-ok" : "status-warn");
-      addRow(hl, "Local LLM (" + (ol.api_style || "ollama") + ")", ol.status === "OK" ? ((ol.models_sample && ol.models_sample[0]) || "OK") : (ol.status || "OFF"), ol.status === "OK" ? "status-ok" : "status-warn");
-      addRow(hl, "GPU / Profile", gp.profile || "CPU-Only", "mono");
+
+      addStatusRow(
+        hl,
+        sq.wal_mode ? "ok" : "warn",
+        t.hStorage,
+        sq.wal_mode ? t.hStorageOk : t.hStorageWarn,
+        sq.wal_mode ? "status-ok" : "status-warn"
+      );
+
+      const modelSample = ol.models_sample && ol.models_sample[0] ? " · " + ol.models_sample[0] : "";
+      addStatusRow(
+        hl,
+        ol.status === "OK" ? "ok" : "warn",
+        t.hLocalAi,
+        ol.status === "OK" ? (t.hLocalAiOn + modelSample) : t.hLocalAiOff,
+        ol.status === "OK" ? "status-ok" : "status-warn"
+      );
+
+      const hwText = gp.profile && gp.profile !== "CPU-Only" ? gp.profile : t.hCpuOnly;
+      addStatusRow(hl, "info", t.hHardware, hwText, "status-muted");
 
       const pl = document.getElementById("projList");
       pl.replaceChildren();
-      (sav.per_project || []).forEach((p) => {
-        addRow(pl, p.project || "workspace", "items=" + p.done_items + " · qa=" + p.tier0_qa_runs + " · cache=" + p.llm_cache_hits, "mono");
-      });
-      document.getElementById("statusLine").textContent = (TEXT[uiLang] || TEXT.en).ready;
+      const projects = sav.per_project || [];
+      if (!projects.length) {
+        const empty = document.createElement("div");
+        empty.className = "proj-meta";
+        empty.textContent = t.noProjects;
+        pl.appendChild(empty);
+      } else {
+        projects.forEach((p) => {
+          const item = document.createElement("div");
+          item.className = "proj-item";
+          const name = document.createElement("div");
+          name.className = "proj-name";
+          name.textContent = p.project || "workspace";
+          const meta = document.createElement("div");
+          meta.className = "proj-meta";
+          const parts = [
+            Number(p.done_items || 0) + " " + t.tasksWord,
+            Number(p.tier0_qa_runs || 0) + " " + t.checksWord
+          ];
+          if (Number(p.llm_cache_hits || 0) > 0) {
+            parts.push(Number(p.llm_cache_hits) + " " + t.cacheWord);
+          }
+          meta.textContent = parts.join(" · ");
+          item.append(name, meta);
+          pl.appendChild(item);
+        });
+      }
+
+      document.getElementById("statusLine").textContent = t.ready;
     }
 
     function sendRpc(method, params) {
@@ -239,7 +431,7 @@
     });
 
     async function callTool(name, args) {
-      document.getElementById("statusLine").textContent = (TEXT[uiLang] || TEXT.en).loading;
+      document.getElementById("statusLine").textContent = tr().loading;
       try {
         const res = await sendRpc("tools/call", { name, arguments: args || {} });
         if (res && res.structuredContent) renderData(res.structuredContent);
@@ -247,7 +439,7 @@
           renderData(JSON.parse(res.content[0].text));
         }
       } catch (err) {
-        document.getElementById("statusLine").textContent = "RPC error: " + String(err && err.message ? err.message : err);
+        document.getElementById("statusLine").textContent = "Error: " + String(err && err.message ? err.message : err);
       }
     }
 
