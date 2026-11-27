@@ -102,7 +102,17 @@ python scripts/benchmark_token_savings.py
 | 50-Item Job Crashed at 30/50 + SQLite Checkpoint Resume | 17,920 | 457 | **39.2x** | **-97.4%** |
 | **COMBINED NET (incl. 1,459-token session overhead)** | **52,732** | **3,114** | **16.9x** | **-94.1%** |
 
-> **Break-even transparency:** VieForge pays off its 1,459-token one-time session overhead after just **1 noisy CI log** or **3–5 batch items**. For quick 1-turn Q&A or single-file edits, you do not need to invoke VieForge. Run **`vieforge savings`** (or `vieforge savings --html savings.html`) to measure your real local token & USD savings and see your Usage Tier (`L0`–`L3`) — full empirical breakdown in [docs/REAL_WORLD_SAVINGS_BENCHMARK.md](docs/REAL_WORLD_SAVINGS_BENCHMARK.md).
+> **Break-even transparency:** VieForge pays off its 1,459-token one-time session overhead after just **1 noisy CI log** or **3–5 batch items**. For quick 1-turn Q&A or single-file edits, you do not need to invoke VieForge. Run **`vieforge savings`** (or `vieforge savings --html savings.html`) to measure your real local token & USD savings and see your Usage Tier (`L0`–`L3`).
+
+### Real-World Workstation Telemetry & 4 Usage Tiers (`L0`–`L3`)
+*Measured across **55 live Tier-0 QA runs** (`StateDB 1k = 29.57 ms`, `Trimmer 10k = 13.66 ms`) + local batch/CI workloads (`243,000 -> 1,699 tokens`, **`-99.3%` / `143.0x`**). Full 7-case archive: [docs/REAL_WORLD_SAVINGS_BENCHMARK.md](docs/REAL_WORLD_SAVINGS_BENCHMARK.md).*
+
+| Usage Tier | Target User Segment | Typical Volume | Real Net Reduction | Recommended Setup |
+| :--- | :--- | :---: | :---: | :--- |
+| **L0 — Casual** | Quick Q&A, single-file edits | `< 5` items/session | `0%` *(below break-even)* | Call Cloud Agent directly |
+| **L1 — Solo Indie / Vibe Coder** | Solo devs, freelancers, daily CI logs | `5–50` items/day | **70%–88%** (`3.5x–8.5x`) | `pip install vieforge && vieforge setup` |
+| **L2 — Power Dev / AI Studio** | Multi-project devs, AI media/doc pipelines | `51–500` items/day | **88%–95%** (`8.5x–20x`) | `batch_session()` + SQLite Cache + `exclusive_gpu` |
+| **L3 — Team / Enterprise** | Agencies, multi-repo CI, production workers | `500+` items/day | **94%–99%** (`16x–118x`) | Non-root `compose.yml` + `PolicyGuard` + OTel `gen_ai.*` |
 
 ---
 

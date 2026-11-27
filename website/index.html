@@ -88,32 +88,8 @@
     ]
   }
   </script>
+  <link rel="stylesheet" href="tokens.css" />
   <style>
-    :root {
-      --bg: #050811;
-      --bg-elevated: #0a101f;
-      --surface: #0c1324;
-      --panel: #0c1324;
-      --surface-2: #121c33;
-      --border: rgba(148, 163, 184, 0.14);
-      --border-strong: rgba(148, 163, 184, 0.24);
-      --line: rgba(148, 163, 184, 0.16);
-      --specular: rgba(255, 255, 255, 0.08);
-      --text: #f8fafc;
-      --text-soft: #cbd5e1;
-      --muted: #8b9bb4;
-      --accent: #38bdf8;
-      --accent-blue: #3b82f6;
-      --accent-2: #22c55e;
-      --emerald: #34d399;
-      --gold: #facc15;
-      --danger: #f87171;
-      --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
-      --radius: 16px;
-      --radius-sm: 10px;
-    }
-
     * { box-sizing: border-box; }
     html {
       scroll-behavior: smooth;
@@ -149,8 +125,8 @@
       pointer-events: none;
       background-image: radial-gradient(rgba(148, 163, 184, 0.14) 1px, transparent 1px);
       background-size: 28px 28px;
-      mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 35%, transparent 90%);
-      -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 35%, transparent 90%);
+      mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, var(--mask-solid) 35%, transparent 90%);
+      -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, var(--mask-solid) 35%, transparent 90%);
     }
 
     img, svg { max-width: 100%; height: auto; }
@@ -161,12 +137,12 @@
       border: 1px solid rgba(148, 163, 184, 0.14);
       padding: 1px 6px;
       border-radius: 6px;
-      color: #e2e8f0;
+      color: var(--text-code);
       overflow-wrap: anywhere;
       word-break: break-word;
     }
     a { color: var(--accent); text-decoration: none; transition: color 0.15s ease; }
-    a:hover { color: #7dd3fc; }
+    a:hover { color: var(--accent-hover); }
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
@@ -179,13 +155,13 @@
       z-index: 100;
       padding: 10px 16px;
       border-radius: 10px;
-      background: #0284c7;
-      color: #fff;
+      background: var(--accent-strong);
+      color: var(--text-bright);
       font-weight: 700;
       font-size: 13.5px;
       transition: top 0.15s ease;
     }
-    .skip-link:focus { top: 12px; color: #fff; }
+    .skip-link:focus { top: 12px; color: var(--text-bright); }
 
     .container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
     main, section, .card, .bento-card, .kpi, .demo-window, .calc-out, .table-wrap, .terminal {
@@ -233,7 +209,7 @@
     }
     .nav-center a:hover, .nav-center a.active {
       background: rgba(56, 189, 248, 0.14);
-      color: #fff;
+      color: var(--text-bright);
       text-decoration: none;
     }
     .star-pill {
@@ -243,7 +219,7 @@
       padding: 1px 6px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.18);
-      color: #fff;
+      color: var(--text-bright);
     }
     .star-pill.ready { display: inline-flex; align-items: center; }
     .nav-actions {
@@ -273,13 +249,13 @@
     .btn:active { transform: translateY(1px); }
     .btn-sm { padding: 7px 13px; font-size: 13px; border-radius: 9px; }
     .btn-primary {
-      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--accent-strong) 0%, var(--accent-royal) 100%);
+      color: var(--text-bright);
       border: 1px solid rgba(125, 211, 252, 0.35);
       box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 8px 24px -6px rgba(37, 99, 235, 0.55);
     }
     .btn-primary:hover {
-      color: #fff;
+      color: var(--text-bright);
       filter: brightness(1.08);
       box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 12px 28px -6px rgba(56, 189, 248, 0.6);
       text-decoration: none;
@@ -292,7 +268,7 @@
     .btn-ghost:hover {
       background: var(--surface-2);
       border-color: var(--border-strong);
-      color: #fff;
+      color: var(--text-bright);
       text-decoration: none;
     }
 
@@ -351,7 +327,7 @@
       font-size: 12px;
       font-weight: 500;
       background: rgba(15, 23, 42, 0.85);
-      color: #cbd5e1;
+      color: var(--text-soft);
       border: 1px solid rgba(56, 189, 248, 0.28);
       box-shadow: 0 1px 0 var(--specular) inset;
       margin-bottom: 22px;
@@ -375,12 +351,12 @@
       letter-spacing: -0.035em;
       max-width: 880px;
       text-wrap: balance;
-      background: linear-gradient(180deg, #ffffff 30%, #b6c4da 100%);
+      background: linear-gradient(180deg, var(--text-bright) 30%, var(--text-gradient-end) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     h1 .accent-grad {
-      background: linear-gradient(95deg, #38bdf8 0%, #34d399 100%);
+      background: linear-gradient(95deg, var(--accent) 0%, var(--emerald) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -425,9 +401,9 @@
     }
     .win-dots { display: flex; align-items: center; gap: 7px; }
     .win-dots span { width: 11px; height: 11px; border-radius: 50%; }
-    .dot-r { background: #ef4444; opacity: 0.85; }
-    .dot-y { background: #eab308; opacity: 0.85; }
-    .dot-g { background: #22c55e; opacity: 0.85; }
+    .dot-r { background: var(--danger-strong); opacity: 0.85; }
+    .dot-y { background: var(--warn); opacity: 0.85; }
+    .dot-g { background: var(--accent-2); opacity: 0.85; }
 
     .demo-tabs {
       display: flex;
@@ -454,7 +430,7 @@
     .demo-tab:hover { color: var(--text); }
     .demo-tab.active {
       background: rgba(56, 189, 248, 0.16);
-      color: #7dd3fc;
+      color: var(--accent-hover);
       box-shadow: 0 1px 0 rgba(125, 211, 252, 0.2) inset;
     }
 
@@ -475,8 +451,8 @@
       font-family: var(--font-mono);
       font-size: 13px;
       line-height: 1.65;
-      color: #e2e8f0;
-      background: #04070f;
+      color: var(--text-code);
+      background: var(--bg-deep);
       border: 1px solid rgba(148, 163, 184, 0.12);
       border-radius: 12px;
       padding: 15px 16px;
@@ -484,10 +460,10 @@
       overflow-wrap: anywhere;
       word-break: break-word;
     }
-    .code-block .c-dim { color: #64748b; }
-    .code-block .c-cyan { color: #38bdf8; }
-    .code-block .c-green { color: #4ade80; font-weight: 700; }
-    .code-block .c-gold { color: #facc15; }
+    .code-block .c-dim { color: var(--text-dim); }
+    .code-block .c-cyan { color: var(--accent); }
+    .code-block .c-green { color: var(--success); font-weight: 700; }
+    .code-block .c-gold { color: var(--gold); }
 
     .compare-split {
       display: grid;
@@ -498,7 +474,7 @@
       border-radius: 12px;
       padding: 15px 16px;
       border: 1px solid var(--border);
-      background: #04070f;
+      background: var(--bg-deep);
     }
     .compare-box.bad { border-color: rgba(248, 113, 113, 0.28); }
     .compare-box.good-box { border-color: rgba(34, 197, 94, 0.36); background: rgba(6, 22, 18, 0.55); }
@@ -689,7 +665,7 @@
       background: rgba(148, 163, 184, 0.1);
       border: 1px solid rgba(148, 163, 184, 0.14);
     }
-    .mini-tag.ok { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.28); color: #86efac; }
+    .mini-tag.ok { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.28); color: var(--success-soft); }
 
     .tier-badge {
       display: inline-flex;
@@ -702,9 +678,9 @@
       border-radius: 999px;
       margin-bottom: 12px;
     }
-    .t1 { background: rgba(59, 130, 246, 0.16); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; }
-    .t2 { background: rgba(34, 197, 94, 0.16); border: 1px solid rgba(34, 197, 94, 0.3); color: #86efac; }
-    .t3 { background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.3); color: #fde047; }
+    .t1 { background: rgba(59, 130, 246, 0.16); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--accent-soft); }
+    .t2 { background: rgba(34, 197, 94, 0.16); border: 1px solid rgba(34, 197, 94, 0.3); color: var(--success-soft); }
+    .t3 { background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.3); color: var(--gold-soft); }
 
     /* Tables */
     .table-wrap {
@@ -729,9 +705,9 @@
     tbody tr { transition: background 0.12s ease; }
     tbody tr:hover { background: rgba(56, 189, 248, 0.04); }
     tr:last-child td { border-bottom: 0; }
-    tr.total-row td { background: rgba(34, 197, 94, 0.09); font-weight: 700; color: #fff; }
+    tr.total-row td { background: rgba(34, 197, 94, 0.09); font-weight: 700; color: var(--text-bright); }
     .num { font-family: var(--font-mono); text-align: right; white-space: nowrap; }
-    .good { color: #4ade80; font-weight: 700; }
+    .good { color: var(--success); font-weight: 700; }
 
     /* Bar Chart */
     .bar-card { margin-top: 18px; }
@@ -748,14 +724,14 @@
     }
     .bar-track {
       height: 12px;
-      background: #060a14;
+      background: var(--bg-code);
       border-radius: 999px;
       overflow: hidden;
       border: 1px solid var(--border);
     }
     .bar-fill { height: 100%; border-radius: 999px; transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
-    .bar-cloud { background: linear-gradient(90deg, #ef4444, #f97316); }
-    .bar-vf { background: linear-gradient(90deg, #22c55e, #38bdf8); }
+    .bar-cloud { background: linear-gradient(90deg, var(--danger-strong), var(--orange)); }
+    .bar-vf { background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
 
     /* Calculator */
     .preset-row {
@@ -774,13 +750,13 @@
       font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     }
-    .preset-btn:hover { border-color: rgba(56, 189, 248, 0.45); color: #fff; }
+    .preset-btn:hover { border-color: rgba(56, 189, 248, 0.45); color: var(--text-bright); }
     .preset-btn.active {
       background: rgba(56, 189, 248, 0.16);
       border-color: rgba(56, 189, 248, 0.5);
-      color: #7dd3fc;
+      color: var(--accent-hover);
     }
 
     .calc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
@@ -806,14 +782,14 @@
       padding: 11px 12px;
       border-radius: 10px;
       border: 1px solid var(--border-strong);
-      background: #060a14;
+      background: var(--bg-code);
       color: var(--text);
       font-family: inherit;
       font-size: 14px;
     }
     .calc-out {
       background: radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 55%),
-                  linear-gradient(160deg, #0f1c36 0%, #091021 100%);
+                  linear-gradient(160deg, var(--surface-hover) 0%, var(--bg-card-alt) 100%);
       border: 1px solid rgba(56, 189, 248, 0.25);
       border-radius: var(--radius);
       padding: 24px;
@@ -824,7 +800,7 @@
       font-size: clamp(34px, 5vw, 46px);
       font-weight: 800;
       letter-spacing: -0.03em;
-      color: #4ade80;
+      color: var(--success);
       line-height: 1.05;
       margin: 8px 0 4px;
     }
@@ -851,7 +827,7 @@
       position: absolute;
       left: 0;
       top: 0;
-      color: #4ade80;
+      color: var(--success);
       font-weight: 800;
     }
     .list-clean.no li::before {
@@ -859,7 +835,7 @@
       position: absolute;
       left: 2px;
       top: 0;
-      color: #f87171;
+      color: var(--danger);
       font-weight: 800;
     }
 
@@ -951,7 +927,7 @@
       .win-dots { display: none; }
       .demo-tabs { width: 100%; justify-content: space-between; flex-wrap: nowrap; }
       .demo-tab { flex: 1; text-align: center; padding: 7px 6px; font-size: 11.5px; white-space: nowrap; }
-      #copyActiveBtn { width: 100%; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.28); color: #7dd3fc; padding: 8px 12px !important; }
+      #copyActiveBtn { width: 100%; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.28); color: var(--accent-hover); padding: 8px 12px !important; }
       .demo-body { padding: 14px; }
       .code-block { padding: 12px; font-size: 12px; }
       .compare-split { grid-template-columns: 1fr; gap: 10px; }
@@ -1132,14 +1108,14 @@
             </div>
             <div class="compare-split">
               <div class="compare-box bad">
-                <div class="compare-tag" style="color:#fca5a5;" data-i18n="diffBadTag">Without VieForge (Cloud-Only)</div>
-                <div class="compare-num" style="color:#f87171;">52,732 tok</div>
+                <div class="compare-tag" style="color:var(--danger-soft);" data-i18n="diffBadTag">Without VieForge (Cloud-Only)</div>
+                <div class="compare-num" style="color:var(--danger);">52,732 tok</div>
                 <div style="font-size:13px;color:var(--muted);" data-i18n="diffBadDesc">Cloud Agent reads every document, raw traceback, and re-runs failed items from scratch.</div>
               </div>
               <div class="compare-box good-box">
-                <div class="compare-tag" style="color:#86efac;" data-i18n="diffGoodTag">With VieForge (incl. 1,459 overhead)</div>
-                <div class="compare-num" style="color:#4ade80;">3,114 tok <span style="font-size:14px;">(-94.1%)</span></div>
-                <div style="font-size:13px;color:#cbd5e1;" data-i18n="diffGoodDesc">Local Python + SQLite WAL + Ollama handle bulk loops &amp; log trimming; Cloud sees compact JSON.</div>
+                <div class="compare-tag" style="color:var(--success-soft);" data-i18n="diffGoodTag">With VieForge (incl. 1,459 overhead)</div>
+                <div class="compare-num" style="color:var(--success);">3,114 tok <span style="font-size:14px;">(-94.1%)</span></div>
+                <div style="font-size:13px;color:var(--text-soft);" data-i18n="diffGoodDesc">Local Python + SQLite WAL + Ollama handle bulk loops &amp; log trimming; Cloud sees compact JSON.</div>
               </div>
             </div>
           </div>
@@ -1261,6 +1237,61 @@
       </div>
     </section>
 
+    <section id="real-cases">
+      <div class="sec-kicker" data-i18n="kickerCases">Live Workstation Telemetry &amp; Usage Tiers</div>
+      <h2 data-i18n="casesTitle">Measured Real-World Savings by Usage Tier (L0–L3)</h2>
+      <p class="sub" data-i18n="casesSub">
+        Aggregated from <strong>55 live Tier-0 QA runs</strong> (avg <code>StateDB 1k = 29.57 ms</code>, <code>Trimmer 10k = 13.66 ms</code>) + local batch/CI triage: <strong>243,000 → 1,699 tokens (-99.3% / 143.0x)</strong>. Run <code>vieforge savings --html report.html</code> to measure your own projects locally.
+      </p>
+
+      <div class="table-wrap">
+        <table class="resp-table" id="tiersTable">
+          <thead>
+            <tr>
+              <th data-i18n="thTier">Usage Tier</th>
+              <th data-i18n="thSegment">Target User Segment</th>
+              <th class="num" data-i18n="thVol">Volume</th>
+              <th class="num" data-i18n="thNet">Net Token Reduction</th>
+              <th data-i18n="thRec">Recommended Stack</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-i18n="t0Name"><strong>L0 — Casual</strong></td>
+              <td data-label="Segment" data-i18n="t0Seg">Quick Q&amp;A, single-file edits</td>
+              <td class="num" data-label="Volume">&lt; 5 items</td>
+              <td class="num" data-label="Reduction" data-i18n="t0Red">0% (below break-even)</td>
+              <td data-label="Stack" data-i18n="t0Rec">Call Cloud Agent directly</td>
+            </tr>
+            <tr>
+              <td data-i18n="t1Name"><strong>L1 — Solo Indie / Vibe Coder</strong></td>
+              <td data-label="Segment" data-i18n="t1Seg">Solo devs, freelancers, daily CI logs</td>
+              <td class="num" data-label="Volume">5–50 / day</td>
+              <td class="num good" data-label="Reduction">70%–88% (3.5x–8.5x)</td>
+              <td data-label="Stack"><code>pip install vieforge &amp;&amp; vieforge setup</code></td>
+            </tr>
+            <tr>
+              <td data-i18n="t2Name"><strong>L2 — Power Dev / AI Studio</strong></td>
+              <td data-label="Segment" data-i18n="t2Seg">Multi-project devs, AI media/doc pipelines (8–24 GB VRAM)</td>
+              <td class="num" data-label="Volume">51–500 / day</td>
+              <td class="num good" data-label="Reduction">88%–95% (8.5x–20x)</td>
+              <td data-label="Stack"><code>batch_session()</code> + SQLite Cache + <code>exclusive_gpu</code></td>
+            </tr>
+            <tr class="total-row">
+              <td data-i18n="t3Name"><strong>L3 — Team / Enterprise</strong></td>
+              <td data-label="Segment" data-i18n="t3Seg">Agencies, multi-repo CI triage, production workers</td>
+              <td class="num" data-label="Volume">500+ / day</td>
+              <td class="num good" data-label="Reduction">94%–99% (16x–118x)</td>
+              <td data-label="Stack">Non-root Docker + <code>PolicyGuard</code> + OTel <code>gen_ai.*</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="sub" style="margin-top:14px;font-size:13px;">
+        <a href="https://github.com/vieforge/vieforge/blob/main/docs/REAL_WORLD_SAVINGS_BENCHMARK.md" target="_blank" rel="noopener noreferrer" style="color:var(--accent);" data-i18n="casesLink">View full 7-case empirical workstation benchmark archive on GitHub →</a>
+      </p>
+    </section>
+
     <section id="calculator">
       <div class="sec-kicker" data-i18n="kickerCalc">Interactive Estimator</div>
       <h2 data-i18n="calcTitle">Interactive Workload Savings Calculator</h2>
@@ -1299,7 +1330,7 @@
         <div class="calc-out">
           <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;" data-i18n="calcOutHead">Estimated Cloud Token Reduction</div>
           <div class="calc-big" id="outMult">34.1x</div>
-          <div style="font-size:14px;color:#7dd3fc;margin-bottom:16px;font-weight:500;" id="outPct">-97.1% Cloud token burn</div>
+          <div style="font-size:14px;color:var(--accent-hover);margin-bottom:16px;font-weight:500;" id="outPct">-97.1% Cloud token burn</div>
 
           <div class="calc-row">
             <span data-i18n="outCloudLbl">Cloud-Only Tokens / month</span>
@@ -1320,7 +1351,7 @@
           <div style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
             <span data-i18n="calcSupportNote">100% MIT &amp; free forever. Saved you API budget?</span>
             <span style="display:inline-flex;gap:12px;align-items:center;flex-wrap:wrap;">
-              <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;white-space:nowrap;" data-i18n="calcSupportCta">Buy a coffee on Ko-fi ☕</a>
+              <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;white-space:nowrap;" data-i18n="calcSupportCta">Buy a coffee on Ko-fi</a>
               <span style="opacity:0.4;">·</span>
               <button type="button" class="open-qr-btn" style="background:none;border:none;padding:0;color:var(--emerald);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;">VietQR (VN)</button>
             </span>
@@ -1447,7 +1478,7 @@
       <p class="sub" data-i18n="honestSub">We prefer developer trust over hype. Here is the exact break-even reality.</p>
       <div class="grid-2">
         <div class="card" style="border-color:rgba(34,197,94,0.32);">
-          <h3 style="color:#4ade80;" data-i18n="yesTitle">Massive Savings (10x – 118x)</h3>
+          <h3 style="color:var(--success);" data-i18n="yesTitle">Massive Savings (10x – 118x)</h3>
           <ul class="list-clean yes">
             <li data-i18n="yes1">Processing 10 to 5,000+ docs, tickets, emails, CSV rows, or media items in batches.</li>
             <li data-i18n="yes2">Running noisy test suites, CI builds, or download logs before asking a Cloud Agent to debug.</li>
@@ -1456,7 +1487,7 @@
           </ul>
         </div>
         <div class="card" style="border-color:rgba(248,113,113,0.28);">
-          <h3 style="color:#fca5a5;" data-i18n="noTitle">Minimal Benefit (Skip VieForge Here)</h3>
+          <h3 style="color:var(--danger-soft);" data-i18n="noTitle">Minimal Benefit (Skip VieForge Here)</h3>
           <ul class="list-clean no">
             <li data-i18n="no1">Quick 1-turn Q&amp;A or editing a single 50-line file (the 1,459-token session overhead won't pay back in 1 short chat).</li>
             <li data-i18n="no2">Purely novel architecture brainstorming that requires a frontier Cloud model for every sentence anyway.</li>
@@ -1503,7 +1534,7 @@
       </div>
       <div class="foot-links">
         <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" data-i18n="footSupport">Support ☕</a>
+        <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" data-i18n="footSupport">Support</a>
         <button type="button" class="open-qr-btn" style="background:none;border:none;padding:0;color:var(--emerald);font-weight:600;font-size:inherit;cursor:pointer;font-family:inherit;">VietQR (VN)</button>
         <a href="mailto:hello@vieforge.dev">hello@vieforge.dev</a>
         <a href="mailto:security@vieforge.dev">security@vieforge.dev</a>
@@ -1516,10 +1547,10 @@
       <button type="button" id="closeQrBtn" aria-label="Close" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;">&times;</button>
       <h3 id="qrTitle" style="margin:0 0 6px;font-size:18px;" data-i18n="qrTitle">Support VieForge via VietQR</h3>
       <p style="margin:0 0 14px;font-size:13px;color:var(--muted);" data-i18n="qrSub">Scan with any Vietnamese banking app (VPBank • 0% fee). Thank you for supporting MIT open-source!</p>
-      <img src="assets/vietqr.png" alt="VietQR VPBank NGUYEN THANH HOANG 374331566" style="width:100%;max-width:250px;border-radius:14px;display:block;margin:0 auto 16px;background:#fff;" />
+      <img src="assets/vietqr.png" alt="VietQR VPBank NGUYEN THANH HOANG 374331566" style="width:100%;max-width:250px;border-radius:14px;display:block;margin:0 auto 16px;background:var(--text-bright);" />
       <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
         <button type="button" id="copyAcctBtn" class="btn btn-ghost btn-sm" data-i18n="qrCopy">Copy Account: 374331566</button>
-        <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ko-fi (Global) ☕</a>
+        <a href="https://ko-fi.com/aivieforge" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Ko-fi (Global)</a>
       </div>
     </div>
   </div>
@@ -1628,13 +1659,32 @@
         no2: "Purely novel architecture brainstorming that requires a frontier Cloud model for every sentence anyway.",
         no3: "<strong>Break-even rule:</strong> VieForge pays off its 1,459-token overhead after just <strong>1 noisy log</strong> or <strong>3–5 batch items</strong>.",
         calcSupportNote: "100% MIT & free forever. Saved you API budget?",
-        calcSupportCta: "Buy a coffee on Ko-fi ☕",
-        footSupport: "Support ☕",
+        calcSupportCta: "Buy a coffee on Ko-fi",
+        footSupport: "Support",
         qrTitle: "Support VieForge via VietQR",
         qrSub: "Scan with any Vietnamese banking app (VPBank • 0% fee). Thank you for supporting MIT open-source!",
         qrCopy: "Copy Account: 374331566",
         qrCopied: "Copied: 374331566",
         kickerFaq: "Quick Answers",
+        kickerCases: "Live Workstation Telemetry & Usage Tiers",
+        casesTitle: "Measured Real-World Savings by Usage Tier (L0–L3)",
+        casesSub: "Aggregated from <strong>55 live Tier-0 QA runs</strong> (avg <code>StateDB 1k = 29.57 ms</code>, <code>Trimmer 10k = 13.66 ms</code>) + local batch/CI triage: <strong>243,000 → 1,699 tokens (-99.3% / 143.0x)</strong>. Run <code>vieforge savings --html report.html</code> to measure your own projects locally.",
+        thTier: "Usage Tier",
+        thSegment: "Target User Segment",
+        thVol: "Volume",
+        thNet: "Net Token Reduction",
+        thRec: "Recommended Stack",
+        t0Name: "<strong>L0 — Casual</strong>",
+        t0Seg: "Quick Q&A, single-file edits",
+        t0Red: "0% (below break-even)",
+        t0Rec: "Call Cloud Agent directly",
+        t1Name: "<strong>L1 — Solo Indie / Vibe Coder</strong>",
+        t1Seg: "Solo devs, freelancers, daily CI logs",
+        t2Name: "<strong>L2 — Power Dev / AI Studio</strong>",
+        t2Seg: "Multi-project devs, AI media/doc pipelines (8–24 GB VRAM)",
+        t3Name: "<strong>L3 — Team / Enterprise</strong>",
+        t3Seg: "Agencies, multi-repo CI triage, production workers",
+        casesLink: "View full 7-case empirical workstation benchmark archive on GitHub →",
         faqTitle: "Frequently Asked Questions",
         faqSub: "Straight engineering answers before you clone or install.",
         faq1Q: "Do I need an expensive GPU to use VieForge?",
@@ -1751,13 +1801,32 @@
         no2: "Sáng tạo nội dung hoàn toàn mới mà từng câu chữ đều bắt buộc dùng model Cloud đầu bảng.",
         no3: "<strong>Điểm hòa vốn:</strong> VieForge hoàn vốn 1.459 token nền chỉ sau <strong>1 lần nén log lỗi</strong> hoặc <strong>3–5 mục xử lý lô</strong>.",
         calcSupportNote: "Miễn phí vĩnh viễn (MIT). Giúp bạn tiết kiệm tiền API?",
-        calcSupportCta: "Mời ly cà phê trên Ko-fi ☕",
-        footSupport: "Ủng hộ ☕",
+        calcSupportCta: "Mời ly cà phê trên Ko-fi",
+        footSupport: "Ủng hộ",
         qrTitle: "Mời VieForge ly cà phê qua VietQR",
         qrSub: "Quét bằng mọi ứng dụng ngân hàng VN (VPBank • 0% phí). Cảm ơn bạn đã tiếp sức cho mã nguồn mở MIT!",
         qrCopy: "Sao chép STK: 374331566",
         qrCopied: "Đã chép: 374331566",
         kickerFaq: "Giải đáp nhanh",
+        kickerCases: "Dữ liệu Thực tế trên Máy trạm & Phân loại 4 Cấp độ",
+        casesTitle: "Hiệu suất Tiết kiệm Thực tế theo Cấp độ Sử dụng (L0–L3)",
+        casesSub: "Tổng hợp từ <strong>55 lượt chạy QA Tầng 0 thực tế</strong> (TB <code>StateDB 1k = 29.57 ms</code>, <code>Trimmer 10k = 13.66 ms</code>) + xử lý lô &amp; nén log CI: <strong>243.000 → 1.699 tokens (-99,3% / 143,0x)</strong>. Chạy <code>vieforge savings --html report.html</code> để đo trực tiếp trên dự án của bạn.",
+        thTier: "Cấp độ",
+        thSegment: "Phân khúc người dùng",
+        thVol: "Lưu lượng",
+        thNet: "Tiết kiệm ròng",
+        thRec: "Cấu hình khuyến nghị",
+        t0Name: "<strong>L0 — Cơ bản</strong>",
+        t0Seg: "Hỏi đáp nhanh, sửa 1 file lẻ",
+        t0Red: "0% (dưới điểm hòa vốn)",
+        t0Rec: "Gọi thẳng Cloud Agent",
+        t1Name: "<strong>L1 — Solo Indie / Vibe Coder</strong>",
+        t1Seg: "Dev cá nhân, freelancer, nén log CI hàng ngày",
+        t2Name: "<strong>L2 — Power Dev / Xưởng AI</strong>",
+        t2Seg: "Máy đa dự án, pipeline media/tài liệu (8–24 GB VRAM)",
+        t3Name: "<strong>L3 — Nhóm / Doanh nghiệp</strong>",
+        t3Seg: "Agency, CI nhiều repo, worker Docker",
+        casesLink: "Xem kho đối chiếu đầy đủ 7 case thực tế trên GitHub →",
         faqTitle: "Câu hỏi thường gặp",
         faqSub: "Trả lời thẳng vào vấn đề kỹ thuật trước khi bạn tải và cài đặt.",
         faq1Q: "Tôi có cần card GPU đắt tiền để chạy VieForge không?",
@@ -1947,7 +2016,7 @@
       if (!badge) return;
       const showStars = (n) => {
         if (typeof n === "number" && n >= 0) {
-          badge.textContent = "★ " + n.toLocaleString();
+          badge.textContent = "Stars: " + n.toLocaleString();
           badge.classList.add("ready");
         }
       };

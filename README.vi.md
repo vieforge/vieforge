@@ -74,6 +74,19 @@ python examples/03_ci_log_triage/run_ci_triage.py --mock-llm --reset
 
 ---
 
+## Dữ liệu Thực tế trên Máy trạm & 4 Cấp độ Sử dụng (`L0`–`L3`)
+
+*Đo thực tế trên **55 lượt chạy QA Tầng 0** (`StateDB 1k = 29.57 ms`, `Trimmer 10k = 13.66 ms`) + xử lý lô & nén log CI (**`243.000 -> 1.699 tokens`, `-99,3%` / `143,0x`**). Chạy `vieforge savings --html report.html` để tự đo trên dự án của bạn — xem kho đầy đủ 7 case tại [docs/REAL_WORLD_SAVINGS_BENCHMARK.md](docs/REAL_WORLD_SAVINGS_BENCHMARK.md).*
+
+| Cấp độ | Phân khúc người dùng | Lưu lượng | Tiết kiệm ròng | Cấu hình khuyến nghị |
+| :--- | :--- | :---: | :---: | :--- |
+| **L0 — Cơ bản** | Hỏi đáp nhanh, sửa 1 file | `< 5` item/phiên | `0%` *(dưới hòa vốn)* | Gọi thẳng Cloud Agent |
+| **L1 — Solo Indie / Vibe Coder** | Dev cá nhân, freelancer, CI log | `5–50` item/ngày | **70%–88%** (`3.5x–8.5x`) | `pip install vieforge && vieforge setup` |
+| **L2 — Power Dev / Xưởng AI** | Máy đa dự án, pipeline media/doc | `51–500` item/ngày | **88%–95%** (`8.5x–20x`) | `batch_session()` + SQLite Cache + `exclusive_gpu` |
+| **L3 — Nhóm / Doanh nghiệp** | Agency, CI nhiều repo, Docker | `500+` item/ngày | **94%–99%** (`16x–118x`) | `compose.yml` non-root + `PolicyGuard` + OTel `gen_ai.*` |
+
+---
+
 ## Bảng Đo Token Thực Tế (Tự kiểm chứng trong 0.3 giây, `$0`)
 
 Chạy trực tiếp trên máy bạn để kiểm chứng chính xác lượng token Cloud tiêu thụ (`ceil(chars / 4)`):
