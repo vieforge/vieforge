@@ -20,12 +20,22 @@ def test_brand_config_and_pr_content_schema() -> None:
     assert brand["domain"]
 
     pr = json.loads((website / "content" / "pr_content.json").read_text(encoding="utf-8"))
-    for lang in ("vi", "en"):
+    for lang in ("vi", "en", "ja", "de", "ko"):
         block = pr[lang]
         assert len(block["problems"]) == 5
         assert len(block["tabs"]) == 3
         assert len(block["compareRows"]) == 5
         assert block["visionTitle"]
+
+    extra = json.loads((website / "content" / "i18n_extra.json").read_text(encoding="utf-8"))
+    for lang in ("ja", "de", "ko"):
+        assert extra[lang]["heroTitle"]
+        assert extra[lang]["casesTitle"]
+        assert extra[lang]["faqTitle"]
+
+    index_html = (website / "index.html").read_text(encoding="utf-8")
+    for code in ("en", "vi", "ja", "de", "ko"):
+        assert f'hreflang="{code}"' in index_html
 
 
 def test_website_zero_banned_compliance_phrases() -> None:
