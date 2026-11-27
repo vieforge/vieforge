@@ -18,8 +18,8 @@
 | 6 | シークレット自動秘匿の確認 | `pytest -q -k redact` | `sk-`, `ghp_`, `Bearer` 等がマスクされる |
 | 7 | 予算上限ガード（`BudgetExceededError`） | `pytest -q tests/test_cost_guard.py` | 上限超過時に確実に停止 |
 | 8 | 複数LLMプロバイダ・推論モデル対応 | `pytest -q tests/test_llm_router.py` | 全テスト PASS（Claude / Gemini / `<think>` 含む） |
-| 9 | 非root Docker 構成の確認 | `Dockerfile` の `USER vieforge` を確認 | root権限不要で起動可能 |
-| 10 | クリーンアンインストール確認 | `pip uninstall -y vieforge` | OS設定・レジストリへの残留ゼロ |
+| 9 | ブラウザ連携オフロード計測 & 非保存確認 | `pytest -q tests/test_savings_report.py` | トークン分離計測 PASS・プロンプト本文のログ非保存を確認 |
+| 10 | 非root Docker & クリーンアンインストール | `Dockerfile` の `USER vieforge` 確認 / `pip uninstall -y vieforge` | root権限不要・OS設定への残留ゼロ |
 
 ---
 
