@@ -1,0 +1,11 @@
+{
+  "displayName": "VieForge",
+  "domain": "vieforge.dev",
+  "repoUrl": "https://github.com/vieforge/vieforge",
+  "pypiUrl": "https://pypi.org/project/vieforge/",
+  "contactEmail": "hello@vieforge.dev",
+  "tagline": {
+    "vi": "Kiến trúc AI 3 tầng • Giảm 80–95% thuế token",
+    "en": "Zero-Waste 3-Tier AI Architecture • Cut 80–95% Token Tax"
+  }
+}

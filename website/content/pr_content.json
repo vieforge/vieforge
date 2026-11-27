@@ -1,0 +1,191 @@
+{
+  "schema_version": "1.0",
+  "vi": {
+    "kickerTax": "Bài toán Kinh tế AI • Thuế Token",
+    "taxTitle": "5 Điểm Nghẽn \"Chảy Máu Token\" Toàn Thị Trường",
+    "taxSub": "Bất kỳ ai cũng có thể dựng AI Agent hay Vibe Coding, nhưng vận hành 24/7 ở quy mô lớn đang đốt ngân sách API nhanh hơn tốc độ tạo doanh thu. {BRAND} giải quyết tận gốc bằng kỷ luật điều phối 3 tầng (Tầng 0 Code thuần → Tầng 1 AI cục bộ → Tầng 2 Não Cloud chiến lược).",
+    "problems": [
+      {
+        "num": "01",
+        "title": "Thuế Token của đội quân AI (Multi-Agent Tax)",
+        "pain": "Nhồi toàn bộ lịch sử chat, tài liệu và log lên Cloud LLM ở mọi bước; mở rộng từ 2 lên 20 agent là hóa đơn API phình to hơn doanh thu.",
+        "solution": "Đẩy 80%+ tác vụ lặp về Tầng 0 (Code thuần) và Tầng 1 (AI cục bộ). Mở rộng quy mô nhân sự AI trong khi chi phí token biên tiệm cận 0."
+      },
+      {
+        "num": "02",
+        "title": "Kéo Traffic & Tương tác tự nhiên (Organic Growth)",
+        "pain": "Quảng cáo ngày càng đắt; còn dùng AI thông thường đọc bảng tin để tương tác thì đốt hàng triệu token mỗi ngày chỉ để đọc nội dung nhiễu.",
+        "solution": "Phễu lọc 0-token sàng lọc tín hiệu đúng tệp theo nhịp sinh học tự nhiên (Human-Cadence Engagement), loại 90% nhiễu trước khi kích hoạt não AI."
+      },
+      {
+        "num": "03",
+        "title": "Radar cơ hội trực chiến 24/7 (Always-On Intel)",
+        "pain": "Không thể nuôi Cloud LLM thức trắng đêm canh biến động thị trường, đối thủ hay khách hàng hỏi mua trong cộng đồng.",
+        "solution": "Radar chạy mã thuần 24/7 (chi phí token biên tiệm cận 0), chỉ đánh thức tầng suy luận cao cấp đúng 3–5% thời điểm xuất hiện cơ hội vàng."
+      },
+      {
+        "num": "04",
+        "title": "Nghĩa địa Content đa kênh (Context Bloat)",
+        "pain": "Giữ đồng nhất giọng văn thương hiệu bắt buộc gửi kèm bộ tài liệu dài hàng chục trang trong mỗi lượt gọi API.",
+        "solution": "Trí nhớ thương hiệu lưu cục bộ trong SQLite WAL có cấu trúc, chỉ nạp đúng mảnh ngữ cảnh cần thiết cho từng đầu việc."
+      },
+      {
+        "num": "05",
+        "title": "Vòng lặp lỗi đốt tiền trong đêm (Runaway Loops)",
+        "pain": "Agent tự trị dễ rơi vào vòng lặp tự sửa lỗi sai liên hoàn, đốt sạch ngân sách API chỉ sau một đêm.",
+        "solution": "Cổng chặn cứng (Hard Gate & Circuit Breaker) bằng code tất định tự động ngắt mạch ngay tại nguồn khi lặp lỗi hoặc chạm trần ngân sách USD."
+      }
+    ],
+    "kickerCases": "Kiến trúc Ứng dụng trên Nền tảng {BRAND}",
+    "casesTitle": "Đừng dùng bộ não bác học để làm việc của máy tính bỏ túi",
+    "casesSub": "3 kịch bản vận hành thực chiến minh họa cách các hệ thống xây trên nền tảng 3 tầng {BRAND} giảm 80–95% thuế token và bảo vệ uy tín thương hiệu dài hạn.",
+    "tabs": [
+      {
+        "id": "organic",
+        "label": "1. Cỗ máy Traffic tự nhiên",
+        "badge": "Kịch bản nổi bật",
+        "headline": "Tương tác theo nhịp sinh học tự nhiên — Bảo vệ uy tín thương hiệu",
+        "desc": "Sàng lọc tín hiệu đúng tệp ở Tầng 0 & Tầng 1, chỉ kích hoạt tầng suy luận cao cấp cho 5–10% thảo luận giá trị với 3 sắc thái thông minh: Chia sẻ giá trị chuyên môn • Đối đáp dí dỏm • Phản biện luận điểm sắc bén.",
+        "bullets": [
+          "Loại bỏ ~90% nội dung nhiễu bằng phễu lọc tất định trước khi tốn bất kỳ token Cloud nào.",
+          "Duy trì nhịp sinh học tự nhiên (Human-Cadence Engagement), tuyệt đối bảo vệ uy tín thương hiệu.",
+          "Lưu checkpoint SQLite chống trùng lặp chủ đề và tự động che bí mật/thông tin nhạy cảm."
+        ],
+        "showCompare": true
+      },
+      {
+        "id": "solocorp",
+        "label": "2. Công ty 1 người, 100 AI",
+        "badge": "Đòn bẩy nhân sự AI",
+        "headline": "Một nhà sáng lập điều phối hàng trăm luồng công việc song song",
+        "desc": "Tách biệt rạch ròi giữa Vai trò cố định (kiến trúc, tiêu chuẩn, cổng duyệt) và Nhân công tức thời (chạy lô hàng loạt tại Tầng 0 & Tầng 1) để vận hành nghiên cứu, nội dung, kiểm duyệt chéo với chi phí biên chỉ bằng một ly cà phê.",
+        "bullets": [
+          "Điều phối đa dự án an toàn nhờ khóa tiến trình OS (`fcntl`/`msvcrt`) và quản lý lease VRAM tự động.",
+          "SQLite WAL Cache trả kết quả lặp lại trong <1 ms mà không gọi lại mô hình.",
+          "Tự động đo lường khoản tiết kiệm ròng theo dự án bằng lệnh `vieforge savings`."
+        ],
+        "showCompare": false
+      },
+      {
+        "id": "radar",
+        "label": "3. Phòng Tình báo 24/7",
+        "badge": "Trực chiến liên tục",
+        "headline": "Nắm bắt thời điểm vàng 15–30 phút đầu mà không lo đốt ngân sách ban đêm",
+        "desc": "Hệ thống giám sát mã thuần trực chiến 24/7 theo dõi tín hiệu thị trường, phản hồi khách hàng và log hệ thống; chỉ đánh thức Cloud LLM vào đúng 3–5% thời điểm xuất hiện cơ hội hoặc sự cố cần quyết định chiến lược.",
+        "bullets": [
+          "Trần chi tiêu cứng (`--dry-run`, `MAX_JOB_USD`, `DAILY_USD_CAP`) chống hoàn toàn sự cố đốt tiền trong đêm.",
+          "Nén log sự cố CI/hệ thống giảm 91% dung lượng và giữ nguyên dòng lỗi gốc (`FAILED`/`ERROR`).",
+          "Xuất vết kiểm toán chuẩn OpenTelemetry `gen_ai.*` và chạy gọn trong container Docker không quyền root."
+        ],
+        "showCompare": false
+      }
+    ],
+    "compareHeaders": ["Tiêu chí", "Cách làm Cloud-Only phổ thông", "Vận hành trên nền tảng {BRAND}"],
+    "compareRows": [
+      ["1. Cách lọc đầu vào", "Gửi toàn bộ dữ liệu thô & nhiễu lên Cloud LLM", "Phễu lọc Tầng 0 & Tầng 1 loại ~90% nhiễu trước khi gọi Cloud"],
+      ["2. Độ tự nhiên & Uy tín", "Phản hồi rập khuôn, dễ lộ giọng máy móc", "Tương tác theo nhịp sinh học tự nhiên, giữ đúng giọng văn thương hiệu"],
+      ["3. Mở rộng nhân sự AI", "Tăng số agent là hóa đơn API tăng theo cấp số nhân", "Mở rộng hàng chục/trăm luồng với chi phí token biên tiệm cận 0"],
+      ["4. Kiểm soát rủi ro", "Dễ rơi vào vòng lặp lỗi đốt sạch ngân sách trong đêm", "Cổng chặn cứng, Circuit Breaker, trần USD & tự che secret"],
+      ["5. Lợi thế dài hạn", "Phụ thuộc hoàn toàn giá API & hạn mức bên thứ ba", "Sở hữu hạ tầng 100% MIT mở, chạy cục bộ bền bỉ & tự chủ dữ liệu"]
+    ],
+    "visionKicker": "Tầm nhìn Dài hạn",
+    "visionTitle": "Khi chi phí mở rộng nhân sự AI tiến về 0, lợi thế thuộc về người sở hữu hệ thống.",
+    "visionBody": "{BRAND} không chỉ là công cụ giảm 80–95% thuế token — đó là nền móng để nhà sáng lập và doanh nghiệp tinh gọn sở hữu năng lực vận hành của cả một tập đoàn, bền bỉ hơn và nhẹ gánh chi phí hơn đối thủ gấp nhiều lần.",
+    "visionCta1": "Trải nghiệm hệ sinh thái {BRAND}",
+    "visionCta2": "Xem tài liệu Kiến trúc 3 tầng"
+  },
+  "en": {
+    "kickerTax": "AI Unit Economics • Token Tax",
+    "taxTitle": "5 Systemic \"Token Tax\" Bottlenecks Across the Market",
+    "taxSub": "Anyone can prototype AI agents or Vibe Coding workflows, but running them 24/7 at scale burns API budgets faster than they generate revenue. {BRAND} fixes this at the architectural root with a 3-Tier Zero-Waste Engine (Tier 0 Deterministic Code → Tier 1 Local AI → Tier 2 Surgical Cloud LLM).",
+    "problems": [
+      {
+        "num": "01",
+        "title": "Multi-Agent Token Tax",
+        "pain": "Stuffing full chat history, docs, and raw logs into Cloud LLMs on every turn; scaling from 2 to 20 agents makes API bills outgrow revenue.",
+        "solution": "Offload 80%+ repetitive work to Tier 0 (pure code) and Tier 1 (local LLM). Scale AI workflows while keeping marginal token cost near zero."
+      },
+      {
+        "num": "02",
+        "title": "Organic Growth & Signal Triage",
+        "pain": "Paid ads keep rising, while naive Cloud-only bots burn millions of tokens daily just reading noisy feeds.",
+        "solution": "Zero-token deterministic filters screen signals with Human-Cadence Engagement, dropping 90% noise before invoking high-tier reasoning."
+      },
+      {
+        "num": "03",
+        "title": "24/7 Always-On Opportunity Radar",
+        "pain": "You cannot keep frontier Cloud LLMs awake all night watching market shifts, competitors, or high-intent buyer questions.",
+        "solution": "Pure-code radar runs 24/7 at near-zero marginal token cost, waking frontier reasoning only for the top 3–5% golden moments."
+      },
+      {
+        "num": "04",
+        "title": "Multi-Channel Context Bloat",
+        "pain": "Maintaining consistent brand voice forces resending dozens of guideline pages on every single API request.",
+        "solution": "Structured local SQLite WAL memory injects only the exact context slice required for each task."
+      },
+      {
+        "num": "05",
+        "title": "Overnight Runaway Error Loops",
+        "pain": "Autonomous agents easily fall into self-repair loops that drain an entire monthly API budget overnight.",
+        "solution": "Deterministic Hard Gates, Circuit Breakers, and USD budget caps halt loops instantly at the source."
+      }
+    ],
+    "kickerCases": "Flagship Blueprints Built on {BRAND}",
+    "casesTitle": "Don't Use a PhD Brain to Do Pocket-Calculator Work",
+    "casesSub": "3 production operating patterns showing how systems built on {BRAND}'s 3-Tier architecture cut 80–95% of token tax while protecting brand reputation.",
+    "tabs": [
+      {
+        "id": "organic",
+        "label": "1. Organic Traffic Engine",
+        "badge": "Featured Blueprint",
+        "headline": "Human-Cadence Engagement — Signal-First & Brand-Safe",
+        "desc": "Screens high-signal niche discussions at Tier 0 & Tier 1, waking frontier reasoning only for the top 5–10% moments across 3 sharp tones: Domain Expertise • Witty Dialogue • Constructive Counter-Point.",
+        "bullets": [
+          "Filters ~90% noise deterministically before spending a single Cloud token.",
+          "Operates at natural human cadence to protect long-term brand authority.",
+          "SQLite WAL checkpoints prevent duplicate replies and redact sensitive tokens automatically."
+        ],
+        "showCompare": true
+      },
+      {
+        "id": "solocorp",
+        "label": "2. One-Person, 100-AI Team",
+        "badge": "AI Leverage",
+        "headline": "One Solo Founder Orchestrating 100+ Parallel AI Workflows",
+        "desc": "Separates fixed architectural roles (specs, reviews, approval gates) from ephemeral local workers (batch research, content, QA) so a lean team operates at coffee-money marginal cost.",
+        "bullets": [
+          "Multi-project OS locks (`fcntl`/`msvcrt`) and ref-counted Ollama VRAM leases prevent collisions.",
+          "Local SQLite WAL response cache serves repeated prompts in <1 ms.",
+          "Track real project ROI anytime with `vieforge savings --html report.html`."
+        ],
+        "showCompare": false
+      },
+      {
+        "id": "radar",
+        "label": "3. 24/7 Intel & Triage Desk",
+        "badge": "Always-On",
+        "headline": "Capture the First 15–30 Golden Minutes Without Nighttime API Burn",
+        "desc": "Deterministic watchers monitor market signals, customer issues, and CI pipelines 24/7 — waking frontier reasoning strictly for the 3–5% moments that demand strategic action.",
+        "bullets": [
+          "Hard caps (`--dry-run`, `MAX_JOB_USD`, `DAILY_USD_CAP`) eliminate runaway overnight bills.",
+          "Compresses noisy CI/pytest logs by 91% while preserving exact `FAILED`/`ERROR` lines.",
+          "Emits OpenTelemetry `gen_ai.*` traces and runs inside a non-root Docker container."
+        ],
+        "showCompare": false
+      }
+    ],
+    "compareHeaders": ["Dimension", "Traditional Cloud-Only Approach", "Running on {BRAND} 3-Tier Engine"],
+    "compareRows": [
+      ["1. Input Filtering", "Sends raw feeds, full docs & noise straight to Cloud LLM", "Tier 0 & Tier 1 filter ~90% noise before Cloud invocation"],
+      ["2. Brand Safety", "Repetitive generic outputs risking brand trust", "Human-Cadence Engagement preserving authentic brand voice"],
+      ["3. Scaling AI Staff", "More agents = exponential Cloud API cost spike", "Scale to dozens/hundreds of workflows at near-zero marginal token cost"],
+      ["4. Risk Control", "Runaway loops can drain API budgets overnight", "Deterministic Hard Gates, USD caps & automatic secret redaction"],
+      ["5. Long-Term Moat", "Locked into rising third-party token pricing", "100% MIT open core, local data sovereignty & reproducible ROI"]
+    ],
+    "visionKicker": "Long-Term Moat",
+    "visionTitle": "When the marginal cost of scaling AI staff approaches zero, the advantage belongs to system owners.",
+    "visionBody": "{BRAND} is not just a tool to cut 80–95% of token tax — it is the foundation for lean founders and engineering teams to operate with enterprise-scale capacity at a fraction of competitors' burn.",
+    "visionCta1": "Explore {BRAND} Ecosystem",
+    "visionCta2": "Read 3-Tier Architecture Docs"
+  }
+}

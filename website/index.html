@@ -29,7 +29,7 @@
   <link rel="apple-touch-icon" href="assets/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -1008,6 +1008,31 @@
     @media (max-width: 350px) {
       .kpi-grid { grid-template-columns: 1fr; }
     }
+    /* Zero-Waste Token Tax & Flagship Use-Cases */
+    .tax-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+    .tax-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .tax-num { font-family: var(--font-mono); font-size: 12px; color: var(--accent); font-weight: 700; }
+    .tax-card h3 { margin: 0; font-size: 16px; color: var(--text); }
+    .tax-pain { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 0; }
+    .tax-sol { font-size: 13.5px; color: var(--emerald); line-height: 1.55; margin: 0; border-top: 1px solid var(--border); padding-top: 10px; }
+    .uc-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 16px; }
+    .uc-tab { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 9px 14px; border-radius: 10px; font-weight: 600; font-size: 13.5px; cursor: pointer; font-family: inherit; transition: all 0.15s ease; }
+    .uc-tab.active { background: rgba(56, 189, 248, 0.14); border-color: var(--accent); color: var(--text); }
+    .uc-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+    .uc-badge { display: inline-block; font-size: 11.5px; font-weight: 700; color: var(--emerald); background: rgba(52, 211, 153, 0.12); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 999px; padding: 3px 10px; margin-bottom: 10px; }
+    .uc-panel h3 { margin: 0 0 8px; font-size: 19px; color: var(--text); }
+    .uc-panel p { margin: 0 0 12px; color: var(--text-soft); font-size: 14.5px; line-height: 1.6; }
+    .uc-bullets { margin: 0; padding-left: 18px; color: var(--text-soft); font-size: 14px; line-height: 1.65; }
+    .uc-bullets li { margin-bottom: 6px; }
+    .vision-box { background: linear-gradient(135deg, rgba(56, 189, 248, 0.10), rgba(52, 211, 153, 0.08)); border: 1px solid var(--border-strong); border-radius: 20px; padding: 32px 26px; text-align: center; }
+    .vision-box h2 { margin: 8px auto 12px; max-width: 780px; }
+    .vision-box p { margin: 0 auto 20px; max-width: 680px; color: var(--text-soft); font-size: 15px; line-height: 1.65; }
+    .vision-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    @media (max-width: 720px) {
+      .tax-grid { grid-template-columns: 1fr; }
+      .uc-panel { padding: 16px; }
+      .vision-box { padding: 24px 16px; }
+    }
   </style>
 </head>
 <body>
@@ -1493,6 +1518,39 @@
             <li data-i18n="no2">Purely novel architecture brainstorming that requires a frontier Cloud model for every sentence anyway.</li>
             <li data-i18n="no3"><strong>Break-even rule:</strong> VieForge pays off its 1,459-token overhead after just <strong>1 noisy log</strong> or <strong>3–5 batch items</strong>.</li>
           </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="token-tax">
+      <div class="sec-kicker" id="prKickerTax">AI Unit Economics • Token Tax</div>
+      <h2 id="prTaxTitle">5 Systemic "Token Tax" Bottlenecks Across the Market</h2>
+      <p class="sub" id="prTaxSub">Offload 80%+ repetitive loops to Tier 0 deterministic code and Tier 1 local AI so marginal token cost approaches zero.</p>
+      <div class="tax-grid" id="prProblemGrid"></div>
+    </section>
+
+    <section id="use-cases">
+      <div class="sec-kicker" id="prKickerCases">Flagship Blueprints Built on VieForge</div>
+      <h2 id="prCasesTitle">Don't Use a PhD Brain to Do Pocket-Calculator Work</h2>
+      <p class="sub" id="prCasesSub">3 production operating patterns demonstrating 80–95% token tax reduction with brand-safe human cadence.</p>
+      <div class="uc-tabs" id="prTabs" role="tablist" aria-label="Flagship Use Cases"></div>
+      <div class="uc-panel" id="prTabPanel" role="tabpanel"></div>
+      <div class="table-wrap" id="prCompareWrap" style="margin-top:16px;display:none;">
+        <table class="resp-table" id="prCompareTable">
+          <thead id="prCompareHead"></thead>
+          <tbody id="prCompareBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="vision">
+      <div class="vision-box">
+        <div class="sec-kicker" id="prVisionKicker">Long-Term Moat</div>
+        <h2 id="prVisionTitle">When the marginal cost of scaling AI staff approaches zero, the advantage belongs to system owners.</h2>
+        <p id="prVisionBody">VieForge is the open-source foundation for lean founders and engineering teams to operate at enterprise capacity with 80–95% lower token tax.</p>
+        <div class="vision-ctas">
+          <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="prVisionCta1">Explore VieForge Ecosystem</a>
+          <a href="#architecture" class="btn btn-ghost" id="prVisionCta2">Read 3-Tier Architecture Docs</a>
         </div>
       </div>
     </section>
@@ -2037,6 +2095,160 @@
         }
       } catch (_) {}
     })();
+
+    // Brand-configurable Zero-Waste PR Content Loader (safe DOM APIs, zero innerHTML)
+    let prBrandName = "VieForge";
+    let prData = null;
+    let prActiveTab = "organic";
+
+    function fmtBrand(str) {
+      return String(str || "").replaceAll("{BRAND}", prBrandName);
+    }
+
+    function renderPrSections() {
+      if (!prData) return;
+      const d = prData[lang] || prData.en;
+      if (!d) return;
+
+      const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = fmtBrand(val);
+      };
+      setTxt("prKickerTax", d.kickerTax);
+      setTxt("prTaxTitle", d.taxTitle);
+      setTxt("prTaxSub", d.taxSub);
+      setTxt("prKickerCases", d.kickerCases);
+      setTxt("prCasesTitle", d.casesTitle);
+      setTxt("prCasesSub", d.casesSub);
+      setTxt("prVisionKicker", d.visionKicker);
+      setTxt("prVisionTitle", d.visionTitle);
+      setTxt("prVisionBody", d.visionBody);
+      setTxt("prVisionCta1", d.visionCta1);
+      setTxt("prVisionCta2", d.visionCta2);
+
+      // 5 Token-Tax Bottlenecks
+      const grid = document.getElementById("prProblemGrid");
+      if (grid) {
+        grid.replaceChildren();
+        (d.problems || []).forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "tax-card";
+          const num = document.createElement("div");
+          num.className = "tax-num";
+          num.textContent = "#" + item.num;
+          const h3 = document.createElement("h3");
+          h3.textContent = fmtBrand(item.title);
+          const pain = document.createElement("p");
+          pain.className = "tax-pain";
+          pain.textContent = fmtBrand(item.pain);
+          const sol = document.createElement("p");
+          sol.className = "tax-sol";
+          sol.textContent = "→ " + fmtBrand(item.solution);
+          card.append(num, h3, pain, sol);
+          grid.appendChild(card);
+        });
+      }
+
+      // 3 Use-Case Tabs
+      const tabsEl = document.getElementById("prTabs");
+      const panelEl = document.getElementById("prTabPanel");
+      const cmpWrap = document.getElementById("prCompareWrap");
+      const cmpHead = document.getElementById("prCompareHead");
+      const cmpBody = document.getElementById("prCompareBody");
+      const tabs = d.tabs || [];
+      if (!tabs.some((t) => t.id === prActiveTab) && tabs.length) prActiveTab = tabs[0].id;
+
+      if (tabsEl) {
+        tabsEl.replaceChildren();
+        tabs.forEach((t) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "uc-tab" + (t.id === prActiveTab ? " active" : "");
+          btn.setAttribute("role", "tab");
+          btn.setAttribute("aria-selected", t.id === prActiveTab ? "true" : "false");
+          btn.textContent = fmtBrand(t.label);
+          btn.addEventListener("click", () => {
+            prActiveTab = t.id;
+            renderPrSections();
+          });
+          tabsEl.appendChild(btn);
+        });
+      }
+
+      const active = tabs.find((t) => t.id === prActiveTab) || tabs[0];
+      if (panelEl && active) {
+        panelEl.replaceChildren();
+        const badge = document.createElement("span");
+        badge.className = "uc-badge";
+        badge.textContent = fmtBrand(active.badge);
+        const h3 = document.createElement("h3");
+        h3.textContent = fmtBrand(active.headline);
+        const desc = document.createElement("p");
+        desc.textContent = fmtBrand(active.desc);
+        const ul = document.createElement("ul");
+        ul.className = "uc-bullets";
+        (active.bullets || []).forEach((b) => {
+          const li = document.createElement("li");
+          li.textContent = fmtBrand(b);
+          ul.appendChild(li);
+        });
+        panelEl.append(badge, h3, desc, ul);
+
+        if (cmpWrap && cmpHead && cmpBody) {
+          if (active.showCompare && (d.compareRows || []).length) {
+            cmpWrap.style.display = "block";
+            cmpHead.replaceChildren();
+            const trH = document.createElement("tr");
+            (d.compareHeaders || []).forEach((h) => {
+              const th = document.createElement("th");
+              th.textContent = fmtBrand(h);
+              trH.appendChild(th);
+            });
+            cmpHead.appendChild(trH);
+
+            cmpBody.replaceChildren();
+            (d.compareRows || []).forEach((row) => {
+              const tr = document.createElement("tr");
+              row.forEach((cell, idx) => {
+                const td = document.createElement("td");
+                if (idx > 0 && d.compareHeaders && d.compareHeaders[idx]) {
+                  td.setAttribute("data-label", fmtBrand(d.compareHeaders[idx]));
+                }
+                if (idx === 2) td.className = "good";
+                td.textContent = fmtBrand(cell);
+                tr.appendChild(td);
+              });
+              cmpBody.appendChild(tr);
+            });
+          } else {
+            cmpWrap.style.display = "none";
+          }
+        }
+      }
+    }
+
+    (async () => {
+      try {
+        const [bRes, cRes] = await Promise.all([
+          fetch("brand.config.json"),
+          fetch("content/pr_content.json"),
+        ]);
+        if (bRes.ok) {
+          const b = await bRes.json();
+          if (b && b.displayName) prBrandName = String(b.displayName);
+        }
+        if (cRes.ok) {
+          prData = await cRes.json();
+          renderPrSections();
+        }
+      } catch (_) {}
+    })();
+
+    const _origRenderLang = renderLang;
+    renderLang = function () {
+      _origRenderLang();
+      renderPrSections();
+    };
 
     renderLang();
   </script>
