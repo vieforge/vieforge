@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.3] - 2026-11-27
+
+### Added
+- **30-Second `$0` Savings Receipt (`vieforge receipt`, `scripts/savings_receipt_30s.py`):** Instant reproducible token & USD savings receipt in under 1 second (100% Python stdlib, 0 dependencies), supporting terminal ASCII box, `--markdown`, `--json`, standalone dark-mode `--svg` card, and `--projects` real local telemetry rollup.
+- **Stdlib Mechanical Discipline Gates (`vieforge third-patch`, `vieforge doc-drift`):** Added zero-dependency `scripts/third_patch_gate.py` (blocks a 3rd un-diagnosed fix commit to the same file within 72h) and `scripts/doc_drift_gate.py` (flags expired `<!--measure:...-->` doc metric markers).
+- **11 LLM Provider Presets & Local Auto-Discovery (`core/llm_router.py`):** Added presets including native Claude API, `<think>` reasoning tag stripping, and automatic local server discovery.
+- **VieForge Lens Side Pane UI (`plugins/vieforge-lens/`):** Beginner-friendly 5-language (EN/VI/JA/DE/KO) Antigravity 2.0 MCP App panel.
+
 ## [0.4.2] - 2026-11-27
 
 ### Added
