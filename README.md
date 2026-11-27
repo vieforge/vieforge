@@ -189,9 +189,9 @@ uv run python scripts/verify_cross_os.py run --step local_check --out data/os_re
 
 > **Local LLM Backends:** `LLMRouter` works natively with **Ollama** (`http://127.0.0.1:11434`, with `keep_alive=0` VRAM lease hygiene) and auto-detects **OpenAI-compatible** local servers (**LM Studio** `:1234/v1`, **llama.cpp** `:8080/v1`, **vLLM** `:8000/v1`) via `TIERFORGE_LLM_BASE_URL` / `TIERFORGE_LLM_API_STYLE=auto`.
 
-### Open-Core Roadmap
-- **MIT Core (Always Free & Open Source):** 3-Tier orchestration engine (`core/`), SQLite checkpointing, Ollama lease manager, clean-room output trimmer, budget guard, MCP server, multi-agent skill installer.
-- **Pro / Team Extensions (Planned Commercial Add-ons):** Multi-node LAN worker pool, team-wide spend dashboards & RBAC approval webhooks, enterprise SSO/audit compliance packs.
+### Open-Core Roadmap & Enterprise Readiness
+- **MIT Core (Always Free & Open Source):** 3-Tier orchestration engine (`core/`), SQLite WAL checkpointing & response cache (`TIERFORGE_LLM_CACHE_DB`), Ollama/OpenAI-compat lease manager, clean-room output trimmer with automatic **secret redaction** (`redact_secrets=True`), OpenTelemetry `gen_ai.*` JSONL tracing (`emit_genai_span`), pluggable local RBAC/audit hook (`core/policy_guard.py`), non-root container (`Dockerfile` + `compose.yml`), MCP server (`mcp 2.x` & `1.x`), and multi-IDE skill installer.
+- **Pro / Enterprise Extensions (Commercial Add-ons):** Multi-node LAN/GPU worker pool, team-wide spend dashboards, approval webhooks, SAML/OIDC SSO & OPA policy packs. See [Enterprise & Commercialization Architecture](docs/ENTERPRISE_ARCHITECTURE.md).
 
 See [LICENSE](LICENSE) and [LEGAL_AND_COMPLIANCE.md](LEGAL_AND_COMPLIANCE.md) for full licensing and compliance terms.
 - **Website:** [https://vieforge.dev](https://vieforge.dev)

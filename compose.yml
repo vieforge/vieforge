@@ -1,0 +1,22 @@
+services:
+  vieforge-worker:
+    build: .
+    image: vieforge:latest
+    container_name: vieforge-worker
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    environment:
+      TIERFORGE_LLM_BASE_URL: "http://host.docker.internal:11434"
+      TIERFORGE_LLM_MODEL: "qwen2.5:7b"
+      TIERFORGE_OLLAMA_KEEP_ALIVE: "0"
+      TIERFORGE_DATA_DIR: "/data"
+      TIERFORGE_LLM_CACHE_DB: "/data/llm_cache.db"
+    volumes:
+      - vieforge_data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  vieforge_data:
