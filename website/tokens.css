@@ -1,0 +1,58 @@
+/* VieForge Design Tokens — Single source of truth for vieforge.dev (Dark-first) */
+:root {
+  /* Surfaces & Backgrounds */
+  --bg: #050811;
+  --bg-deep: #04070f;
+  --bg-code: #060a14;
+  --bg-elevated: #0a101f;
+  --bg-card-alt: #091021;
+  --surface: #0c1324;
+  --panel: #0c1324;
+  --surface-2: #121c33;
+  --surface-hover: #0f1c36;
+  --mask-solid: #000000;
+
+  /* Borders & Specular */
+  --border: rgba(148, 163, 184, 0.14);
+  --border-strong: rgba(148, 163, 184, 0.24);
+  --line: rgba(148, 163, 184, 0.16);
+  --specular: rgba(255, 255, 255, 0.08);
+
+  /* Typography Ink */
+  --text: #f8fafc;
+  --text-bright: #ffffff;
+  --text-code: #e2e8f0;
+  --text-soft: #cbd5e1;
+  --text-gradient-end: #b6c4da;
+  --text-secondary: #94a3b8;
+  --muted: #8b9bb4;
+  --text-dim: #64748b;
+
+  /* Brand & Semantic Accents */
+  --accent: #38bdf8;
+  --accent-hover: #7dd3fc;
+  --accent-soft: #93c5fd;
+  --accent-strong: #0284c7;
+  --accent-blue: #3b82f6;
+  --accent-royal: #2563eb;
+
+  --accent-2: #22c55e;
+  --emerald: #34d399;
+  --success: #4ade80;
+  --success-soft: #86efac;
+
+  --gold: #facc15;
+  --gold-soft: #fde047;
+  --warn: #eab308;
+  --orange: #f97316;
+
+  --danger: #f87171;
+  --danger-strong: #ef4444;
+  --danger-soft: #fca5a5;
+
+  /* Typography & Radii */
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
