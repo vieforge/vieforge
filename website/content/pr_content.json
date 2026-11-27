@@ -233,7 +233,7 @@
       {"num": "05", "title": "Nächtliche Fehler-Endlosschleifen", "pain": "Autonome Agenten geraten nachts in Selbstreparatur-Schleifen und leeren das Monatsbudget.", "solution": "Harte Circuit Breaker, `--dry-run` und USD-Tageslimits stoppen Schleifen sofort lokal an der Quelle."}
     ],
     "kickerCases": "Referenz-Architekturen auf {BRAND}",
-    "casesTitle": "Nutzen Sie keinen Nobelpreisträger für Taschenrechner-Arbeit.",
+    "casesTitle": "Kein High-End-Sprachmodell für einfache Routineaufgaben.",
     "casesSub": "3 produktive Einsatzmuster, die 80–95% Token-Steuer einsparen und DSGVO-konforme Datensouveränität sichern.",
     "tabs": [
       {"id": "organic", "label": "1. Organische Signal-Engine", "badge": "Top-Anwendungsfall", "headline": "Human-Cadence-Interaktion — Markensicher & Präzise", "desc": "Filtert relevante Fachdiskussionen lokal in Tier 0 & Tier 1 und aktiviert Cloud-Reasoning gezielt für die obersten 5–10% hochwertiger Momente.", "bullets": ["~90% Rauschen lokal entfernt, bevor ein einziger Cloud-Token anfällt.", "Natürlicher Rhythmus schützt dauerhaft Markenreputation und Qualität.", "SQLite-Checkpoints verhindern Duplikate; automatische Secret-Redaktion schützt Daten."], "showCompare": true},

@@ -1057,10 +1057,10 @@
       </nav>
       <div class="nav-actions">
         <select id="langSelect" aria-label="Select language" style="background:var(--surface);color:var(--text);border:1px solid var(--border-strong);border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;">
-          <option value="en">EN</option>
-          <option value="vi">VI</option>
+          <option value="en">English</option>
+          <option value="vi">Tiếng Việt</option>
           <option value="ja">日本語</option>
-          <option value="de">DE</option>
+          <option value="de">Deutsch</option>
           <option value="ko">한국어</option>
         </select>
         <a href="https://github.com/vieforge/vieforge" target="_blank" rel="noopener" class="btn btn-primary btn-sm nav-gh-desktop">
@@ -1951,13 +1951,26 @@
       const vfUsd = (vfTokMonth / 1e6) * usdPer1M;
       const savedUsd = Math.max(0, cloudUsd - vfUsd);
 
+      const PCT_SUFFIX = {
+        en: "% Cloud token burn",
+        vi: "% lượng token Cloud tiêu thụ",
+        ja: "% クラウドトークン削減",
+        de: "% weniger Cloud-Tokens",
+        ko: "% 클라우드 토큰 절감",
+      };
+      const MO_SUFFIX = {
+        en: " / mo",
+        vi: " / tháng",
+        ja: " / 月",
+        de: " / Monat",
+        ko: " / 월",
+      };
       document.getElementById("outMult").textContent = mult.toFixed(1) + "x";
-      document.getElementById("outPct").textContent =
-        (lang === "vi" ? "-" + pct.toFixed(1) + "% lượng token Cloud tiêu thụ" : "-" + pct.toFixed(1) + "% Cloud token burn");
+      document.getElementById("outPct").textContent = "-" + pct.toFixed(1) + (PCT_SUFFIX[lang] || PCT_SUFFIX.en);
       document.getElementById("outCloudTok").textContent = cloudTokMonth.toLocaleString();
       document.getElementById("outVfTok").textContent = vfTokMonth.toLocaleString();
       document.getElementById("outCloudUsd").textContent = "$" + cloudUsd.toFixed(2);
-      document.getElementById("outSavedUsd").textContent = "$" + savedUsd.toFixed(2) + (lang === "vi" ? " / tháng" : " / mo");
+      document.getElementById("outSavedUsd").textContent = "$" + savedUsd.toFixed(2) + (MO_SUFFIX[lang] || MO_SUFFIX.en);
     }
 
     function syncMobileTableLabels() {
