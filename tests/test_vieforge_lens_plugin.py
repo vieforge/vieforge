@@ -21,6 +21,8 @@ def test_vieforge_lens_plugin_manifest_and_csp_safe_html() -> None:
     assert "innerHTML" not in html
     assert "http://" not in html and "https://" not in html
     assert "--color-background-primary" in html
+    for label in ("English", "Tiếng Việt", "日本語", "Deutsch", "한국어"):
+        assert label in html
 
 
 def test_tool_open_vieforge_panel_returns_structured_telemetry(tmp_path: Path) -> None:

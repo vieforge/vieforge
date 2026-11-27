@@ -28,6 +28,7 @@
     button { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
     button:hover { border-color: var(--accent); }
     button.primary { background: rgba(56,189,248,0.18); border-color: var(--accent); }
+    select { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px; margin-bottom: 10px; }
     .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
@@ -51,7 +52,13 @@
       <span class="pill" id="tierBadge">L2</span>
     </div>
     <div class="actions">
-      <button type="button" id="langToggle">VI / EN</button>
+      <select id="langSelect" aria-label="Language">
+        <option value="en">English</option>
+        <option value="vi" selected>Tiếng Việt</option>
+        <option value="ja">日本語</option>
+        <option value="de">Deutsch</option>
+        <option value="ko">한국어</option>
+      </select>
       <button type="button" id="btnRefresh" class="primary">Refresh</button>
     </div>
   </div>
@@ -109,8 +116,27 @@
         work: "Khối Lượng Đã Đo", meter: "Hiệu Suất 3 Tầng", health: "Sức Khỏe 3 Tầng Local",
         projects: "Dự Án Đang Theo Dõi", refresh: "Làm mới", bench: "Chạy Benchmark 0.3s",
         loading: "Đang quét telemetry cục bộ ($0)...", ready: "Dữ liệu cục bộ trực tiếp (0 token Cloud)"
+      },
+      ja: {
+        savedTok: "削減トークン数", reduction: "削減率", usdSaved: "推定削減額",
+        work: "計測済み作業", meter: "3層ゼロウェスト効率", health: "ローカル3層ヘルス",
+        projects: "監視中プロジェクト", refresh: "更新", bench: "0.3秒ベンチマーク",
+        loading: "ローカル計測データを更新中 ($0)...", ready: "ローカル実測データ (クラウド消費 0)"
+      },
+      de: {
+        savedTok: "Gesparte Tokens", reduction: "Reduktion", usdSaved: "Gesch. Ersparnis",
+        work: "Erfasste Arbeit", meter: "3-Tier-Effizienz", health: "Lokaler 3-Tier-Status",
+        projects: "Überwachte Projekte", refresh: "Aktualisieren", bench: "0,3s-Benchmark",
+        loading: "Lokale Telemetrie wird geladen ($0)...", ready: "Lokale Live-Daten (0 Cloud-Tokens)"
+      },
+      ko: {
+        savedTok: "절감 토큰", reduction: "절감률", usdSaved: "예상 절감액",
+        work: "측정된 작업", meter: "3계층 제로-웨이스트 효율", health: "로컬 3계층 상태",
+        projects: "추적 중인 프로젝트", refresh: "새로고침", bench: "0.3초 벤치마크",
+        loading: "로컬 텔레메트리 불러오는 중 ($0)...", ready: "실시간 로컬 데이터 (클라우드 토큰 0)"
       }
     };
+    const SUPPORTED = ["en", "vi", "ja", "de", "ko"];
     let uiLang = "vi";
     let lastData = null;
     let rpcId = 1;
@@ -225,11 +251,15 @@
       }
     }
 
-    document.getElementById("langToggle").addEventListener("click", () => {
-      uiLang = uiLang === "vi" ? "en" : "vi";
-      applyText();
-      if (lastData) renderData(lastData);
-    });
+    const langSelect = document.getElementById("langSelect");
+    if (langSelect) {
+      langSelect.value = uiLang;
+      langSelect.addEventListener("change", () => {
+        uiLang = SUPPORTED.includes(langSelect.value) ? langSelect.value : "en";
+        applyText();
+        if (lastData) renderData(lastData);
+      });
+    }
     document.getElementById("btnRefresh").addEventListener("click", () => callTool("app_refresh_panel", {}));
     document.getElementById("btnBench").addEventListener("click", () => callTool("app_run_benchmark", {}));
 
