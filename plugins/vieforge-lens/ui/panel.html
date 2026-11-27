@@ -500,7 +500,7 @@
     applyText();
     (async () => {
       try {
-        await sendRpc("ui/initialize", { appInfo: { name: "VieForge Lens", version: "0.4.2" }, appCapabilities: {}, protocolVersion: "2026-01-26" });
+        await sendRpc("ui/initialize", { appInfo: { name: "VieForge Lens", version: "0.4.4" }, appCapabilities: {}, protocolVersion: "2026-01-26" });
         window.parent.postMessage({ jsonrpc: "2.0", method: "ui/notifications/initialized", params: {} }, "*");
       } catch (_) {}
     })();

@@ -9,7 +9,7 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-__version__ = "0.4.3"
+__version__ = "0.4.4"
 
 _EXPORTS: dict[str, tuple[str, str]] = {
     "BrowserCandidate": ("core.cdp_bridge", "BrowserCandidate"),

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] - 2026-11-27
+
+### Added
+- **Browser Extension Bridge Token Offload Tracking (`core/extension_bridge.py`, `scripts/savings_report.py`):** Privacy-safe token count logging (`bridge_offload_log.jsonl`, storing only counts and service name — never raw prompts or replies) with transparent 2-source savings breakdown (Local Code/AI vs. External Browser AI).
+- **VieForge Lens 2-Source Transparent Breakdown (`plugins/vieforge-lens/ui/panel.html`):** Displays separated local vs. external browser-extension savings in all 5 languages (EN/VI/JA/DE/KO).
+- **Japanese Enterprise & Buyer Documentation Suite (`README.ja.md`, `docs/ja/*`):** Dedicated Japanese quickstart (with clean uninstall), security/compliance specification, and 10-point verifiable evaluation checklist.
+
 ## [0.4.3] - 2026-11-27
 
 ### Added
