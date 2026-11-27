@@ -79,10 +79,12 @@ def _normalize_ollama_root(raw_url: str) -> str:
     return url or "http://127.0.0.1:11434"
 
 
-def _probe_openai_models(base_url: str, timeout: float = 2.5) -> dict[str, Any]:
-    """Probe an OpenAI-compatible local/remote server (`GET .../v1/models`)."""
-    root = base_url.strip().rstrip("/")
-    models_url = f"{root}/models" if root.endswith("/v1") else f"{root}/v1/models"
+def _probe_openai_models(base_url: str, timeout: float = 2.5, provider: str = "openai") -> dict[str, Any]:
+    """Probe an OpenAI-compatible local/remote server (`GET .../models`)."""
+    from core.llm_router import _normalize_openai_base
+
+    root = _normalize_openai_base(base_url.strip().rstrip("/"))
+    models_url = f"{root}/models"
     headers: dict[str, str] = {}
     api_key = os.getenv("TIERFORGE_LLM_API_KEY", "").strip()
     if api_key:
@@ -94,30 +96,61 @@ def _probe_openai_models(base_url: str, timeout: float = 2.5) -> dict[str, Any]:
     models = [str(m.get("id", "")) for m in raw_list if isinstance(m, dict) and m.get("id")]
     return {
         "status": "OK",
+        "provider": provider,
         "api_style": "openai",
         "endpoint": root,
         "models_count": len(models),
         "models_sample": models[:8],
-        "note": "OpenAI-compatible server ready for Tier 2 ($0) local inference.",
+        "note": f"OpenAI-compatible server ({provider}) ready for Tier 2 local/hybrid inference.",
     }
 
 
 def check_ollama(base_url: str, timeout: float = 2.5) -> dict[str, Any]:
-    """Check Tier 2 local LLM reachability (Ollama `/api/tags` or OpenAI-compat `/v1/models`)."""
-    from core.llm_router import _resolve_api_style
+    """Check Tier 2 LLM reachability (Ollama, LM Studio, llama.cpp, vLLM, Jan, or cloud preset)."""
+    from core.llm_router import _resolve_api_style, discover_local_llm, resolve_provider_preset
 
+    env_provider = os.getenv("TIERFORGE_LLM_PROVIDER", "").strip().lower()
     req_style = os.getenv("TIERFORGE_LLM_API_STYLE", "auto")
+    effective_url = base_url
+    provider_label = ""
+
+    if env_provider and env_provider != "auto" and base_url == "http://127.0.0.1:11434":
+        try:
+            preset = resolve_provider_preset(env_provider)
+            effective_url = preset.base_url
+            req_style = preset.api_style
+            provider_label = preset.name
+        except ValueError:
+            pass
+
     try:
-        style, resolved_base = _resolve_api_style(base_url, req_style)
+        style, resolved_base = _resolve_api_style(effective_url, req_style)
     except ValueError:
-        style, resolved_base = "ollama", _normalize_ollama_root(base_url)
+        style, resolved_base = "ollama", _normalize_ollama_root(effective_url)
+
+    if style == "anthropic":
+        has_key = bool(os.getenv("TIERFORGE_LLM_API_KEY") or os.getenv("ANTHROPIC_API_KEY"))
+        return {
+            "status": "OK" if has_key else "WARN",
+            "provider": provider_label or "anthropic",
+            "api_style": "anthropic",
+            "endpoint": resolved_base,
+            "models_count": 1 if has_key else 0,
+            "models_sample": [os.getenv("TIERFORGE_LLM_MODEL", "claude-3-5-haiku-latest")] if has_key else [],
+            "note": (
+                "Anthropic Claude Messages API configured."
+                if has_key
+                else "Set ANTHROPIC_API_KEY or TIERFORGE_LLM_API_KEY to enable Anthropic Claude."
+            ),
+        }
 
     if style == "openai":
         try:
-            return _probe_openai_models(resolved_base, timeout=timeout)
+            return _probe_openai_models(resolved_base, timeout=timeout, provider=provider_label or "openai")
         except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
             return {
                 "status": "WARN",
+                "provider": provider_label or "openai",
                 "api_style": "openai",
                 "endpoint": resolved_base,
                 "models_count": 0,
@@ -134,6 +167,7 @@ def check_ollama(base_url: str, timeout: float = 2.5) -> dict[str, Any]:
         models = [m.get("name", "") for m in payload.get("models", []) if m.get("name")]
         return {
             "status": "OK",
+            "provider": "ollama",
             "api_style": "ollama",
             "endpoint": root,
             "models_count": len(models),
@@ -141,19 +175,43 @@ def check_ollama(base_url: str, timeout: float = 2.5) -> dict[str, Any]:
             "note": "Ready for Tier 2 ($0) local inference (keep_alive=0 recommended).",
         }
     except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
-        # Fallback: non-Ollama servers without `/v1` suffix might still expose `/v1/models`
+        # Fallback 1: non-Ollama servers without `/v1` suffix might still expose `/v1/models`
         if ":11434" not in root:
             try:
-                return _probe_openai_models(root, timeout=timeout)
+                return _probe_openai_models(root, timeout=timeout, provider=provider_label or "openai")
             except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError):
                 pass
+        else:
+            # Fallback 2: auto-discover other running local servers (LM Studio, llama.cpp, vLLM, Jan)
+            discovered = discover_local_llm(
+                timeout=min(timeout, 0.8),
+                candidates=("lmstudio", "llamacpp", "vllm", "jan"),
+            )
+            if discovered is not None:
+                d_models = list(discovered.get("models") or [])
+                return {
+                    "status": "OK",
+                    "provider": discovered["provider"],
+                    "api_style": discovered["api_style"],
+                    "endpoint": discovered["base_url"],
+                    "models_count": len(d_models),
+                    "models_sample": d_models[:8],
+                    "note": (
+                        f"Auto-detected {discovered['provider']} at {discovered['base_url']} — "
+                        "ready for Tier 2 ($0) local inference."
+                    ),
+                }
         return {
             "status": "WARN",
+            "provider": "ollama",
             "api_style": "ollama",
             "endpoint": root,
             "models_count": 0,
             "models_sample": [],
-            "note": f"Ollama not reachable ({exc}). Start Ollama to enable Tier 2 local LLM.",
+            "note": (
+                f"No local LLM detected ({exc}). Start Ollama, LM Studio, llama.cpp, vLLM, or Jan "
+                "(or set TIERFORGE_LLM_PROVIDER=gemini|anthropic|openai|deepseek|groq|openrouter)."
+            ),
         }
 
 

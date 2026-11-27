@@ -11,7 +11,15 @@ from typing import Any
 import pytest
 
 from core.concurrency import OllamaLeaseManager
-from core.llm_router import LLMRouter, _resolve_api_style
+from core.llm_router import (
+    PROVIDER_PRESETS,
+    LLMRouter,
+    _extract_json_text,
+    _resolve_api_style,
+    discover_local_llm,
+    list_providers,
+    resolve_provider_preset,
+)
 
 
 def test_resolve_api_style_auto_and_explicit() -> None:
@@ -224,3 +232,176 @@ def test_emit_genai_span_jsonl_and_module_cli(tmp_path: Path) -> None:
     )
     assert proc.returncode == 0
     assert "vieforge" in proc.stdout.lower()
+
+
+def test_resolve_api_style_cloud_and_local_without_v1_suffix() -> None:
+    # Gemini OpenAI-compat preserves /v1beta/openai without appending /v1
+    assert _resolve_api_style("https://generativelanguage.googleapis.com/v1beta/openai", "auto") == (
+        "openai",
+        "https://generativelanguage.googleapis.com/v1beta/openai",
+    )
+    # DeepSeek / OpenAI / LM Studio without /v1 suffix auto-select openai
+    assert _resolve_api_style("https://api.deepseek.com", "auto") == ("openai", "https://api.deepseek.com/v1")
+    assert _resolve_api_style("http://127.0.0.1:1234", "auto") == ("openai", "http://127.0.0.1:1234/v1")
+    assert _resolve_api_style("http://127.0.0.1:8080", "auto") == ("openai", "http://127.0.0.1:8080/v1")
+    # Anthropic native URL auto-selects anthropic
+    assert _resolve_api_style("https://api.anthropic.com", "auto") == ("anthropic", "https://api.anthropic.com/v1")
+    assert _resolve_api_style("https://api.anthropic.com/v1/messages", "anthropic") == (
+        "anthropic",
+        "https://api.anthropic.com/v1",
+    )
+
+
+def test_provider_presets_aliases_and_env_keys(monkeypatch: pytest.MonkeyPatch) -> None:
+    providers = list_providers()
+    for expected in ("ollama", "lmstudio", "llamacpp", "vllm", "jan", "openai", "anthropic", "gemini", "deepseek", "groq", "openrouter"):
+        assert expected in providers
+
+    assert resolve_provider_preset("claude").name == "anthropic"
+    assert resolve_provider_preset("google").name == "gemini"
+    assert resolve_provider_preset("lm-studio").name == "lmstudio"
+    assert resolve_provider_preset("llama.cpp").name == "llamacpp"
+
+    with pytest.raises(ValueError):
+        resolve_provider_preset("nonexistent_provider")
+
+    monkeypatch.delenv("TIERFORGE_LLM_API_KEY", raising=False)
+    monkeypatch.delenv("TIERFORGE_LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("TIERFORGE_LLM_MODEL", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "gm-test-key")
+    r_gem = LLMRouter(provider="gemini")
+    assert r_gem.provider == "gemini"
+    assert r_gem.api_style == "openai"
+    assert r_gem.chat_endpoint == "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+    assert r_gem.api_key == "gm-test-key"
+    assert r_gem.model == "gemini-2.5-flash"
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    r_ant = LLMRouter(provider="claude")
+    assert r_ant.provider == "anthropic"
+    assert r_ant.api_style == "anthropic"
+    assert r_ant.chat_endpoint == "https://api.anthropic.com/v1/messages"
+    assert r_ant.api_key == "sk-ant-test"
+
+
+def test_extract_json_strips_reasoning_think_blocks() -> None:
+    raw = '<think>\nLet me reason step by step...\n{"not": "this"}\n</think>\n```json\n{"status": "ok", "score": 99}\n```'
+    assert json.loads(_extract_json_text(raw)) == {"status": "ok", "score": 99}
+
+    raw_plain = "<THINK>internal chain</THINK>\n{\"ok\": true}"
+    assert json.loads(_extract_json_text(raw_plain)) == {"ok": True}
+
+
+def test_anthropic_native_http_roundtrip_and_reasoning_temperature_omission() -> None:
+    requests_log: list[dict[str, Any]] = []
+
+    class _MultiHandler(BaseHTTPRequestHandler):
+        def log_message(self, format: str, *args: Any) -> None:
+            return
+
+        def do_POST(self) -> None:
+            length = int(self.headers.get("Content-Length", "0"))
+            body = json.loads(self.rfile.read(length).decode("utf-8"))
+            requests_log.append(
+                {
+                    "path": self.path,
+                    "x-api-key": self.headers.get("x-api-key"),
+                    "anthropic-version": self.headers.get("anthropic-version"),
+                    "body": body,
+                }
+            )
+            if self.path == "/v1/messages":
+                resp = {
+                    "id": "msg_test",
+                    "type": "message",
+                    "content": [{"type": "text", "text": '<think>plan</think>\n{"answer": "claude_ok"}'}],
+                }
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(resp).encode("utf-8"))
+                return
+
+            if self.path == "/v1/chat/completions":
+                resp = {
+                    "id": "chatcmpl-reason",
+                    "choices": [{"message": {"role": "assistant", "content": '{"reasoned": true}'}}],
+                }
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(resp).encode("utf-8"))
+                return
+
+            self.send_response(404)
+            self.end_headers()
+
+    srv = HTTPServer(("127.0.0.1", 0), _MultiHandler)
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    t = threading.Thread(target=srv.serve_forever, daemon=True)
+    t.start()
+    try:
+        r_claude = LLMRouter(
+            base_url=base,
+            api_style="anthropic",
+            model="claude-3-5-haiku-latest",
+            api_key="sk-ant-live-stub",
+        )
+        res = r_claude.generate_json("Hi", system="Be concise", required_keys=["answer"])
+        assert res.parsed_json == {"answer": "claude_ok"}
+        ant_req = requests_log[0]
+        assert ant_req["path"] == "/v1/messages"
+        assert ant_req["x-api-key"] == "sk-ant-live-stub"
+        assert ant_req["anthropic-version"] == "2023-06-01"
+        assert ant_req["body"]["system"] == "Be concise"
+
+        # Reasoning model (o3-mini) should omit temperature automatically
+        r_reason = LLMRouter(base_url=f"{base}/v1", model="o3-mini", api_key="sk-oai")
+        res2 = r_reason.generate_json("Solve", required_keys=["reasoned"])
+        assert res2.parsed_json == {"reasoned": True}
+        assert "temperature" not in requests_log[1]["body"]
+    finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+def test_discover_local_llm_detects_running_openai_compat_server(monkeypatch: pytest.MonkeyPatch) -> None:
+    class _ModelsHandler(BaseHTTPRequestHandler):
+        def log_message(self, format: str, *args: Any) -> None:
+            return
+
+        def do_GET(self) -> None:
+            if self.path == "/v1/models":
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps({"data": [{"id": "qwen2.5-7b-instruct"}]}).encode("utf-8"))
+                return
+            self.send_response(404)
+            self.end_headers()
+
+    srv = HTTPServer(("127.0.0.1", 0), _ModelsHandler)
+    base = f"http://127.0.0.1:{srv.server_address[1]}/v1"
+    t = threading.Thread(target=srv.serve_forever, daemon=True)
+    t.start()
+    try:
+        from core.llm_router import ProviderPreset
+
+        patched = dict(PROVIDER_PRESETS)
+        patched["lmstudio"] = ProviderPreset(
+            name="lmstudio",
+            base_url=base,
+            api_style="openai",
+            default_model="local-model",
+            is_local=True,
+        )
+        monkeypatch.setattr("core.llm_router.PROVIDER_PRESETS", patched)
+
+        found = discover_local_llm(timeout=1.0, candidates=("lmstudio",))
+        assert found is not None
+        assert found["provider"] == "lmstudio"
+        assert found["api_style"] == "openai"
+        assert found["default_model"] == "qwen2.5-7b-instruct"
+    finally:
+        srv.shutdown()
+        srv.server_close()
