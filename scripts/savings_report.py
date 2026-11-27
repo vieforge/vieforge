@@ -36,6 +36,7 @@ TIERS_CONFIG_PATH = resolve_asset("config/savings_tiers.json")
 AVG_CLOUD_TOKENS_PER_BATCH_ITEM = 1500
 AVG_VIEFORGE_TOKENS_PER_BATCH_ITEM = 30
 AVG_CLOUD_TOKENS_PER_QA_AUDIT = 4200
+AVG_VIEFORGE_TOKENS_PER_BRIDGE_HANDOFF = 60
 
 
 def load_savings_tiers() -> dict[str, Any]:
@@ -86,8 +87,33 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
     total_done_items = 0
     total_qa_runs = 0
     total_cache_hits = 0
+    total_bridge_jobs = 0
+    total_bridge_tokens = 0
+    bridge_services: dict[str, int] = {}
     total_actual_usd = 0.0
     scanned_dbs: list[str] = []
+    seen_bridge_logs: set[Path] = set()
+
+    def _scan_bridge_log(log_path: Path) -> tuple[int, int, dict[str, int]]:
+        resolved = log_path.resolve()
+        if resolved in seen_bridge_logs or not resolved.is_file():
+            return 0, 0, {}
+        seen_bridge_logs.add(resolved)
+        jobs = 0
+        toks = 0
+        svcs: dict[str, int] = {}
+        for ln in resolved.read_text(encoding="utf-8", errors="replace").splitlines():
+            if not ln.strip():
+                continue
+            try:
+                rec = json.loads(ln)
+            except json.JSONDecodeError:
+                continue
+            jobs += 1
+            toks += int(rec.get("offloaded_tokens", 0) or 0)
+            svc = str(rec.get("service") or "web").lower().strip()
+            svcs[svc] = svcs.get(svc, 0) + 1
+        return jobs, toks, svcs
 
     seen_dirs: set[Path] = set()
     for raw_dir in project_dirs:
@@ -100,6 +126,8 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
         p_done = 0
         p_qa = 0
         p_cache_hits = 0
+        p_bridge_jobs = 0
+        p_bridge_tokens = 0
         p_usd = 0.0
         p_dbs: list[dict[str, Any]] = []
 
@@ -130,9 +158,17 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
                     except json.JSONDecodeError:
                         continue
 
+            b_jobs, b_toks, b_svcs = _scan_bridge_log(root / "bridge_offload_log.jsonl")
+            p_bridge_jobs += b_jobs
+            p_bridge_tokens += b_toks
+            for svc, cnt in b_svcs.items():
+                bridge_services[svc] = bridge_services.get(svc, 0) + cnt
+
         total_done_items += p_done
         total_qa_runs += p_qa
         total_cache_hits += p_cache_hits
+        total_bridge_jobs += p_bridge_jobs
+        total_bridge_tokens += p_bridge_tokens
         total_actual_usd += p_usd
 
         per_project.append(
@@ -143,22 +179,32 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
                 "done_items": p_done,
                 "tier0_qa_runs": p_qa,
                 "llm_cache_hits": p_cache_hits,
+                "bridge_offload_jobs": p_bridge_jobs,
+                "bridge_offload_tokens": p_bridge_tokens,
                 "actual_usd": round(p_usd, 6),
             }
         )
 
     overhead = int(tiers_cfg.get("session_overhead_tokens", 1459))
-    effective_units = total_done_items + total_qa_runs + total_cache_hits
+    effective_units = total_done_items + total_qa_runs + total_cache_hits + total_bridge_jobs
 
-    cloud_tokens = (
+    local_cloud_tokens = (
         total_done_items * AVG_CLOUD_TOKENS_PER_BATCH_ITEM
         + total_qa_runs * AVG_CLOUD_TOKENS_PER_QA_AUDIT
         + total_cache_hits * 800
     )
+    cloud_tokens = local_cloud_tokens + total_bridge_tokens
     vieforge_tokens = (
         (overhead if effective_units > 0 else 0)
         + total_done_items * AVG_VIEFORGE_TOKENS_PER_BATCH_ITEM
+        + total_bridge_jobs * AVG_VIEFORGE_TOKENS_PER_BRIDGE_HANDOFF
     )
+    local_saved_tokens = max(
+        0,
+        local_cloud_tokens
+        - ((overhead if (total_done_items + total_qa_runs + total_cache_hits) > 0 else 0) + total_done_items * AVG_VIEFORGE_TOKENS_PER_BATCH_ITEM),
+    )
+    bridge_saved_tokens = max(0, total_bridge_tokens - total_bridge_jobs * AVG_VIEFORGE_TOKENS_PER_BRIDGE_HANDOFF)
     saved_tokens = max(0, cloud_tokens - vieforge_tokens)
     reduction_pct = round((saved_tokens / cloud_tokens) * 100.0, 1) if cloud_tokens > 0 else 0.0
     multiplier = round(cloud_tokens / vieforge_tokens, 1) if vieforge_tokens > 0 and cloud_tokens > 0 else 1.0
@@ -174,7 +220,7 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
     tier = classify_usage_tier(effective_units, tiers_cfg)
 
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "projects_scanned": len(per_project),
         "totals": {
@@ -182,6 +228,11 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
             "checkpoint_done_items": total_done_items,
             "tier0_qa_runs": total_qa_runs,
             "llm_cache_hits": total_cache_hits,
+            "bridge_offload_jobs": total_bridge_jobs,
+            "bridge_offload_tokens": total_bridge_tokens,
+            "bridge_services": bridge_services,
+            "local_saved_tokens": local_saved_tokens,
+            "bridge_saved_tokens": bridge_saved_tokens,
             "cloud_only_tokens": cloud_tokens,
             "vieforge_tokens": vieforge_tokens,
             "saved_tokens": saved_tokens,
@@ -210,7 +261,8 @@ def format_terminal_report(report: dict[str, Any]) -> str:
         f"Projects scanned : {report['projects_scanned']}",
         f"Usage Tier       : {tier['name']}",
         f"Segment          : {tier.get('segment', '')}",
-        f"Tracked Work     : {t['checkpoint_done_items']} batch items | {t['tier0_qa_runs']} Tier-0 QA runs | {t['llm_cache_hits']} cache hits",
+        f"Tracked Work     : {t['checkpoint_done_items']} batch items | {t['tier0_qa_runs']} Tier-0 QA runs | {t['llm_cache_hits']} cache hits | {t['bridge_offload_jobs']} browser offloads",
+        f"Savings Sources  : Local Code/AI = {t['local_saved_tokens']:,} tok | Browser Bridge (Gemini/Web) = {t['bridge_saved_tokens']:,} tok",
         f"Token Reduction  : {_ascii_bar(t['reduction_pct'])} ({t['multiplier']}x fewer)",
         f"Tokens           : {t['cloud_only_tokens']:,} -> {t['vieforge_tokens']:,} (saved {t['saved_tokens']:,} tokens)",
         f"Estimated Spend  : ${t['cloud_only_usd']:.4f} -> ${t['vieforge_usd']:.4f} USD (saved ${t['saved_usd']:.4f} USD)",

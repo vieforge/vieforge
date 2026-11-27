@@ -49,3 +49,33 @@ def test_savings_report_collects_db_audit_and_traces(tmp_path: Path) -> None:
     html_text = render_html_report(rep)
     assert "VieForge Real-World Savings Report" in html_text
     assert json.loads(json.dumps(rep))["projects_scanned"] == 1
+
+
+def test_browser_bridge_offload_logged_privately_and_counted_in_savings(tmp_path: Path) -> None:
+    from core.extension_bridge import ExtensionBridgeState
+
+    proj = tmp_path / "bridge_proj"
+    data_dir = proj / "data"
+    data_dir.mkdir(parents=True)
+    log_path = data_dir / "bridge_offload_log.jsonl"
+
+    state = ExtensionBridgeState(offload_log_path=log_path)
+    secret_prompt = "TOP_SECRET_BLUEPRINT_PROMPT " * 200  # ~5600 chars -> 1400 tokens
+    secret_reply = "CONFIDENTIAL_GEMINI_OUTPUT " * 400    # ~10800 chars -> 2700 tokens
+    job = state.enqueue_job("gemini", secret_prompt)
+    assert state.complete_job(job.job_id, ok=True, response_text=secret_reply) is True
+
+    # Privacy guarantee: log must store ONLY counts & service name, never raw prompt/reply text
+    raw_log = log_path.read_text(encoding="utf-8")
+    assert "TOP_SECRET_BLUEPRINT_PROMPT" not in raw_log
+    assert "CONFIDENTIAL_GEMINI_OUTPUT" not in raw_log
+
+    rep = collect_project_savings([proj])
+    tot = rep["totals"]
+    assert tot["bridge_offload_jobs"] == 1
+    assert tot["bridge_offload_tokens"] == (len(secret_prompt) + 3) // 4 + (len(secret_reply) + 3) // 4
+    assert tot["bridge_services"] == {"gemini": 1}
+    assert tot["bridge_saved_tokens"] > 3500
+    assert tot["saved_tokens"] > 0
+    txt = format_terminal_report(rep)
+    assert "Browser Bridge (Gemini/Web)" in txt

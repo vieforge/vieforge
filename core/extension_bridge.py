@@ -198,6 +198,51 @@ def get_bridge_token_path() -> Path:
     return Path.home() / ".tierforge" / "bridge_token"
 
 
+def default_bridge_offload_log_path() -> Path:
+    env_path = os.getenv("TIERFORGE_BRIDGE_OFFLOAD_LOG", "").strip()
+    if env_path:
+        return Path(env_path).expanduser()
+    from core.paths import default_data_dir
+
+    return default_data_dir() / "bridge_offload_log.jsonl"
+
+
+def _estimate_tokens(text: str) -> int:
+    n = len(text or "")
+    return (n + 3) // 4 if n > 0 else 0
+
+
+def record_bridge_offload(
+    service: str,
+    prompt: str,
+    response_text: str,
+    *,
+    job_id: str = "",
+    log_path: Path | str | None = None,
+) -> dict[str, Any]:
+    """Append a privacy-safe token offload record (counts only, never raw prompt/response text)."""
+    in_tok = _estimate_tokens(prompt)
+    out_tok = _estimate_tokens(response_text)
+    rec: dict[str, Any] = {
+        "timestamp": round(time.time(), 3),
+        "job_id": job_id or ("job_" + secrets.token_hex(6)),
+        "service": (service or "web").lower().strip(),
+        "prompt_chars": len(prompt or ""),
+        "response_chars": len(response_text or ""),
+        "input_tokens": in_tok,
+        "output_tokens": out_tok,
+        "offloaded_tokens": in_tok + out_tok,
+    }
+    target = Path(log_path).expanduser() if log_path is not None else default_bridge_offload_log_path()
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except OSError:
+        pass
+    return rec
+
+
 def load_or_create_bridge_token() -> str:
     env_tok = os.getenv("TIERFORGE_BRIDGE_TOKEN", "").strip()
     if env_tok:
@@ -216,10 +261,21 @@ def load_or_create_bridge_token() -> str:
 class ExtensionBridgeState:
     """Thread-safe queue & browser presence registry for ExtensionBridgeServer."""
 
-    def __init__(self, token: str = "", browser_ttl_sec: float = 15.0, allow_auto_pair: bool = True) -> None:
+    def __init__(
+        self,
+        token: str = "",
+        browser_ttl_sec: float = 15.0,
+        allow_auto_pair: bool = True,
+        offload_log_path: Path | str | None = None,
+    ) -> None:
         self.token = token
         self.browser_ttl_sec = browser_ttl_sec
         self.allow_auto_pair = allow_auto_pair
+        self.offload_log_path: Path | None = (
+            Path(offload_log_path).expanduser()
+            if offload_log_path is not None
+            else default_bridge_offload_log_path()
+        )
         self.paired_origin: str = ""
         self._lock = threading.Lock()
         self._browsers: dict[str, ConnectedBrowser] = {}
@@ -285,6 +341,7 @@ class ExtensionBridgeState:
         return job
 
     def complete_job(self, job_id: str, *, ok: bool, response_text: str = "", error: str = "") -> bool:
+        recorded: tuple[str, str, str, str] | None = None
         with self._lock:
             job = self._jobs.get(job_id)
             if not job:
@@ -292,8 +349,18 @@ class ExtensionBridgeState:
             job.status = "done" if ok else "error"
             job.response_text = response_text
             job.error = error
+            if ok:
+                recorded = (job.service, job.prompt, response_text, job.job_id)
             job.done_event.set()
-            return True
+        if recorded is not None and self.offload_log_path is not None:
+            record_bridge_offload(
+                recorded[0],
+                recorded[1],
+                recorded[2],
+                job_id=recorded[3],
+                log_path=self.offload_log_path,
+            )
+        return True
 
     def health_payload(self) -> dict[str, Any]:
         browsers = self.active_browsers()

@@ -127,6 +127,11 @@
   </div>
 
   <div class="card">
+    <div class="sec-title" id="lblSources">Nguồn tiết kiệm (tách bạch)</div>
+    <div id="sourceList"></div>
+  </div>
+
+  <div class="card">
     <div class="sec-title" id="lblHealth">Trạng thái máy của bạn</div>
     <div id="healthList"></div>
   </div>
@@ -154,6 +159,10 @@
         savedTok: "Tokens kept", usdPrefix: "Est. saved ~",
         work: "Free local runs", workUnit: "runs",
         tasksWord: "tasks", checksWord: "auto-checks", cacheWord: "cached",
+        sourcesTitle: "Where savings come from",
+        srcLocal: "On your computer (Code & local AI)",
+        srcBridge: "External browser AI (Extension)",
+        srcBridgeRuns: "web chats",
         health: "Your computer status",
         hStorage: "Progress memory", hStorageOk: "Ready", hStorageWarn: "Needs check",
         hLocalAi: "Free local AI", hLocalAiOn: "Running", hLocalAiOff: "Off (light mode)",
@@ -175,6 +184,10 @@
         savedTok: "Token giữ lại được", usdPrefix: "Ước tính tiết kiệm ~",
         work: "Việc chạy miễn phí", workUnit: "lượt",
         tasksWord: "tác vụ", checksWord: "lần kiểm lỗi", cacheWord: "dùng lại đệm",
+        sourcesTitle: "Nguồn tiết kiệm (tách bạch)",
+        srcLocal: "Xử lý tại máy (Code & AI cục bộ)",
+        srcBridge: "Trình duyệt AI ngoài (Extension)",
+        srcBridgeRuns: "phiên web",
         health: "Trạng thái máy của bạn",
         hStorage: "Bộ nhớ lưu tiến độ", hStorageOk: "Sẵn sàng", hStorageWarn: "Cần kiểm tra",
         hLocalAi: "AI miễn phí trên máy", hLocalAiOn: "Đang bật", hLocalAiOff: "Chưa bật (chế độ nhẹ)",
@@ -196,6 +209,10 @@
         savedTok: "節約トークン数", usdPrefix: "推定節約 約",
         work: "ローカル無料実行", workUnit: "回",
         tasksWord: "件の作業", checksWord: "回の自動検査", cacheWord: "キャッシュ",
+        sourcesTitle: "削減の内訳（透明表示）",
+        srcLocal: "PCローカル処理（コード・ローカルAI）",
+        srcBridge: "外部ブラウザAI連携（拡張機能）",
+        srcBridgeRuns: "回のWeb実行",
         health: "PCの動作状態",
         hStorage: "進捗保存メモリ", hStorageOk: "正常", hStorageWarn: "要確認",
         hLocalAi: "ローカル無料AI", hLocalAiOn: "稼働中", hLocalAiOff: "オフ（軽量モード）",
@@ -217,6 +234,10 @@
         savedTok: "Gesparte Tokens", usdPrefix: "Geschätzt ~",
         work: "Kostenlose lokale Läufe", workUnit: "Läufe",
         tasksWord: "Aufgaben", checksWord: "Prüfungen", cacheWord: "Cache",
+        sourcesTitle: "Woher die Ersparnis kommt",
+        srcLocal: "Lokal auf dem PC (Code & lokale KI)",
+        srcBridge: "Externer Browser (Extension)",
+        srcBridgeRuns: "Web-Läufe",
         health: "Status deines Rechners",
         hStorage: "Fortschrittsspeicher", hStorageOk: "Bereit", hStorageWarn: "Prüfen",
         hLocalAi: "Lokale Gratis-KI", hLocalAiOn: "Aktiv", hLocalAiOff: "Aus (Leichtmodus)",
@@ -238,6 +259,10 @@
         savedTok: "아낀 토큰 수", usdPrefix: "예상 절감 약 ",
         work: "무료 로컬 실행", workUnit: "회",
         tasksWord: "작업", checksWord: "자동 점검", cacheWord: "캐시",
+        sourcesTitle: "절감 출처 (투명 분리)",
+        srcLocal: "내 PC 처리 (코드 & 로컬 AI)",
+        srcBridge: "외부 브라우저 AI (확장 프로그램)",
+        srcBridgeRuns: "회 웹 실행",
         health: "내 컴퓨터 상태",
         hStorage: "진행 저장 메모리", hStorageOk: "준비됨", hStorageWarn: "확인 필요",
         hLocalAi: "무료 로컬 AI", hLocalAiOn: "실행 중", hLocalAiOff: "꺼짐 (가벼운 모드)",
@@ -277,6 +302,7 @@
       set("lblWithVf", t.withVf);
       set("lblSavedTok", t.savedTok);
       set("lblWork", t.work);
+      set("lblSources", t.sourcesTitle);
       set("lblHealth", t.health);
       set("lblProjects", t.projects);
       set("btnBench", t.benchBtn);
@@ -322,7 +348,8 @@
       const mult = Number(tot.multiplier || 1);
       const doneItems = Number(tot.checkpoint_done_items || 0);
       const qaRuns = Number(tot.tier0_qa_runs || 0);
-      const totalRuns = doneItems + qaRuns;
+      const bridgeJobs = Number(tot.bridge_offload_jobs || 0);
+      const totalRuns = doneItems + qaRuns + bridgeJobs;
 
       document.getElementById("statusBadge").textContent = totalRuns > 0 ? t.badgeActive : t.badgeReady;
       document.getElementById("valReduction").textContent = pct.toFixed(1) + "%";
@@ -338,7 +365,22 @@
 
       document.getElementById("valWorkTotal").textContent = totalRuns.toLocaleString() + " " + t.workUnit;
       document.getElementById("valWorkDetail").textContent =
-        doneItems + " " + t.tasksWord + " · " + qaRuns + " " + t.checksWord;
+        doneItems + " " + t.tasksWord + " · " + qaRuns + " " + t.checksWord + (bridgeJobs > 0 ? (" · " + bridgeJobs + " " + t.srcBridgeRuns) : "");
+
+      const sl = document.getElementById("sourceList");
+      if (sl) {
+        sl.replaceChildren();
+        const localTok = Number(tot.local_saved_tokens != null ? tot.local_saved_tokens : savedTokens);
+        const bridgeTok = Number(tot.bridge_saved_tokens || 0);
+        addStatusRow(sl, "ok", t.srcLocal, localTok.toLocaleString() + " " + t.tokUnit, "status-ok");
+        addStatusRow(
+          sl,
+          bridgeJobs > 0 ? "info" : "warn",
+          t.srcBridge,
+          bridgeJobs > 0 ? (bridgeTok.toLocaleString() + " " + t.tokUnit + " (" + bridgeJobs + ")") : ("0 " + t.tokUnit),
+          bridgeJobs > 0 ? "status-ok" : "status-muted"
+        );
+      }
 
       const hl = document.getElementById("healthList");
       hl.replaceChildren();
