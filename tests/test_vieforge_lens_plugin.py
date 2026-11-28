@@ -46,6 +46,7 @@ def test_tool_open_vieforge_panel_returns_structured_telemetry(tmp_path: Path) -
 
 def test_rolling_window_since_ts_and_user_plan_persistence(tmp_path: Path) -> None:
     import time
+
     from scripts.mcp_server import load_user_plan, tool_app_set_user_plan
     from scripts.savings_report import collect_project_savings
 
