@@ -41,6 +41,11 @@
       "severity": "error",
       "description": "Pre-flight GPU free VRAM check below threshold."
     },
+    "CJK_BLEED": {
+      "key": "c",
+      "severity": "warning",
+      "description": "Unintended Chinese/CJK characters leaked into Vietnamese/English output."
+    },
     "REJECT_OTHER": {
       "key": "x",
       "severity": "error",

@@ -52,6 +52,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "resolve_provider_preset": ("core.llm_router", "resolve_provider_preset"),
     "TrimResult": ("core.output_trimmer", "TrimResult"),
     "compact_job_summary": ("core.output_trimmer", "compact_job_summary"),
+    "detect_cjk_bleed": ("core.output_trimmer", "detect_cjk_bleed"),
     "detect_log_mode": ("core.output_trimmer", "detect_log_mode"),
     "redact_secrets_text": ("core.output_trimmer", "redact_secrets_text"),
     "trim_output": ("core.output_trimmer", "trim_output"),

@@ -15,6 +15,8 @@ import pytest
 
 from core.error_memory import ErrorMemory
 from core.hooks_engine import HooksEngine
+from core.llm_router import LLMRouter
+from core.output_trimmer import detect_cjk_bleed
 from core.repair_eval import (
     export_self_learning_playbook,
     harvest_recurring_lessons,
@@ -26,16 +28,16 @@ from scripts import cli
 from scripts.mcp_server import _load_panel_html, tool_open_vieforge_panel
 
 
-def test_repair_eval_suite_passes_all_15_cases() -> None:
+def test_repair_eval_suite_passes_all_16_cases() -> None:
     report = run_repair_eval_suite()
-    assert report.total_cases == 15
-    assert report.passed_cases == 15
+    assert report.total_cases == 16
+    assert report.passed_cases == 16
     assert report.pass_rate_pct == 100.0
     assert report.avg_localization_tokens > 0
     assert report.avg_localization_tokens < 400
     md = report.to_markdown()
-    assert "15/15 PASS" in md
-    assert "E15_hooks_and_sandbox_isolation" in md
+    assert "16/16 PASS" in md
+    assert "E16_cjk_bleed_detection" in md
 
 
 def test_harvest_recurring_lessons_anonymizes_and_aggregates(tmp_path: Path) -> None:
@@ -80,7 +82,7 @@ def test_harvest_recurring_lessons_anonymizes_and_aggregates(tmp_path: Path) -> 
 def test_cli_eval_and_harvest_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert cli.main(["eval", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
-    assert payload["passed_cases"] == 15
+    assert payload["passed_cases"] == 16
 
     assert cli.main(["eval", "--json", "harvest", "--project", str(tmp_path)]) == 0
     harv = json.loads(capsys.readouterr().out)
@@ -137,3 +139,27 @@ def test_repair_proposal_includes_impact_risk_and_self_learning_playbook(tmp_pat
     pre = engine.run_pre_commit()
     assert pre.passed is True
     assert pre.checks[0].name == "staged_scope"
+
+
+def test_cjk_bleed_guard_retries_in_llm_router_and_allows_japanese() -> None:
+    bleed = detect_cjk_bleed("Cần kiểm tra lại 问题 này ngay")
+    assert bleed["has_bleed"] is True
+    assert bleed["cjk_count"] == 2
+    assert detect_cjk_bleed("デバッグ・安全性ヘルス")["has_bleed"] is False
+
+    calls = {"n": 0}
+
+    def _flaky_handler(_prompt: str, _system: str) -> str:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return json.dumps({"summary": "Lỗi đã được 修复 xong"}, ensure_ascii=False)
+        return json.dumps({"summary": "Lỗi đã được sửa xong"}, ensure_ascii=False)
+
+    router = LLMRouter(mock=True, mock_handler=_flaky_handler)
+    resp = router.generate_json(
+        "Tóm tắt kết quả bằng tiếng Việt",
+        required_keys=["summary"],
+        reject_cjk_bleed=True,
+    )
+    assert resp.attempts == 2
+    assert resp.parsed_json == {"summary": "Lỗi đã được sửa xong"}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI for the 15-Case Self-Healing Eval Suite & Lesson Harvester (`vieforge eval`, stdlib).
+"""CLI for the 16-Case Self-Healing Eval Suite & Lesson Harvester (`vieforge eval`, stdlib).
 
 Usage:
   vieforge eval [--markdown] [--json]
@@ -26,7 +26,7 @@ from core.repair_eval import (
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Run the 15-case offline ($0) repair eval suite or harvest recurring error lessons."
+        description="Run the 16-case offline ($0) repair eval suite or harvest recurring error lessons."
     )
     parser.add_argument("--markdown", action="store_true", help="Emit Markdown report")
     parser.add_argument("--json", action="store_true", dest="as_json", help="Emit JSON report")

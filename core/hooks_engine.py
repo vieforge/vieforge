@@ -23,9 +23,11 @@ from typing import Any
 
 from core.concurrency import atomic_write_json
 from core.impact_guard import assess_impact
-from core.output_trimmer import redact_secrets_text
+from core.output_trimmer import detect_cjk_bleed, redact_secrets_text
 from core.policy_guard import PolicyGuard
 from core.safe_patcher import validate_content_syntax
+
+_MULTILINGUAL_PATH_MARKERS = (".ja.", ".zh.", "/ja/", "i18n", "panel.html", "website/content/")
 
 DEFAULT_HOOKS_CONFIG: dict[str, Any] = {
     "version": "1.0",
@@ -37,10 +39,12 @@ DEFAULT_HOOKS_CONFIG: dict[str, Any] = {
         "enabled": True,
         "syntax_check": True,
         "impact_check": True,
+        "cjk_bleed_scan": True,
     },
     "pre_commit": {
         "enabled": True,
         "secret_scan": True,
+        "cjk_bleed_scan": True,
         "third_patch": True,
         "third_patch_hours": 72,
         "third_patch_threshold": 2,
@@ -179,10 +183,36 @@ class HooksEngine:
                 )
             )
 
+        if cfg.get("cjk_bleed_scan", True) and files:
+            checks.append(self._check_cjk_bleed_files(files))
+
         return HookRunResult(
             event="post_edit",
             passed=all(c.passed for c in checks),
             checks=checks,
+        )
+
+    def _check_cjk_bleed_files(self, targets: list[str]) -> HookCheckItem:
+        flagged: list[str] = []
+        for raw in targets:
+            norm = raw.replace("\\", "/")
+            if any(m in norm.lower() for m in _MULTILINGUAL_PATH_MARKERS):
+                continue
+            p = Path(raw)
+            abs_p = p.resolve() if p.is_absolute() else (self.repo_root / p).resolve()
+            if not abs_p.is_file() or abs_p.stat().st_size > 1_000_000:
+                continue
+            if abs_p.suffix.lower() not in (".py", ".md", ".txt", ".json", ".js", ".ts", ".yml", ".yaml"):
+                continue
+            content = abs_p.read_text(encoding="utf-8", errors="ignore")
+            res = detect_cjk_bleed(content, allow_japanese=True)
+            if res["has_bleed"]:
+                flagged.append(f"{norm} (L{res['line_numbers'][:3]}: {res['samples'][:3]})")
+        return HookCheckItem(
+            name="cjk_bleed_scan",
+            passed=len(flagged) == 0,
+            detail="No unintended Chinese/CJK bleed detected." if not flagged else f"CJK_BLEED detected: {', '.join(flagged)}",
+            data={"flagged_files": flagged},
         )
 
     def _get_git_staged_files(self) -> list[str]:
@@ -335,6 +365,9 @@ class HooksEngine:
                     data={"leaked_files": leaked},
                 )
             )
+
+        if cfg.get("cjk_bleed_scan", True):
+            checks.append(self._check_cjk_bleed_files(targets))
 
         if cfg.get("third_patch", True):
             checks.append(

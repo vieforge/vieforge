@@ -58,6 +58,8 @@ _LINTER_TS_RE = re.compile(
 _JS_FRAME_RE = re.compile(r"^\s+at\s+.+:\d+:\d+\)?\s*$")
 _JS_NODE_MODULES_RE = re.compile(r"(?:node_modules[/\\]|node:internal/|internal/modules/)")
 _GO_RUST_PANIC_RE = re.compile(r"(?:^panic:|^\s*goroutine\s+\d+\s+\[|^thread\s+'.+'\s+panicked\s+at)")
+_CJK_HAN_RE = re.compile(r"[\u4e00-\u9fff]+")
+_JP_KANA_RE = re.compile(r"[\u3040-\u30ff]")
 
 # Clean-room secret redaction patterns (prevents accidental credential leaks to Cloud Agents)
 _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
@@ -100,6 +102,42 @@ def redact_secrets_text(text: str) -> tuple[str, int]:
         redacted, count = pattern.subn(repl, redacted)
         total += count
     return redacted, total
+
+
+def detect_cjk_bleed(text: str, *, allow_japanese: bool = True) -> dict[str, Any]:
+    """Detect unintended Chinese/CJK Han characters leaking into Vietnamese/English text.
+
+    When `allow_japanese=True`, text containing Japanese Kana (Hiragana/Katakana) is
+    treated as legitimate Japanese rather than unintended Chinese bleed.
+    """
+    if not text:
+        return {"has_bleed": False, "cjk_count": 0, "is_japanese": False, "samples": [], "line_numbers": []}
+
+    has_kana = bool(_JP_KANA_RE.search(text))
+    if allow_japanese and has_kana:
+        return {"has_bleed": False, "cjk_count": 0, "is_japanese": True, "samples": [], "line_numbers": []}
+
+    samples: list[str] = []
+    line_numbers: list[int] = []
+    total_chars = 0
+    for lineno, ln in enumerate(text.splitlines(), start=1):
+        hits = _CJK_HAN_RE.findall(ln)
+        if not hits:
+            continue
+        if len(line_numbers) < 10:
+            line_numbers.append(lineno)
+        for token in hits:
+            total_chars += len(token)
+            if len(samples) < 5 and token not in samples:
+                samples.append(token)
+
+    return {
+        "has_bleed": total_chars > 0,
+        "cjk_count": total_chars,
+        "is_japanese": False,
+        "samples": samples,
+        "line_numbers": line_numbers,
+    }
 
 
 def _strip_ansi_and_cr(raw: str) -> list[str]:

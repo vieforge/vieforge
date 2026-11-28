@@ -25,7 +25,7 @@ from core.error_memory import ErrorMemory
 from core.fault_locator import compute_error_fingerprint, locate_fault, parse_error_frames
 from core.hooks_engine import HooksEngine
 from core.impact_guard import assess_impact
-from core.output_trimmer import redact_secrets_text, trim_output
+from core.output_trimmer import detect_cjk_bleed, redact_secrets_text, trim_output
 from core.repair_loop import ApprovalRequiredError, RepairLoopManager
 from core.repo_map import build_repo_map
 from core.safe_patcher import PatchApplier, PatchEdit
@@ -309,6 +309,18 @@ def _case_15_hooks_and_sandbox_isolation(root: Path) -> tuple[bool, str, dict[st
     return ok, "blocked leaked secret in pre_commit & sandbox escape", {}
 
 
+def _case_16_cjk_bleed_detection(root: Path) -> tuple[bool, str, dict[str, Any]]:
+    d = root / "c16"
+    d.mkdir()
+    vi_bleed = detect_cjk_bleed("Xin chào, lỗi này cần 修复 ngay lập tức")
+    ja_ok = detect_cjk_bleed("デバッグ・安全性ヘルスとエラー記憶ベース")
+    bad_file = d / "notes_vi.md"
+    bad_file.write_text("Báo cáo tiếng Việt bị lẫn chữ 中文 ở đây.\n", encoding="utf-8")
+    hook_res = HooksEngine(d).run_post_edit(["notes_vi.md"])
+    ok = vi_bleed["has_bleed"] and (not ja_ok["has_bleed"]) and (not hook_res.passed)
+    return ok, "caught CJK bleed in VI text & hooks while allowing JA", {}
+
+
 _CASES: list[tuple[str, str, Callable[[Path], tuple[bool, str, dict[str, Any]]]]] = [
     ("E01_pytest_noise_compression", "Log Trimmer", _case_01_pytest_compression),
     ("E02_linter_code_grouping", "Log Trimmer", _case_02_linter_grouping),
@@ -325,6 +337,7 @@ _CASES: list[tuple[str, str, Callable[[Path], tuple[bool, str, dict[str, Any]]]]
     ("E13_auto_rollback_and_antiloop", "Repair Loop", _case_13_auto_rollback_and_antiloop),
     ("E14_repo_map_and_impact_guard", "Workspace Guard", _case_14_repo_map_and_impact_guard),
     ("E15_hooks_and_sandbox_isolation", "Hooks & Sandbox", _case_15_hooks_and_sandbox_isolation),
+    ("E16_cjk_bleed_detection", "Language Guard", _case_16_cjk_bleed_detection),
 ]
 
 

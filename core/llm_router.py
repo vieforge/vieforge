@@ -655,8 +655,11 @@ class LLMRouter:
         required_keys: list[str] | None = None,
         max_retries: int = 2,
         temperature: float = 0.1,
+        reject_cjk_bleed: bool = False,
     ) -> LLMResponse:
         """Request strict JSON with up to `max_retries` local repair passes for 3B/7B models."""
+        from core.output_trimmer import detect_cjk_bleed
+
         req_keys = required_keys or []
         cur_prompt = prompt
         last_err = ""
@@ -668,6 +671,7 @@ class LLMRouter:
                 system=system,
                 json_mode=True,
                 temperature=temperature,
+                use_cache=(attempt == 1),
             )
             candidate = _extract_json_text(resp.text)
             try:
@@ -678,6 +682,12 @@ class LLMRouter:
                     missing = [k for k in req_keys if k not in parsed]
                     if missing:
                         raise ValueError(f"Missing required keys: {missing}")
+                if reject_cjk_bleed:
+                    bleed = detect_cjk_bleed(candidate)
+                    if bleed["has_bleed"]:
+                        raise ValueError(
+                            f"CJK_BLEED detected ({bleed['samples']}); rewrite strictly without Chinese characters."
+                        )
                 resp.parsed_json = parsed
                 resp.attempts = attempt
                 return resp
