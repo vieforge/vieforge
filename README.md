@@ -14,6 +14,7 @@
 [![OS: Windows | macOS | Linux](https://img.shields.io/badge/OS-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](skills/three-tier-orchestrator/references/hardware-profiles.md)
 [![Crafted in Vietnam](https://img.shields.io/badge/Crafted%20in-Vietnam%20%F0%9F%87%BB%F0%9F%87%B3-da251d.svg)](README.vi.md)
 [![Website: vieforge.dev](https://img.shields.io/badge/Website-vieforge.dev-2563eb.svg)](https://vieforge.dev)
+[![Glama MCP Server](https://glama.ai/mcp/servers/vieforge/vieforge/badges/score.svg)](https://glama.ai/mcp/servers/vieforge/vieforge)
 
 <p align="center">
   <a href="https://vieforge.dev">
