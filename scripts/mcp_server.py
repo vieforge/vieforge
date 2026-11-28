@@ -18,6 +18,7 @@ import json
 import os
 import shlex
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -402,6 +403,99 @@ def _load_panel_html() -> str:
     return "<!doctype html><html><body><h3>VieForge Lens UI asset not found.</h3></body></html>"
 
 
+USER_PLAN_PATH = Path.home() / ".tierforge" / "user_plan.json"
+
+DEFAULT_USER_PLANS: dict[str, dict[str, Any]] = {
+    "ag_claude_5h": {"plan_id": "ag_claude_5h", "plan_label": "Antigravity / Claude / Codex (5h)", "quota_tokens": 500_000, "window": "5h"},
+    "ag_claude_7d": {"plan_id": "ag_claude_7d", "plan_label": "Antigravity / Claude / Codex (7d)", "quota_tokens": 2_000_000, "window": "7d"},
+    "cursor_windsurf_7d": {"plan_id": "cursor_windsurf_7d", "plan_label": "Cursor / Windsurf (7d)", "quota_tokens": 1_500_000, "window": "7d"},
+    "copilot_api_30d": {"plan_id": "copilot_api_30d", "plan_label": "Copilot / API (30d)", "quota_tokens": 5_000_000, "window": "30d"},
+    "pro_20": {"plan_id": "ag_claude_7d", "plan_label": "Antigravity / Claude / Codex (7d)", "quota_tokens": 2_000_000, "window": "7d"},
+}
+
+WINDOW_SECONDS: dict[str, int] = {
+    "5h": 5 * 3600,
+    "7d": 7 * 86400,
+    "30d": 30 * 86400,
+}
+
+
+def _compact_window_balance(totals: dict[str, Any]) -> dict[str, Any]:
+    spent = int(totals.get("vieforge_tokens", 0) or 0)
+    saved = int(totals.get("saved_tokens", 0) or 0)
+    baseline = int(totals.get("cloud_only_tokens", 0) or 0)
+    spent_usd = float(totals.get("vieforge_usd", 0.0) or 0.0)
+    saved_usd = float(totals.get("saved_usd", 0.0) or 0.0)
+    return {
+        "spent_tokens": spent,
+        "saved_tokens": saved,
+        "net_tokens": saved - spent,
+        "cloud_baseline_tokens": baseline,
+        "spent_usd": spent_usd,
+        "saved_usd": saved_usd,
+        "net_usd": round(saved_usd - spent_usd, 4),
+        "burn_pct": round((spent / baseline) * 100.0, 2) if baseline > 0 else 0.0,
+        "shield_pct": round((saved / baseline) * 100.0, 2) if baseline > 0 else 0.0,
+        "shield_ratio": round(saved / max(1, spent), 1) if saved > 0 else 0.0,
+    }
+
+
+def load_user_plan(plan_path: Path | None = None) -> dict[str, Any]:
+    """Load the user's configured subscription/API token quota from ~/.tierforge/user_plan.json or env."""
+    env_q = os.getenv("TIERFORGE_USER_QUOTA_TOKENS", "").strip()
+    if env_q.isdigit() and int(env_q) >= 10_000:
+        return {
+            "plan_id": os.getenv("TIERFORGE_USER_PLAN_ID", "custom").strip() or "custom",
+            "plan_label": os.getenv("TIERFORGE_USER_PLAN_LABEL", "Custom Plan").strip() or "Custom Plan",
+            "quota_tokens": int(env_q),
+            "source": "env",
+        }
+    p = plan_path or USER_PLAN_PATH
+    if p.is_file():
+        try:
+            raw = json.loads(p.read_text(encoding="utf-8"))
+            q = int(raw.get("quota_tokens", 0) or 0)
+            if q >= 10_000:
+                return {
+                    "plan_id": str(raw.get("plan_id") or "custom"),
+                    "plan_label": str(raw.get("plan_label") or "Custom Plan"),
+                    "quota_tokens": q,
+                    "source": "saved",
+                }
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            pass
+    default_plan = dict(DEFAULT_USER_PLANS["pro_20"])
+    default_plan["source"] = "default"
+    return default_plan
+
+
+def tool_app_set_user_plan(
+    plan_id: str = "ag_claude_7d",
+    quota_tokens: int = 2_000_000,
+    plan_label: str = "",
+    project_dir: str = "",
+    plan_path: Path | None = None,
+) -> dict[str, Any]:
+    """App-only helper: persist the user's actual plan/token quota locally and return updated panel payload."""
+    clean_id = (plan_id or "custom").strip()[:40]
+    preset = DEFAULT_USER_PLANS.get(clean_id)
+    try:
+        parsed_q = int(quota_tokens)
+    except (TypeError, ValueError):
+        parsed_q = 0
+    final_quota = parsed_q if parsed_q >= 10_000 else int(preset["quota_tokens"] if preset else 2_000_000)
+    final_label = (plan_label or (preset["plan_label"] if preset else "Custom")).strip()[:40]
+    target_path = plan_path or USER_PLAN_PATH
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = target_path.with_suffix(".tmp")
+    tmp_path.write_text(
+        json.dumps({"plan_id": clean_id, "plan_label": final_label, "quota_tokens": final_quota}, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    tmp_path.replace(target_path)
+    return tool_open_vieforge_panel(project_dir=project_dir)
+
+
 def tool_open_vieforge_panel(project_dir: str = "") -> dict[str, Any]:
     """Return structured live savings, repair health + 3-tier health payload for the VieForge Lens Side Pane."""
     target = Path(project_dir).expanduser() if project_dir else (Path.cwd() if (Path.cwd() / "data").is_dir() else default_data_dir())
@@ -423,9 +517,21 @@ def tool_open_vieforge_panel(project_dir: str = "") -> dict[str, Any]:
     sessions = RepairLoopManager(target).list_sessions(limit=50)
     pending_approvals = sum(1 for s in sessions if s.get("last_status") == "AWAITING_APPROVAL")
 
+    totals = savings.get("totals") or {}
+    account_balance = _compact_window_balance(totals)
+    now_ts = time.time()
+    window_summaries: dict[str, Any] = {"all": account_balance}
+    for win_key, sec in WINDOW_SECONDS.items():
+        win_sav = collect_project_savings([target], since_ts=now_ts - sec)
+        window_summaries[win_key] = _compact_window_balance(win_sav.get("totals") or {})
+    user_plan = load_user_plan()
+
     return {
         "panel": "vieforge-lens",
         "savings": savings,
+        "user_plan": user_plan,
+        "account_balance": account_balance,
+        "window_summaries": window_summaries,
         "preflight": preflight,
         "repair_health": {
             "memory_incidents": mem_incidents,
@@ -489,6 +595,7 @@ def build_mcp_server() -> Any:
         )
         mcp.tool(name="app_refresh_panel", meta=app_only_meta, structured_output=True)(tool_open_vieforge_panel)
         mcp.tool(name="app_run_benchmark", meta=app_only_meta, structured_output=True)(tool_app_run_benchmark)
+        mcp.tool(name="app_set_user_plan", meta=app_only_meta, structured_output=True)(tool_app_set_user_plan)
         mcp.resource(
             PANEL_APP_URI,
             name="VieForge Lens UI",

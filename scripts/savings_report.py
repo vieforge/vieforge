@@ -62,25 +62,62 @@ def classify_usage_tier(total_units: int, tiers_cfg: dict[str, Any]) -> dict[str
     return tiers_cfg["tiers"][-1]
 
 
-def _scan_sqlite_db(db_path: Path) -> dict[str, Any] | None:
+def _parse_record_ts(val: Any) -> float | None:
+    """Parse epoch seconds or ISO-8601 timestamp string into POSIX float seconds."""
+    if val is None or val == "":
+        return None
+    if isinstance(val, (int, float)):
+        return float(val)
+    if isinstance(val, str):
+        s = val.strip()
+        try:
+            return float(s)
+        except ValueError:
+            pass
+        try:
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.timestamp()
+        except ValueError:
+            return None
+    return None
+
+
+def _scan_sqlite_db(db_path: Path, since_ts: float | None = None) -> dict[str, Any] | None:
     try:
         with sqlite3.connect(db_path, timeout=3.0) as conn:
             tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
             if "items" not in tables:
                 return None
-            done = conn.execute("SELECT COUNT(*) FROM items WHERE status = 'done'").fetchone()[0]
-            total = conn.execute("SELECT COUNT(*) FROM items").fetchone()[0]
             cols = {r[1] for r in conn.execute("PRAGMA table_info(items)").fetchall()}
-            cost = 0.0
-            if "cost_usd" in cols:
-                row = conn.execute("SELECT COALESCE(SUM(cost_usd), 0.0) FROM items").fetchone()
-                cost = float(row[0] or 0.0)
+            has_cost = "cost_usd" in cols
+            if since_ts is not None and "updated_at" in cols:
+                sel = "SELECT status, updated_at, cost_usd FROM items" if has_cost else "SELECT status, updated_at, 0.0 FROM items"
+                done = 0
+                total = 0
+                cost = 0.0
+                for st, upd, c_val in conn.execute(sel).fetchall():
+                    ts = _parse_record_ts(upd)
+                    if ts is not None and ts < since_ts:
+                        continue
+                    total += 1
+                    if st == "done":
+                        done += 1
+                    cost += float(c_val or 0.0)
+            else:
+                done = conn.execute("SELECT COUNT(*) FROM items WHERE status = 'done'").fetchone()[0]
+                total = conn.execute("SELECT COUNT(*) FROM items").fetchone()[0]
+                cost = 0.0
+                if has_cost:
+                    row = conn.execute("SELECT COALESCE(SUM(cost_usd), 0.0) FROM items").fetchone()
+                    cost = float(row[0] or 0.0)
             return {"db": db_path.name, "done_items": int(done), "total_items": int(total), "actual_usd": round(cost, 6)}
     except Exception:
         return None
 
 
-def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
+def collect_project_savings(project_dirs: list[Path], since_ts: float | None = None) -> dict[str, Any]:
     tiers_cfg = load_savings_tiers()
     per_project: list[dict[str, Any]] = []
 
@@ -109,6 +146,10 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
                 rec = json.loads(ln)
             except json.JSONDecodeError:
                 continue
+            if since_ts is not None:
+                ts = _parse_record_ts(rec.get("timestamp"))
+                if ts is not None and ts < since_ts:
+                    continue
             jobs += 1
             toks += int(rec.get("offloaded_tokens", 0) or 0)
             svc = str(rec.get("service") or "web").lower().strip()
@@ -133,7 +174,7 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
 
         for root in search_roots:
             for db_file in sorted(root.glob("*.db")):
-                info = _scan_sqlite_db(db_file)
+                info = _scan_sqlite_db(db_file, since_ts=since_ts)
                 if info is not None:
                     p_dbs.append(info)
                     p_done += info["done_items"]
@@ -142,8 +183,18 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
 
             audit_log = root / "step_audit_log.jsonl"
             if audit_log.is_file():
-                lines = [ln for ln in audit_log.read_text(encoding="utf-8", errors="replace").splitlines() if ln.strip()]
-                p_qa += len(lines)
+                for ln in audit_log.read_text(encoding="utf-8", errors="replace").splitlines():
+                    if not ln.strip():
+                        continue
+                    if since_ts is not None:
+                        try:
+                            rec = json.loads(ln)
+                            ts = _parse_record_ts(rec.get("checked_at") or rec.get("timestamp"))
+                            if ts is not None and ts < since_ts:
+                                continue
+                        except json.JSONDecodeError:
+                            continue
+                    p_qa += 1
 
             trace_log = root / "genai_traces.jsonl"
             if trace_log.is_file():
@@ -152,6 +203,10 @@ def collect_project_savings(project_dirs: list[Path]) -> dict[str, Any]:
                         continue
                     try:
                         rec = json.loads(ln)
+                        if since_ts is not None:
+                            ts = _parse_record_ts(rec.get("timestamp") or rec.get("created_at"))
+                            if ts is not None and ts < since_ts:
+                                continue
                         if rec.get("vieforge.cache_hit"):
                             p_cache_hits += 1
                         p_usd += float(rec.get("vieforge.cost_usd", 0.0) or 0.0)

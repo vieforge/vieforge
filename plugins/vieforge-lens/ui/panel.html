@@ -20,137 +20,251 @@
       --font: var(--font-sans, system-ui, -apple-system, sans-serif);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 14px; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; line-height: 1.5; }
-    .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+    body { margin: 0; padding: 12px; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; line-height: 1.45; }
+    .shell { max-width: 840px; margin: 0 auto; }
+    .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
     .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
     .badge { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: rgba(52, 211, 153, 0.14); color: var(--ok); border: 1px solid rgba(52, 211, 153, 0.32); }
     .actions { display: flex; align-items: center; gap: 6px; }
     button { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 6px 11px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: border-color 0.15s ease, background 0.15s ease; }
     button:hover { border-color: var(--accent); }
     button.primary { background: rgba(56, 189, 248, 0.16); border-color: rgba(56, 189, 248, 0.5); color: var(--text); }
-    button.full { width: 100%; padding: 9px 12px; font-size: 12.5px; }
+    button.full { width: 100%; padding: 8px 12px; font-size: 12px; }
     select { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 9px; padding: 5px 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
 
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 13px; padding: 12px 13px; margin-bottom: 10px; }
+    .bento { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin-bottom: 10px; align-items: stretch; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; display: flex; flex-direction: column; justify-content: space-between; }
     .hero { background: linear-gradient(135deg, rgba(52, 211, 153, 0.10), rgba(56, 189, 248, 0.08)); border-color: rgba(56, 189, 248, 0.3); }
     .hero-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
     .hero-title { font-size: 12px; font-weight: 700; color: var(--muted); }
-    .hero-mult { font-size: 11.5px; font-weight: 700; color: var(--accent); background: rgba(56, 189, 248, 0.14); padding: 2px 8px; border-radius: 999px; }
-    .hero-pct { font-size: 30px; font-weight: 900; letter-spacing: -0.02em; color: var(--ok); line-height: 1.15; margin: 4px 0 2px; }
-    .hero-sub { font-size: 12.5px; color: var(--text); opacity: 0.92; margin-bottom: 9px; }
-    .bar-bg { height: 9px; background: var(--card-alt); border-radius: 999px; overflow: hidden; margin-bottom: 9px; }
+    .hero-mult { font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(56, 189, 248, 0.14); padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+    .hero-pct { font-size: 28px; font-weight: 900; letter-spacing: -0.02em; color: var(--ok); line-height: 1.15; margin: 4px 0 2px; }
+    .hero-sub { font-size: 12px; color: var(--text); opacity: 0.9; margin-bottom: 8px; }
+    .bar-bg { height: 8px; background: var(--card-alt); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
     .bar-fg { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #38bdf8); transition: width 0.3s ease; }
-    .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .cmp-box { background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); border-radius: 9px; padding: 7px 9px; }
-    .cmp-k { font-size: 11px; color: var(--muted); }
-    .cmp-v { font-size: 13.5px; font-weight: 800; margin-top: 2px; }
+    .compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+    .cmp-box { background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+    .cmp-k { font-size: 10.5px; color: var(--muted); }
+    .cmp-v { font-size: 13px; font-weight: 800; margin-top: 2px; }
     .cmp-v.ok { color: var(--ok); }
 
-    .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
-    .stat-card { margin: 0; }
-    .k { font-size: 11.5px; font-weight: 700; color: var(--muted); }
-    .v { font-size: 19px; font-weight: 800; margin-top: 3px; color: var(--text); }
+    .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .mini-box { background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); border-radius: 9px; padding: 8px 9px; }
+    .k { font-size: 11px; font-weight: 700; color: var(--muted); }
+    .v { font-size: 17px; font-weight: 800; margin-top: 2px; color: var(--text); }
     .v.ok { color: var(--ok); }
+    .v.err { color: var(--err); }
     .v.accent { color: var(--accent); }
-    .sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .bal-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+    .bal-tools { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .bal-chip { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: var(--card-alt); color: var(--muted); border: 1px solid var(--border); white-space: nowrap; }
+    .quota-sel { padding: 2px 6px; font-size: 11px; border-radius: 7px; max-width: 165px; }
+    .custom-row { display: none; align-items: center; gap: 5px; margin-bottom: 8px; }
+    .custom-row.open { display: flex; }
+    .custom-inp { flex: 1 1 auto; min-width: 0; background: var(--card-alt); color: var(--text); border: 1px solid var(--border); border-radius: 7px; padding: 4px 8px; font-size: 11.5px; font-family: inherit; }
+    .custom-btn { padding: 4px 9px; font-size: 11px; border-radius: 7px; }
+    .bal-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
+    .bal-box { background: rgba(0, 0, 0, 0.18); border: 1px solid var(--border); border-radius: 8px; padding: 6px 7px; }
+    .bal-k { font-size: 10px; color: var(--muted); font-weight: 600; }
+    .bal-v { font-size: 13px; font-weight: 800; margin-top: 2px; word-break: break-word; }
+    .bal-v.err { color: var(--err); }
+    .bal-v.ok { color: var(--ok); }
+    .bal-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+    .wallet-box { background: rgba(0, 0, 0, 0.16); border: 1px solid var(--border); border-radius: 9px; padding: 7px 9px; margin-bottom: 7px; }
+    .w-row { margin-bottom: 6px; }
+    .w-row:last-child { margin-bottom: 0; }
+    .w-top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-size: 11px; margin-bottom: 3px; }
+    .w-lbl { color: var(--muted); font-weight: 600; }
+    .w-val { font-weight: 800; white-space: nowrap; }
+    .w-val.ok { color: var(--ok); }
+    .w-val.warn { color: var(--warn); }
+    .w-val.err { color: var(--err); }
+    .w-track { height: 7px; border-radius: 999px; background: var(--card-alt); overflow: hidden; }
+    .w-fill-ok { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #38bdf8); transition: width 0.3s ease; }
+    .w-fill-no { height: 100%; width: 0%; background: linear-gradient(90deg, #f59e0b, #ef4444); transition: width 0.3s ease; }
+    .bal-note { font-size: 11px; color: var(--text); opacity: 0.9; }
+    .bal-disc { font-size: 10px; color: var(--muted); margin-top: 4px; opacity: 0.85; }
+    .win-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+    .win-btn { flex: 1 1 0; padding: 3px 6px; font-size: 10.5px; border-radius: 7px; font-weight: 700; color: var(--muted); background: rgba(0,0,0,0.16); border: 1px solid var(--border); }
+    .win-btn.active { color: var(--text); background: rgba(56, 189, 248, 0.18); border-color: rgba(56, 189, 248, 0.55); }
 
     .sec-title { font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 7px; }
-    .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; gap: 10px; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; gap: 8px; }
     .row:last-child { border-bottom: 0; padding-bottom: 0; }
-    .row-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; background: var(--muted); }
+    .row-left { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: var(--muted); }
     .dot.ok { background: var(--ok); }
     .dot.warn { background: var(--warn); }
     .dot.info { background: var(--accent); }
-    .status-ok { color: var(--ok); font-weight: 700; text-align: right; }
-    .status-warn { color: var(--warn); font-weight: 700; text-align: right; }
-    .status-muted { color: var(--muted); font-weight: 600; text-align: right; }
+    .status-ok { color: var(--ok); font-weight: 700; text-align: right; white-space: nowrap; }
+    .status-warn { color: var(--warn); font-weight: 700; text-align: right; white-space: nowrap; }
+    .status-muted { color: var(--muted); font-weight: 600; text-align: right; white-space: nowrap; }
 
-    .proj-item { padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .proj-item { padding: 5px 0; border-bottom: 1px solid var(--border); }
     .proj-item:last-child { border-bottom: 0; padding-bottom: 0; }
-    .proj-name { font-weight: 700; font-size: 12.5px; color: var(--text); }
-    .proj-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .proj-name { font-weight: 700; font-size: 12px; color: var(--text); }
+    .proj-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
 
-    .helper { font-size: 11.5px; color: var(--muted); margin-top: 6px; text-align: center; }
-    #statusLine { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+    .foot-bar { display: flex; flex-direction: column; gap: 5px; }
+    .helper { font-size: 11px; color: var(--muted); text-align: center; }
+    #statusLine { font-size: 11px; color: var(--muted); margin-top: 6px; text-align: center; }
   </style>
 </head>
 <body>
-  <div class="head">
-    <div class="brand">
-      <span>VieForge Lens</span>
-      <span class="badge" id="statusBadge">Đang bật</span>
-    </div>
-    <div class="actions">
-      <select id="langSelect" aria-label="Language">
-        <option value="en">English</option>
-        <option value="vi" selected>Tiếng Việt</option>
-        <option value="ja">日本語</option>
-        <option value="de">Deutsch</option>
-        <option value="ko">한국어</option>
-      </select>
-      <button type="button" id="btnRefresh">Làm mới</button>
-    </div>
-  </div>
-
-  <div class="card hero">
-    <div class="hero-top">
-      <div class="hero-title" id="lblHeroTitle">Tiết kiệm chi phí AI Cloud</div>
-      <div class="hero-mult" id="valMult">—</div>
-    </div>
-    <div class="hero-pct" id="valReduction">—</div>
-    <div class="hero-sub" id="heroSummary">Đang đọc dữ liệu trực tiếp trên máy bạn...</div>
-    <div class="bar-bg"><div class="bar-fg" id="meterBar"></div></div>
-    <div class="compare">
-      <div class="cmp-box">
-        <div class="cmp-k" id="lblCloudOnly">Nếu chỉ dùng Cloud</div>
-        <div class="cmp-v" id="valCloudOnly">—</div>
+  <div class="shell">
+    <div class="head">
+      <div class="brand">
+        <span>VieForge Lens</span>
+        <span class="badge" id="statusBadge">Đang bật</span>
       </div>
-      <div class="cmp-box">
-        <div class="cmp-k" id="lblWithVf">Dùng qua VieForge</div>
-        <div class="cmp-v ok" id="valWithVf">—</div>
+      <div class="actions">
+        <select id="langSelect" aria-label="Language">
+          <option value="en">English</option>
+          <option value="vi" selected>Tiếng Việt</option>
+          <option value="ja">日本語</option>
+          <option value="de">Deutsch</option>
+          <option value="ko">한국어</option>
+        </select>
+        <button type="button" id="btnRefresh">Làm mới</button>
       </div>
     </div>
-  </div>
 
-  <div class="grid2">
-    <div class="card stat-card">
-      <div class="k" id="lblSavedTok">Token giữ lại được</div>
-      <div class="v ok" id="valSavedTok">—</div>
-      <div class="sub" id="valUsdSaved">—</div>
+    <div class="bento">
+      <div class="card hero">
+        <div>
+          <div class="hero-top">
+            <div class="hero-title" id="lblHeroTitle">Tiết kiệm chi phí AI Cloud</div>
+            <div class="hero-mult" id="valMult">—</div>
+          </div>
+          <div class="hero-pct" id="valReduction">—</div>
+          <div class="hero-sub" id="heroSummary">Đang đọc dữ liệu trực tiếp trên máy bạn...</div>
+          <div class="bar-bg"><div class="bar-fg" id="meterBar"></div></div>
+        </div>
+        <div class="compare">
+          <div class="cmp-box">
+            <div class="cmp-k" id="lblCloudOnly">Nếu chỉ dùng Cloud</div>
+            <div class="cmp-v" id="valCloudOnly">—</div>
+          </div>
+          <div class="cmp-box">
+            <div class="cmp-k" id="lblWithVf">Dùng qua VieForge</div>
+            <div class="cmp-v ok" id="valWithVf">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="balanceCard">
+        <div>
+          <div class="bal-head">
+            <div class="sec-title" id="lblBalanceTitle" style="margin-bottom:0;">Tác động lên gói (qua VieForge)</div>
+            <div class="bal-tools">
+              <select id="quotaSelect" class="quota-sel" aria-label="User Plan Quota">
+                <option value="ag_claude_5h:500000:5h">Antigravity / Claude (5h · 500K)</option>
+                <option value="ag_claude_7d:2000000:7d" selected>Antigravity / Claude (7d · 2M)</option>
+                <option value="cursor_windsurf_7d:1500000:7d">Cursor / Windsurf (7d · 1.5M)</option>
+                <option value="copilot_api_30d:5000000:30d">Copilot / API (30d · 5M)</option>
+                <option value="custom:0:all">Tự nhập hạn mức gói...</option>
+              </select>
+              <span class="bal-chip" id="valSessionDelta">—</span>
+            </div>
+          </div>
+          <div class="win-tabs" id="winTabs">
+            <button type="button" class="win-btn" data-win="5h" id="btnWin5h">5 giờ</button>
+            <button type="button" class="win-btn active" data-win="7d" id="btnWin7d">7 ngày</button>
+            <button type="button" class="win-btn" data-win="30d" id="btnWin30d">30 ngày</button>
+            <button type="button" class="win-btn" data-win="all" id="btnWinAll">Tất cả</button>
+          </div>
+          <div class="custom-row" id="customQuotaRow">
+            <input type="number" id="customQuotaInput" class="custom-inp" min="10000" step="50000" placeholder="VD: 1000000" />
+            <button type="button" id="btnSaveQuota" class="primary custom-btn">Lưu gói</button>
+          </div>
+          <div class="bal-grid">
+            <div class="bal-box">
+              <div class="bal-k" id="lblBalSpent">- Dùng qua VieForge</div>
+              <div class="bal-v err" id="valBalSpent">—</div>
+              <div class="bal-sub" id="valBalSpentUsd">—</div>
+            </div>
+            <div class="bal-box">
+              <div class="bal-k" id="lblBalSaved">+ Đã tránh đốt</div>
+              <div class="bal-v ok" id="valBalSaved">—</div>
+              <div class="bal-sub" id="valBalSavedUsd">—</div>
+            </div>
+            <div class="bal-box">
+              <div class="bal-k" id="lblBalNet">Chiếm gói (có VF)</div>
+              <div class="bal-v ok" id="valBalNet">—</div>
+              <div class="bal-sub" id="valBalNetUsd">—</div>
+            </div>
+          </div>
+          <div class="wallet-box">
+            <div class="w-row">
+              <div class="w-top">
+                <span class="w-lbl" id="lblRemWith">Có VieForge (chiếm gói)</span>
+                <span class="w-val ok" id="valRemWith">—</span>
+              </div>
+              <div class="w-track"><div class="w-fill-ok" id="barRemWith"></div></div>
+            </div>
+            <div class="w-row">
+              <div class="w-top">
+                <span class="w-lbl" id="lblRemWithout">Không có VieForge (sẽ chiếm)</span>
+                <span class="w-val warn" id="valRemWithout">—</span>
+              </div>
+              <div class="w-track"><div class="w-fill-no" id="barRemWithout"></div></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="bal-note" id="valBalNote">—</div>
+          <div class="bal-disc" id="valBalDisclaimer">—</div>
+        </div>
+      </div>
     </div>
-    <div class="card stat-card">
-      <div class="k" id="lblWork">Việc chạy miễn phí</div>
-      <div class="v accent" id="valWorkTotal">—</div>
-      <div class="sub" id="valWorkDetail">—</div>
+
+    <div class="bento">
+      <div class="card">
+        <div class="sec-title" id="lblSources">Nguồn tiết kiệm (tách bạch)</div>
+        <div class="grid2" style="margin-bottom:8px;">
+          <div class="mini-box">
+            <div class="k" id="lblSavedTok">Token giữ lại được</div>
+            <div class="v ok" id="valSavedTok">—</div>
+            <div class="sub" id="valUsdSaved">—</div>
+          </div>
+          <div class="mini-box">
+            <div class="k" id="lblWork">Việc chạy miễn phí</div>
+            <div class="v accent" id="valWorkTotal">—</div>
+            <div class="sub" id="valWorkDetail">—</div>
+          </div>
+        </div>
+        <div id="sourceList"></div>
+      </div>
+
+      <div class="card">
+        <div>
+          <div class="sec-title" id="lblHealth">Trạng thái máy của bạn</div>
+          <div id="healthList"></div>
+        </div>
+        <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border);">
+          <div class="sec-title" id="lblRepair">Sức khỏe &amp; Sửa lỗi</div>
+          <div id="repairList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bento" style="margin-bottom:0;">
+      <div class="card">
+        <div>
+          <div class="sec-title" id="lblProjects">Dự án đang được theo dõi</div>
+          <div id="projList"></div>
+        </div>
+      </div>
+
+      <div class="card foot-bar">
+        <button type="button" id="btnBench" class="primary full">Chạy thử kiểm tra nhanh (miễn phí, 0.3 giây)</button>
+        <div class="helper" id="lblBenchHelp">Đo tốc độ xử lý ngay trên máy bạn — không tốn token Cloud.</div>
+        <div id="statusLine"></div>
+      </div>
     </div>
   </div>
-
-  <div class="card">
-    <div class="sec-title" id="lblSources">Nguồn tiết kiệm (tách bạch)</div>
-    <div id="sourceList"></div>
-  </div>
-
-  <div class="card">
-    <div class="sec-title" id="lblHealth">Trạng thái máy của bạn</div>
-    <div id="healthList"></div>
-  </div>
-
-  <div class="card">
-    <div class="sec-title" id="lblRepair">Sức khỏe &amp; Sửa lỗi</div>
-    <div id="repairList"></div>
-  </div>
-
-  <div class="card">
-    <div class="sec-title" id="lblProjects">Dự án đang được theo dõi</div>
-    <div id="projList"></div>
-  </div>
-
-  <div class="card" style="margin-bottom:0;">
-    <button type="button" id="btnBench" class="primary full">Chạy thử kiểm tra nhanh (miễn phí, 0.3 giây)</button>
-    <div class="helper" id="lblBenchHelp">Đo tốc độ xử lý ngay trên máy bạn — không tốn token Cloud.</div>
-  </div>
-  <div id="statusLine"></div>
 
   <script>
     const TEXT = {
@@ -160,6 +274,16 @@
         heroSummaryOk: "Your machine handles repetitive checks locally, so you pay far less for Cloud AI.",
         heroSummaryIdle: "Ready to track — run the quick check below to see live savings.",
         cloudOnly: "Without VieForge", withVf: "With VieForge",
+        balTitle: "Plan Impact (VieForge-tracked)",
+        balSpent: "- Spent via VF", balSaved: "+ Avoided burn", balNet: "Plan share (VF)",
+        balSession: "Session",
+        win5h: "5h", win7d: "7d", win30d: "30d", winAll: "All",
+        remWith: "With VieForge (plan share)", remWithout: "Without VieForge (would take)",
+        walletDepleted: ">100% (OVER CAP!)",
+        walletNoteSaved: "On a {Q} plan ({WIN}), these tasks took {WP}% instead of {NP}% (+{S} tokens avoided).",
+        walletNoteDepleted: "Without VieForge, these tasks would exceed your {Q} cap ({NP}%)! With VieForge they took only {WP}%.",
+        balDisclaimer: "Tracks only VieForge-routed tasks; does not read your private IDE account balance.",
+        balWarmup: "No VieForge-tracked tasks in this window yet.",
         tokUnit: "tokens", lighterSuffix: "lighter",
         savedTok: "Tokens kept", usdPrefix: "Est. saved ~",
         work: "Free local runs", workUnit: "runs",
@@ -189,6 +313,16 @@
         heroSummaryOk: "Máy bạn đang gánh phần việc lặp lại miễn phí, giúp giảm mạnh chi phí AI Cloud.",
         heroSummaryIdle: "Sẵn sàng theo dõi — bấm nút kiểm tra bên dưới để xem kết quả ngay.",
         cloudOnly: "Nếu chỉ dùng Cloud", withVf: "Dùng qua VieForge",
+        balTitle: "Tác động lên gói (qua VieForge)",
+        balSpent: "- Dùng qua VF", balSaved: "+ Đã tránh đốt", balNet: "Chiếm gói (VF)",
+        balSession: "Phiên này",
+        win5h: "5 giờ", win7d: "7 ngày", win30d: "30 ngày", winAll: "Tất cả",
+        remWith: "Có VieForge (chiếm gói)", remWithout: "Không có VieForge (sẽ chiếm)",
+        walletDepleted: ">100% (VƯỢT TRẦN!)",
+        walletNoteSaved: "Với gói {Q} ({WIN}), các tác vụ này chỉ chiếm {WP}% thay vì {NP}% (tránh đốt +{S} token).",
+        walletNoteDepleted: "Nếu không có VieForge, các tác vụ này đã vượt trần gói {Q} ({NP}%)! Nhờ VieForge chỉ tốn {WP}%.",
+        balDisclaimer: "Chỉ tính trên các tác vụ đi qua VieForge; không đọc số dư tài khoản riêng của IDE.",
+        balWarmup: "Chưa có tác vụ nào chạy qua VieForge trong khung thời gian này.",
         tokUnit: "token", lighterSuffix: "nhẹ hơn",
         savedTok: "Token giữ lại được", usdPrefix: "Ước tính tiết kiệm ~",
         work: "Việc chạy miễn phí", workUnit: "lượt",
@@ -218,6 +352,16 @@
         heroSummaryOk: "反復チェックをPC側で無料処理し、クラウドAIの消費を大きく抑えています。",
         heroSummaryIdle: "計測準備完了 — 下のボタンで0.3秒テストを実行できます。",
         cloudOnly: "通常クラウド利用", withVf: "VieForge利用",
+        balTitle: "プラン影響（VieForge計測分）",
+        balSpent: "- VF経由消費", balSaved: "+ 削減トークン", balNet: "枠消費率(VF)",
+        balSession: "今回",
+        win5h: "5時間", win7d: "7日", win30d: "30日", winAll: "全期間",
+        remWith: "VieForgeあり（枠消費）", remWithout: "VieForgeなし（想定消費）",
+        walletDepleted: "100%超（上限超過！）",
+        walletNoteSaved: "{Q}枠（{WIN}）に対し、{NP}%ではなく{WP}%の消費に抑制（+{S}節約）。",
+        walletNoteDepleted: "VieForgeなしでは{Q}枠を超過（{NP}%）していました！VieForgeなら{WP}%のみ。",
+        balDisclaimer: "VieForge経由の処理のみ集計。IDE側のアカウント残高は読み取りません。",
+        balWarmup: "この期間にはまだVieForge経由の記録がありません。",
         tokUnit: "トークン", lighterSuffix: "軽量",
         savedTok: "節約トークン数", usdPrefix: "推定節約 約",
         work: "ローカル無料実行", workUnit: "回",
@@ -247,6 +391,16 @@
         heroSummaryOk: "Dein Rechner erledigt Routineprüfungen lokal und spart dir Cloud-KI-Kosten.",
         heroSummaryIdle: "Bereit — starte unten den kurzen Schnelltest für Live-Werte.",
         cloudOnly: "Nur Cloud-KI", withVf: "Mit VieForge",
+        balTitle: "Tarif-Einfluss (VieForge-Anteil)",
+        balSpent: "- Via VF genutzt", balSaved: "+ Vermieden", balNet: "Tarif-Anteil",
+        balSession: "Sitzung",
+        win5h: "5 Std", win7d: "7 Tage", win30d: "30 Tage", winAll: "Gesamt",
+        remWith: "Mit VieForge (Tarif-Anteil)", remWithout: "Ohne VieForge (wäre nötig)",
+        walletDepleted: ">100% (ÜBER LIMIT!)",
+        walletNoteSaved: "Bei {Q} ({WIN}) nur {WP}% statt {NP}% belegt (+{S} Tokens vermieden).",
+        walletNoteDepleted: "Ohne VieForge wäre dein {Q}-Limit überschritten ({NP}%)! Mit VieForge nur {WP}%.",
+        balDisclaimer: "Zählt nur VieForge-Läufe; liest keinen privaten IDE-Kontostand aus.",
+        balWarmup: "Noch keine VieForge-Läufe in diesem Zeitraum.",
         tokUnit: "Tokens", lighterSuffix: "leichter",
         savedTok: "Gesparte Tokens", usdPrefix: "Geschätzt ~",
         work: "Kostenlose lokale Läufe", workUnit: "Läufe",
@@ -276,6 +430,16 @@
         heroSummaryOk: "반복 점검을 내 PC에서 무료로 처리해 클라우드 AI 비용을 크게 줄이고 있습니다.",
         heroSummaryIdle: "측정 준비 완료 — 아래 버튼으로 0.3초 빠른 테스트를 해보세요.",
         cloudOnly: "클라우드만 사용 시", withVf: "VieForge 사용 시",
+        balTitle: "요금제 영향 (VieForge 측정분)",
+        balSpent: "- VF 경유 소모", balSaved: "+ 절감 토큰", balNet: "한도 점유(VF)",
+        balSession: "이번 세션",
+        win5h: "5시간", win7d: "7일", win30d: "30일", winAll: "전체",
+        remWith: "VieForge 사용 시 (점유율)", remWithout: "미사용 시 (예상 점유율)",
+        walletDepleted: "100% 초과!",
+        walletNoteSaved: "{Q} 한도({WIN}) 중 {NP}% 대신 {WP}%만 사용 (+{S} 토큰 절감).",
+        walletNoteDepleted: "VieForge 없이는 {Q} 한도를 초과({NP}%)했습니다! VieForge는 {WP}%만 사용.",
+        balDisclaimer: "VieForge 경유 작업만 집계하며 개인 IDE 계정 잔액은 읽지 않습니다.",
+        balWarmup: "이 기간에는 아직 VieForge 경유 기록이 없습니다.",
         tokUnit: "토큰", lighterSuffix: "가벼움",
         savedTok: "아낀 토큰 수", usdPrefix: "예상 절감 약 ",
         work: "무료 로컬 실행", workUnit: "회",
@@ -303,7 +467,20 @@
 
     const SUPPORTED = ["en", "vi", "ja", "de", "ko"];
     let uiLang = "vi";
+    let userPlanId = "ag_claude_7d";
+    let userPlanLabel = "Antigravity / Claude (7d)";
+    let userQuota = 2000000;
+    let activeWin = "7d";
+    try {
+      const savedQ = Number(localStorage.getItem("vieforge_lens_quota"));
+      if (savedQ >= 10000) userQuota = savedQ;
+      const savedPid = localStorage.getItem("vieforge_lens_plan_id");
+      if (savedPid) userPlanId = savedPid;
+      const savedWin = localStorage.getItem("vieforge_lens_win");
+      if (savedWin && ["5h", "7d", "30d", "all"].includes(savedWin)) activeWin = savedWin;
+    } catch (_) {}
     let lastData = null;
+    let sessionBaseline = null;
     let rpcId = 1;
     const pending = new Map();
 
@@ -325,6 +502,17 @@
       set("lblHeroTitle", t.heroTitle);
       set("lblCloudOnly", t.cloudOnly);
       set("lblWithVf", t.withVf);
+      set("lblBalanceTitle", t.balTitle);
+      set("lblBalSpent", t.balSpent);
+      set("lblBalSaved", t.balSaved);
+      set("lblBalNet", t.balNet);
+      set("lblRemWith", t.remWith);
+      set("lblRemWithout", t.remWithout);
+      set("btnWin5h", t.win5h);
+      set("btnWin7d", t.win7d);
+      set("btnWin30d", t.win30d);
+      set("btnWinAll", t.winAll);
+      set("valBalDisclaimer", t.balDisclaimer);
       set("lblSavedTok", t.savedTok);
       set("lblWork", t.work);
       set("lblSources", t.sourcesTitle);
@@ -385,6 +573,86 @@
 
       document.getElementById("valCloudOnly").textContent = cloudOnly.toLocaleString() + " " + t.tokUnit;
       document.getElementById("valWithVf").textContent = withVf.toLocaleString() + " " + t.tokUnit;
+
+      const up = data.user_plan || {};
+      if (Number(up.quota_tokens || 0) >= 10000 && (up.source === "saved" || up.source === "env" || !lastData)) {
+        userQuota = Number(up.quota_tokens);
+        userPlanId = String(up.plan_id || "custom");
+        userPlanLabel = String(up.plan_label || "Custom");
+        const qSel = document.getElementById("quotaSelect");
+        if (qSel) {
+          const matchOpt = Array.from(qSel.options).find((o) => o.value.startsWith(userPlanId + ":" + userQuota + ":"));
+          qSel.value = matchOpt ? matchOpt.value : "custom:0:all";
+        }
+      }
+
+      const winMap = data.window_summaries || {};
+      const bal = winMap[activeWin] || data.account_balance || {};
+      const allBal = winMap.all || data.account_balance || {};
+      const balSpent = Number(bal.spent_tokens != null ? bal.spent_tokens : withVf);
+      const balSaved = Number(bal.saved_tokens != null ? bal.saved_tokens : savedTokens);
+      const balSpentUsd = Number(bal.spent_usd != null ? bal.spent_usd : (tot.vieforge_usd || 0));
+      const balSavedUsd = Number(bal.saved_usd != null ? bal.saved_usd : (tot.saved_usd || 0));
+      const balBase = Number(bal.cloud_baseline_tokens != null ? bal.cloud_baseline_tokens : cloudOnly);
+
+      if (!sessionBaseline) {
+        sessionBaseline = {
+          spent: Number(allBal.spent_tokens != null ? allBal.spent_tokens : withVf),
+          saved: Number(allBal.saved_tokens != null ? allBal.saved_tokens : savedTokens),
+        };
+      }
+      const curAllSpent = Number(allBal.spent_tokens != null ? allBal.spent_tokens : withVf);
+      const curAllSaved = Number(allBal.saved_tokens != null ? allBal.saved_tokens : savedTokens);
+      const dSpent = Math.max(0, curAllSpent - sessionBaseline.spent);
+      const dSaved = Math.max(0, curAllSaved - sessionBaseline.saved);
+      const deltaEl = document.getElementById("valSessionDelta");
+      if (deltaEl) {
+        deltaEl.textContent = t.balSession + ": -" + dSpent.toLocaleString() + " / +" + dSaved.toLocaleString();
+      }
+
+      document.querySelectorAll(".win-btn").forEach((b) => {
+        b.classList.toggle("active", b.getAttribute("data-win") === activeWin);
+      });
+
+      const withSharePct = userQuota > 0 ? (balSpent / userQuota) * 100 : 0;
+      const noSharePct = userQuota > 0 ? (balBase / userQuota) * 100 : 0;
+
+      document.getElementById("valBalSpent").textContent = "-" + balSpent.toLocaleString();
+      document.getElementById("valBalSpentUsd").textContent = "-" + fmtUsd(balSpentUsd);
+      document.getElementById("valBalSaved").textContent = "+" + balSaved.toLocaleString();
+      document.getElementById("valBalSavedUsd").textContent = "+" + fmtUsd(balSavedUsd);
+
+      const netEl = document.getElementById("valBalNet");
+      netEl.textContent = withSharePct.toFixed(1) + "%";
+      netEl.className = "bal-v " + (withSharePct < 50 ? "ok" : "err");
+      document.getElementById("valBalNetUsd").textContent = "vs " + noSharePct.toFixed(1) + "%";
+
+      document.getElementById("valRemWith").textContent = balSpent.toLocaleString() + " (" + withSharePct.toFixed(1) + "%)";
+      document.getElementById("barRemWith").style.width = Math.min(100, Math.max(balSpent > 0 ? 2 : 0, withSharePct)).toFixed(1) + "%";
+
+      const remNoEl = document.getElementById("valRemWithout");
+      if (noSharePct >= 100) {
+        remNoEl.textContent = balBase.toLocaleString() + " (" + t.walletDepleted + ")";
+        remNoEl.className = "w-val err";
+      } else {
+        remNoEl.textContent = balBase.toLocaleString() + " (" + noSharePct.toFixed(1) + "%)";
+        remNoEl.className = "w-val warn";
+      }
+      document.getElementById("barRemWithout").style.width = Math.min(100, Math.max(balBase > 0 ? 2 : 0, noSharePct)).toFixed(1) + "%";
+
+      const winLabels = { "5h": t.win5h, "7d": t.win7d, "30d": t.win30d, "all": t.winAll };
+      const fmtNote = (tpl) => tpl
+        .replace("{Q}", userQuota.toLocaleString())
+        .replace("{WIN}", winLabels[activeWin] || activeWin)
+        .replace("{WP}", withSharePct.toFixed(1))
+        .replace("{NP}", noSharePct.toFixed(1))
+        .replace("{S}", balSaved.toLocaleString());
+
+      document.getElementById("valBalNote").textContent =
+        balSaved > 0
+          ? fmtNote(noSharePct >= 100 ? t.walletNoteDepleted : t.walletNoteSaved)
+          : t.balWarmup;
+      document.getElementById("valBalDisclaimer").textContent = t.balDisclaimer;
 
       document.getElementById("valSavedTok").textContent = savedTokens.toLocaleString();
       document.getElementById("valUsdSaved").textContent = t.usdPrefix + fmtUsd(tot.saved_usd);
@@ -536,6 +804,73 @@
         uiLang = SUPPORTED.includes(langSelect.value) ? langSelect.value : "en";
         applyText();
         if (lastData) renderData(lastData);
+      });
+    }
+    const quotaSelect = document.getElementById("quotaSelect");
+    const customRow = document.getElementById("customQuotaRow");
+    const customInp = document.getElementById("customQuotaInput");
+    const btnSaveQuota = document.getElementById("btnSaveQuota");
+
+    function persistPlan(planId, label, quota) {
+      userPlanId = planId;
+      userPlanLabel = label;
+      userQuota = quota;
+      try {
+        localStorage.setItem("vieforge_lens_quota", String(userQuota));
+        localStorage.setItem("vieforge_lens_plan_id", userPlanId);
+      } catch (_) {}
+      if (lastData) renderData(lastData);
+      callTool("app_set_user_plan", { plan_id: planId, plan_label: label, quota_tokens: quota });
+    }
+
+    if (quotaSelect) {
+      const matchInit = Array.from(quotaSelect.options).find((o) => o.value.startsWith(userPlanId + ":" + userQuota + ":"));
+      quotaSelect.value = matchInit ? matchInit.value : "custom:0:all";
+      quotaSelect.addEventListener("change", () => {
+        const parts = String(quotaSelect.value || "").split(":");
+        const pid = parts[0] || "custom";
+        const q = Number(parts[1] || 0);
+        const win = parts[2] || "";
+        if (pid === "custom" || q < 10000) {
+          if (customRow) customRow.classList.add("open");
+          if (customInp) {
+            customInp.value = String(userQuota);
+            customInp.focus();
+          }
+          return;
+        }
+        if (customRow) customRow.classList.remove("open");
+        if (win && ["5h", "7d", "30d", "all"].includes(win)) {
+          activeWin = win;
+          try { localStorage.setItem("vieforge_lens_win", activeWin); } catch (_) {}
+        }
+        const label = quotaSelect.options[quotaSelect.selectedIndex]
+          ? quotaSelect.options[quotaSelect.selectedIndex].textContent
+          : pid;
+        persistPlan(pid, label, q);
+      });
+    }
+    document.querySelectorAll(".win-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const w = btn.getAttribute("data-win");
+        if (w && ["5h", "7d", "30d", "all"].includes(w)) {
+          activeWin = w;
+          try { localStorage.setItem("vieforge_lens_win", activeWin); } catch (_) {}
+          if (lastData) renderData(lastData);
+        }
+      });
+    });
+    if (btnSaveQuota && customInp) {
+      const saveCustom = () => {
+        const q = Number(customInp.value);
+        if (q >= 10000) {
+          if (customRow) customRow.classList.remove("open");
+          persistPlan("custom", "Custom (" + q.toLocaleString() + ")", q);
+        }
+      };
+      btnSaveQuota.addEventListener("click", saveCustom);
+      customInp.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") saveCustom();
       });
     }
     document.getElementById("btnRefresh").addEventListener("click", () => callTool("app_refresh_panel", {}));
