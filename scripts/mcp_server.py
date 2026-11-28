@@ -26,12 +26,18 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from core.cost_tracker import CostTracker
+from core.error_memory import ErrorMemory
+from core.fault_locator import locate_fault
+from core.impact_guard import assess_impact
 from core.llm_router import LLMRouter
-from core.output_trimmer import compact_job_summary
+from core.output_trimmer import compact_job_summary, trim_output
 from core.paths import default_data_dir
+from core.repair_loop import RepairLoopManager
+from core.repo_map import build_repo_map
 from core.state_db import StateDB, compute_input_hash, scoped_job_id
 from core.subprocess_runner import run_isolated
 from core.vram_manager import recommend_local_model
+from core.workspace_snapshot import WorkspaceSnapshotManager
 from scripts.benchmark_token_savings import run_all_benchmarks
 from scripts.preflight_check import run_preflight
 from scripts.savings_report import collect_project_savings
@@ -303,6 +309,92 @@ def tool_get_job_summary(job_id: str, db_path: str = "", project_id: str = "") -
         return compact_job_summary(db.get_job_summary(effective_job_id))
 
 
+def tool_diagnose_and_locate(
+    log_text: str,
+    repo_root: str = "",
+    max_symbols: int = 3,
+) -> str:
+    """Read-only: trim error log, query local ErrorMemory (<5ms), and AST-slice failing symbols."""
+    root = Path(repo_root).expanduser().resolve() if repo_root else Path.cwd().resolve()
+    trimmed = trim_output(log_text, max_lines=120, max_chars=12000)
+    report = locate_fault(
+        log_text,
+        repo_root=root,
+        include_git=True,
+        include_callers=True,
+        max_symbols=max(1, min(5, int(max_symbols))),
+    )
+    mem_db = root / ".vieforge" / "error_memory.db"
+    known_fixes: list[dict[str, Any]] = []
+    if mem_db.is_file():
+        with ErrorMemory(mem_db) as mem:
+            known_fixes = [
+                m.to_dict()
+                for m in mem.lookup(
+                    fingerprint=report.fingerprint,
+                    error_type=report.error_type,
+                    query_text=report.error_message,
+                    limit=3,
+                )
+            ]
+    return compact_job_summary(
+        {
+            "fingerprint": report.fingerprint,
+            "error_type": report.error_type,
+            "error_message": report.error_message,
+            "detected_log_mode": trimmed.detected_mode,
+            "log_saved_pct": trimmed.saved_pct,
+            "known_fixes": known_fixes,
+            "located_symbols": [s.to_dict() for s in report.located_symbols],
+            "estimated_tokens": report.estimated_tokens,
+        }
+    )
+
+
+def tool_workspace_guard(
+    action: str,
+    repo_root: str = "",
+    targets_json: str = "[]",
+    token_budget: int = 1200,
+    snapshot_id: str = "",
+) -> str:
+    """Read-only workspace intelligence: action='map' | 'impact' | 'snapshot_list' | 'snapshot_diff'."""
+    root = Path(repo_root).expanduser().resolve() if repo_root else Path.cwd().resolve()
+    act = (action or "").strip().lower()
+    if act == "map":
+        rep = build_repo_map(root, token_budget=max(200, int(token_budget)))
+        return compact_job_summary(
+            {
+                "action": "map",
+                "total_files": rep.total_files,
+                "included_files": rep.included_files,
+                "estimated_tokens": rep.estimated_tokens,
+                "markdown": rep.markdown,
+            }
+        )
+    if act == "impact":
+        targets = json.loads(targets_json) if targets_json else []
+        if not isinstance(targets, list):
+            return compact_job_summary({"error": "targets_json must be a JSON list of file paths."})
+        imp = assess_impact(root, [str(t) for t in targets])
+        return compact_job_summary({"action": "impact", **imp.to_dict()})
+    if act == "snapshot_list":
+        mgr = WorkspaceSnapshotManager(root)
+        return compact_job_summary(
+            {"action": "snapshot_list", "snapshots": [s.to_dict() for s in mgr.list_snapshots(limit=10)]}
+        )
+    if act == "snapshot_diff":
+        mgr = WorkspaceSnapshotManager(root)
+        try:
+            diff = mgr.diff_snapshot(snapshot_id or None)
+            return compact_job_summary({"action": "snapshot_diff", **diff})
+        except FileNotFoundError as exc:
+            return compact_job_summary({"action": "snapshot_diff", "error": str(exc)})
+    return compact_job_summary(
+        {"error": f"Unknown workspace_guard action '{action}'. Use map, impact, snapshot_list, or snapshot_diff."}
+    )
+
+
 def _load_panel_html() -> str:
     for candidate in (PANEL_HTML_PATH, PANEL_BUNDLED_HTML_PATH):
         if candidate.is_file():
@@ -311,16 +403,36 @@ def _load_panel_html() -> str:
 
 
 def tool_open_vieforge_panel(project_dir: str = "") -> dict[str, Any]:
-    """Return structured live savings + 3-tier health payload for the VieForge Lens Side Pane."""
+    """Return structured live savings, repair health + 3-tier health payload for the VieForge Lens Side Pane."""
     target = Path(project_dir).expanduser() if project_dir else (Path.cwd() if (Path.cwd() / "data").is_dir() else default_data_dir())
     url = os.getenv("TIERFORGE_LLM_BASE_URL", "http://127.0.0.1:11434")
     preflight = run_preflight(url)
     preflight["recommended_local_model"] = recommend_local_model()
     savings = collect_project_savings([target])
+
+    mem_incidents = 0
+    mem_hits = 0
+    mem_db = target / ".vieforge" / "error_memory.db"
+    if mem_db.is_file():
+        with ErrorMemory(mem_db) as mem:
+            st = mem.stats()
+            mem_incidents = int(st.get("total_incidents", 0))
+            mem_hits = int(st.get("total_hits", 0))
+
+    snapshots_count = len(WorkspaceSnapshotManager(target).list_snapshots(limit=50))
+    sessions = RepairLoopManager(target).list_sessions(limit=50)
+    pending_approvals = sum(1 for s in sessions if s.get("last_status") == "AWAITING_APPROVAL")
+
     return {
         "panel": "vieforge-lens",
         "savings": savings,
         "preflight": preflight,
+        "repair_health": {
+            "memory_incidents": mem_incidents,
+            "memory_hits": mem_hits,
+            "snapshots_count": snapshots_count,
+            "pending_approvals": pending_approvals,
+        },
     }
 
 
@@ -357,6 +469,8 @@ def build_mcp_server() -> Any:
     mcp.tool(name="estimate_batch_dry_run")(tool_estimate_batch_dry_run)
     mcp.tool(name="run_local_batch")(tool_run_local_batch)
     mcp.tool(name="get_job_summary")(tool_get_job_summary)
+    mcp.tool(name="diagnose_and_locate")(tool_diagnose_and_locate)
+    mcp.tool(name="workspace_guard")(tool_workspace_guard)
 
     pane_meta = {
         "ui": {"resourceUri": PANEL_APP_URI},

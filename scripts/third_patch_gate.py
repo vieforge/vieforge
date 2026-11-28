@@ -118,6 +118,67 @@ def evaluate_third_patch(
     }
 
 
+def _recent_fix_diff(repo_path: Path, target_file: str, max_lines: int = 80) -> str:
+    """Return a concise diff preview of the last 2 commits touching `target_file`."""
+    try:
+        res = subprocess.run(
+            ["git", "log", "-n2", "-p", "--", target_file],
+            cwd=repo_path,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    if res.returncode != 0 or not res.stdout.strip():
+        return ""
+    lines = res.stdout.splitlines()
+    if len(lines) > max_lines:
+        return "\n".join(lines[:max_lines] + [f"... ({len(lines) - max_lines} diff lines truncated)"])
+    return "\n".join(lines)
+
+
+def init_diagnosis_scaffold(
+    repo_path: Path,
+    target_file: str,
+    commits: list[str],
+    *,
+    force: bool = False,
+) -> Path:
+    """Generate a pre-filled `docs/diagnosis/<slug>.md` template for a blocked file."""
+    diag_dir = repo_path / "docs" / "diagnosis"
+    diag_dir.mkdir(parents=True, exist_ok=True)
+    slug = re.sub(r"[^A-Za-z0-9_.-]+", "_", target_file.replace("\\", "/").strip("/"))
+    out_path = diag_dir / f"{slug}.md"
+    if out_path.exists() and not force:
+        return out_path
+
+    commit_bullets = "\n".join(f"- `{c}`" for c in commits) or "- (no recent commits parsed)"
+    diff_preview = _recent_fix_diff(repo_path, target_file)
+    diff_section = f"\n```diff\n{diff_preview}\n```\n" if diff_preview else "\n*(No git diff preview available.)*\n"
+
+    content = (
+        f"# Root-Cause Diagnosis: `{target_file}`\n\n"
+        f"> Auto-scaffolded by `vieforge third-patch --init-diagnosis`.\n"
+        f"> Complete all 3 sections below with real evidence before applying another fix.\n\n"
+        f"## Recent Fix Commits\n{commit_bullets}\n\n"
+        f"## Symptom\n"
+        f"- Target file: `{target_file}`\n"
+        f"- Describe the exact failing test, error message, or broken behavior here.\n\n"
+        f"## Hypothesis\n"
+        f"- Explain the underlying root cause (not just the surface crash line).\n"
+        f"- Explain why the previous {len(commits)} fix commit(s) did not eliminate the root cause.\n\n"
+        f"## Observation\n"
+        f"- Paste the concrete verification command output or minimal reproduction evidence.\n"
+        f"\n### Recent Diff Context\n{diff_section}"
+    )
+    out_path.write_text(content, encoding="utf-8")
+    return out_path
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="VieForge third-patch gate — block repeated symptom fixes without diagnosis."
@@ -127,6 +188,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--threshold", type=int, default=2, help="Fix commit threshold (default: 2)")
     parser.add_argument("--staged", action="store_true", help="Check only git-staged files (for pre-commit)")
     parser.add_argument("--file", action="append", default=None, help="Check specific relative file path(s)")
+    parser.add_argument(
+        "--init-diagnosis",
+        action="store_true",
+        help="Auto-create pre-filled docs/diagnosis/<file>.md scaffold(s) for blocked files",
+    )
     parser.add_argument("--json", action="store_true", dest="as_json", help="Emit JSON report")
     args = parser.parse_args(argv)
 
@@ -141,6 +207,13 @@ def main(argv: list[str] | None = None) -> int:
         hours=args.hours,
         threshold=args.threshold,
     )
+    scaffolded: list[str] = []
+    if args.init_diagnosis and result["blocked"]:
+        for item in result["blocked"]:
+            created = init_diagnosis_scaffold(repo_path, item["file"], item["commits"])
+            scaffolded.append(str(created.relative_to(repo_path)).replace("\\", "/"))
+        result["scaffolded_diagnosis"] = scaffolded
+
     if args.as_json:
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:
@@ -149,10 +222,15 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  BLOCKED: {item['file']} ({item['fix_count']} fix commits)")
             for c in item["commits"]:
                 print(f"    - {c}")
-        if result["blocked"]:
+        if scaffolded:
+            print("  Scaffolded diagnosis note(s):")
+            for sc in scaffolded:
+                print(f"    + {sc}")
+        elif result["blocked"]:
             print(
                 "  Write docs/diagnosis/<area>.md naming the file with: "
-                "## Symptom · ## Hypothesis · ## Observation"
+                "## Symptom · ## Hypothesis · ## Observation "
+                "(or re-run with --init-diagnosis)"
             )
     return 1 if result["status"] == "BLOCKED" else 0
 

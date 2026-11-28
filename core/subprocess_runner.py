@@ -8,6 +8,7 @@ Zero OS mutations; 100% Python stdlib.
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import time
 from dataclasses import asdict, dataclass
@@ -22,6 +23,61 @@ from core.vram_manager import (
     vram_phase_profiler,
     wait_for_free_vram,
 )
+
+_SECRET_ENV_KEY_RE = re.compile(
+    r"(?:API_KEY|SECRET_KEY|ACCESS_TOKEN|AUTH_TOKEN|PRIVATE_KEY|PASSWORD|AWS_SECRET|"
+    r"GITHUB_TOKEN|OPENAI_API_KEY|ANTHROPIC_API_KEY|GEMINI_API_KEY|SLACK_TOKEN)$",
+    re.IGNORECASE,
+)
+
+
+def sanitize_child_env(
+    base_env: dict[str, str],
+    explicit_overrides: dict[str, str] | None = None,
+    *,
+    strip_secrets: bool = True,
+) -> dict[str, str]:
+    """Build a child process env, stripping inherited secret variables unless explicitly passed."""
+    cleaned = (
+        {k: v for k, v in base_env.items() if not _SECRET_ENV_KEY_RE.search(k)}
+        if strip_secrets
+        else dict(base_env)
+    )
+    cleaned.setdefault("PYTHONUTF8", "1")
+    cleaned.setdefault("PYTHONIOENCODING", "utf-8")
+    if explicit_overrides:
+        cleaned.update(explicit_overrides)
+    return cleaned
+
+
+def _enforce_sandbox_root(
+    cmd_list: list[str],
+    cwd: Path | str | None,
+    sandbox_root: Path | str,
+) -> None:
+    """Ensure child working directory and any explicit path arguments stay inside `sandbox_root`."""
+    root = Path(sandbox_root).resolve()
+    effective_cwd = Path(cwd).resolve() if cwd else Path.cwd().resolve()
+    try:
+        effective_cwd.relative_to(root)
+    except ValueError as exc:
+        raise PermissionError(
+            f"Sandbox violation: cwd '{effective_cwd}' escapes sandbox_root '{root}'."
+        ) from exc
+
+    for arg in cmd_list[1:]:
+        if not arg or arg.startswith("-") or "://" in arg:
+            continue
+        # Only validate arguments that look like relative traversal or filesystem paths
+        if ".." in arg or arg.startswith(("/", "\\")) or (len(arg) >= 2 and arg[1] == ":"):
+            candidate = Path(arg)
+            resolved = candidate.resolve() if candidate.is_absolute() else (effective_cwd / candidate).resolve()
+            try:
+                resolved.relative_to(root)
+            except ValueError as exc:
+                raise PermissionError(
+                    f"Sandbox violation: argument '{arg}' resolves outside sandbox_root '{root}'."
+                ) from exc
 
 
 class VRAMInsufficientError(RuntimeError):
@@ -60,9 +116,13 @@ def run_isolated(
     job_id: str = "",
     max_output_lines: int = 60,
     max_output_chars: int = 4000,
+    strip_secret_env: bool = True,
+    sandbox_root: Path | str | None = None,
 ) -> SubprocessResult:
-    """Execute a command in an isolated child process with optional VRAM guard & log trimming."""
+    """Execute a command in an isolated child process with optional VRAM guard, sandbox & log trimming."""
     cmd_list = [str(c) for c in command]
+    if sandbox_root is not None:
+        _enforce_sandbox_root(cmd_list, cwd=cwd, sandbox_root=sandbox_root)
 
     def _run_body() -> SubprocessResult:
         if unload_ollama_before:
@@ -80,11 +140,11 @@ def run_isolated(
                     f"VRAM_INSUFFICIENT: free VRAM ({free_info}) below threshold."
                 )
 
-        merged_env = os.environ.copy()
-        merged_env.setdefault("PYTHONUTF8", "1")
-        merged_env.setdefault("PYTHONIOENCODING", "utf-8")
-        if env:
-            merged_env.update(env)
+        merged_env = sanitize_child_env(
+            os.environ,
+            explicit_overrides=env,
+            strip_secrets=strip_secret_env,
+        )
 
         t0 = time.perf_counter()
         timed_out = False

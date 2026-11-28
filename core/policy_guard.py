@@ -19,11 +19,13 @@ from typing import Any, Callable
 from core.paths import default_data_dir
 
 DEFAULT_ROLE_TOOLS: dict[str, set[str]] = {
-    "viewer": {"preflight_env", "get_job_summary", "estimate_batch_dry_run"},
+    "viewer": {"preflight_env", "get_job_summary", "estimate_batch_dry_run", "diagnose_and_locate", "workspace_guard"},
     "developer": {
         "preflight_env",
         "get_job_summary",
         "estimate_batch_dry_run",
+        "diagnose_and_locate",
+        "workspace_guard",
         "run_local_batch",
         "run_trimmed_command",
     },
@@ -31,6 +33,8 @@ DEFAULT_ROLE_TOOLS: dict[str, set[str]] = {
         "preflight_env",
         "get_job_summary",
         "estimate_batch_dry_run",
+        "diagnose_and_locate",
+        "workspace_guard",
         "run_local_batch",
         "run_trimmed_command",
     },

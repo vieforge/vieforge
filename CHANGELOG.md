@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-11-28
+
+### Added
+- **Multi-Language Tool-Aware Log Compression (`core/output_trimmer.py` v2):** Auto-detects and compresses `pytest` (drops verbose PASSED lines), `ruff`/`mypy`/`tsc`/`eslint` linter bursts (code grouping), JS/TS stacks (collapses `node_modules/`), and Go/Rust panic dumps while preserving secret redaction.
+- **Hierarchical AST Fault Locator (`core/fault_locator.py`, `vieforge locate`):** Parses multi-language error frames, computes stable 12-char error fingerprints, slices exact enclosing Python functions/imports via `ast` (with graceful syntax-error fallback), attaches repo callers and recent git history in `< 500` tokens.
+- **Instant Pre-Edit Workspace Snapshots & Rollback (`core/workspace_snapshot.py`, `vieforge rollback`):** Lightweight per-file checkpoints with SHA-256 verification, repo-root containment, unified diff preview, dry-run restore, and cleanup of stray newly created files.
+- **Local SQLite Error Memory & Safe Narrow Patcher (`core/error_memory.py`, `core/safe_patcher.py`):** Project-isolated SQLite WAL postmortem KB (`< 5 ms` exact fingerprint & similarity recall with automatic secret redaction) and atomic `SEARCH/REPLACE` patch validation with in-RAM Python/JSON syntax pre-checking.
+- **Approval-Gated Repair Loop (`core/repair_loop.py`, `vieforge diagnose`):** Strict 2-phase human-approval workflow (`propose` with blast-radius risk tier -> explicit `approve`), Anti-Loop fingerprint detection, automatic snapshot + rollback on verification failure, and automatic postmortem recording on verified fixes.
+- **Token-Budgeted Repo Map, Blast-Radius Impact Guard & Subprocess Sandbox (`core/repo_map.py`, `core/impact_guard.py`, `core/subprocess_runner.py`, `vieforge map`):** SQLite-cached ranked repository map, GREEN/YELLOW/RED reverse-dependency risk classification, secret env stripping, and `sandbox_root` boundary enforcement.
+- **Deterministic Lifecycle Hooks (`core/hooks_engine.py`, `vieforge hooks`) & Third-Patch Auto-Scaffolding (`vieforge third-patch --init-diagnosis`):** Configurable `pre_command`, `post_edit`, and `pre_commit` checks (secret scan, third-patch, doc-drift) with 1-click Git hook & Claude Code snippet generation.
+- **15-Case Offline Self-Healing Eval Suite & Self-Learning Playbook (`core/repair_eval.py`, `vieforge eval`, `vieforge eval learn`):** Reproducible `$0` 15-case benchmark + anonymized lesson harvesting across verified fixes, disproven hypotheses, and soft QA logs.
+- **Read-Only MCP Intelligence & VieForge Lens Repair Health (`scripts/mcp_server.py`, `plugins/vieforge-lens/ui/panel.html`):** Added read-only `diagnose_and_locate` and `workspace_guard` MCP tools plus 5-language Debugging & Safety Health card in VieForge Lens.
+
 ## [0.4.4] - 2026-11-27
 
 ### Added

@@ -4,6 +4,7 @@
 .env.*.local
 
 # Runtime state, databases, and logs
+.vieforge/
 *.db
 *.db-shm
 *.db-wal
